@@ -206,6 +206,75 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /color/spaces:
+    get:
+      summary: Get supported color spaces
+      operationId: getColorSpaces
+      tags:
+        - color
+      responses:
+        '200':
+          description: List of supported color spaces
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorSpacesResponse'
+  /color/convert:
+    post:
+      summary: Convert color between color spaces
+      operationId: convertColorSpace
+      tags:
+        - color
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvertColorRequest'
+      responses:
+        '200':
+          description: Converted color
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConvertColorResponse'
+        '400':
+          description: Invalid color or color space
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /color/transform:
+    post:
+      summary: Apply color transformation to scene nodes
+      operationId: applyColorTransformation
+      tags:
+        - color
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ColorTransformRequest'
+      responses:
+        '200':
+          description: Color transformation applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorTransformResponse'
+        '400':
+          description: Invalid transformation parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Scene or node not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
     CreateSceneRequest:
@@ -290,7 +359,7 @@ components:
       properties:
         type:
           type: string
-          enum: [rectangle, ellipse, text, image, composition]
+          enum: [rectangle, ellipse, text, image, composition, effect]
         transform:
           $ref: '#/components/schemas/Transform2D'
         properties:
@@ -429,3 +498,516 @@ components:
       required:
         - error
         - message
+
+    # Color system schemas
+    ColorSpace:
+      type: string
+      enum:
+        - sRGB
+        - Linear
+        - P3
+        - Rec709
+        - Rec2020
+      description: Supported color spaces for professional color management
+
+    Color:
+      type: object
+      properties:
+        r:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Red component (0-1 range)
+        g:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Green component (0-1 range)
+        b:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Blue component (0-1 range)
+        a:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Alpha component (0-1 range)
+        colorSpace:
+          $ref: '#/components/schemas/ColorSpace'
+          description: Color space of this color
+        gamma:
+          type: number
+          minimum: 0.1
+          maximum: 5.0
+          description: Gamma correction value
+      required:
+        - r
+        - g
+        - b
+        - colorSpace
+
+    ColorMatrix:
+      type: object
+      properties:
+        matrix:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+          minItems: 3
+          maxItems: 4
+          description: 3x3 or 4x4 color transformation matrix
+        offset:
+          type: array
+          items:
+            type: number
+          minItems: 3
+          maxItems: 4
+          description: Translation offset vector
+      required:
+        - matrix
+
+    ColorTransformType:
+      type: string
+      enum:
+        - gamma_correction
+        - color_matrix
+        - color_space_conversion
+        - brightness_contrast
+        - hue_saturation
+        - levels
+        - curves
+      description: Type of color transformation to apply
+
+    ColorTransformParams:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ColorTransformType'
+        gamma:
+          type: number
+          description: Gamma value for gamma correction (1.0 = no correction)
+        matrix:
+          $ref: '#/components/schemas/ColorMatrix'
+          description: Color transformation matrix
+        fromSpace:
+          $ref: '#/components/schemas/ColorSpace'
+          description: Source color space for conversion
+        toSpace:
+          $ref: '#/components/schemas/ColorSpace'
+          description: Target color space for conversion
+        brightness:
+          type: number
+          minimum: -100
+          maximum: 100
+          description: Brightness adjustment (-100 to 100)
+        contrast:
+          type: number
+          minimum: -100
+          maximum: 100
+          description: Contrast adjustment (-100 to 100)
+        hue:
+          type: number
+          minimum: -180
+          maximum: 180
+          description: Hue shift (-180 to 180 degrees)
+        saturation:
+          type: number
+          minimum: -100
+          maximum: 100
+          description: Saturation adjustment (-100 to 100)
+        levels:
+          type: object
+          properties:
+            inputBlack:
+              type: number
+              minimum: 0
+              maximum: 255
+            inputWhite:
+              type: number
+              minimum: 0
+              maximum: 255
+            outputBlack:
+              type: number
+              minimum: 0
+              maximum: 255
+            outputWhite:
+              type: number
+              minimum: 0
+              maximum: 255
+          description: Levels adjustment parameters
+        curves:
+          type: object
+          properties:
+            red:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+              description: Red channel curve points [input, output]
+            green:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+              description: Green channel curve points [input, output]
+            blue:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+              description: Blue channel curve points [input, output]
+          description: RGB curves adjustment
+      required:
+        - type
+
+    ColorSpacesResponse:
+      type: object
+      properties:
+        colorSpaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/ColorSpace'
+        defaultColorSpace:
+          $ref: '#/components/schemas/ColorSpace'
+        supportedGammaValues:
+          type: array
+          items:
+            type: number
+      required:
+        - colorSpaces
+        - defaultColorSpace
+        - supportedGammaValues
+
+    ConvertColorRequest:
+      type: object
+      properties:
+        color:
+          $ref: '#/components/schemas/Color'
+        fromSpace:
+          $ref: '#/components/schemas/ColorSpace'
+        toSpace:
+          $ref: '#/components/schemas/ColorSpace'
+      required:
+        - color
+        - fromSpace
+        - toSpace
+
+    ConvertColorResponse:
+      type: object
+      properties:
+        originalColor:
+          $ref: '#/components/schemas/Color'
+        convertedColor:
+          $ref: '#/components/schemas/Color'
+        conversionMatrix:
+          $ref: '#/components/schemas/ColorMatrix'
+        accuracy:
+          type: number
+          description: Conversion accuracy (0-1, where 1 is perfect)
+      required:
+        - originalColor
+        - convertedColor
+
+    ColorTransformRequest:
+      type: object
+      properties:
+        sceneId:
+          type: string
+          description: ID of the scene to transform
+        nodeIds:
+          type: array
+          items:
+            type: string
+          description: IDs of nodes to apply transformation to
+        transformation:
+          $ref: '#/components/schemas/ColorTransformParams'
+        preview:
+          type: boolean
+          default: false
+          description: Whether this is a preview transformation (non-persistent)
+      required:
+        - sceneId
+        - nodeIds
+        - transformation
+
+    ColorTransformResponse:
+      type: object
+      properties:
+        transformationId:
+          type: string
+          description: Unique ID for this transformation
+        affectedNodes:
+          type: array
+          items:
+            type: string
+          description: IDs of nodes that were transformed
+        renderTimeMs:
+          type: number
+          description: Time taken to apply transformation
+        previewFrame:
+          type: object
+          properties:
+            width:
+              type: integer
+            height:
+              type: integer
+            format:
+              type: string
+              enum: ['rgba_u8', 'rgba_f32']
+            data:
+              type: string
+              format: binary
+              description: Base64-encoded frame data
+          description: Preview frame showing the transformation result
+      required:
+        - transformationId
+        - affectedNodes
+        - renderTimeMs
+
+    # Effect-related schemas
+    EffectType:
+      type: string
+      enum:
+        - gaussian_blur
+        - motion_blur
+        - radial_blur
+        - box_blur
+        - brightness_contrast
+        - levels
+        - curves
+        - color_balance
+        - hue_saturation
+        - color_lookup_table
+        - wave
+        - ripple
+        - displacement
+        - lens_distortion
+        - chroma_key
+        - luma_key
+        - difference_key
+        - color_difference_key
+        - noise
+        - fractal_noise
+        - gradient
+        - solid_color
+        - checkerboard
+        - echo
+        - trails
+        - speed_ramp
+        - time_displacement
+        - cartoon
+        - posterize
+        - emboss
+        - find_edges
+        - sharpen
+        - track_matte
+        - luma_matte
+        - stencil_matte
+
+    BlendMode:
+      type: string
+      enum:
+        - normal
+        - multiply
+        - screen
+        - overlay
+        - darken
+        - lighten
+        - color_dodge
+        - color_burn
+        - hard_light
+        - soft_light
+        - difference
+        - exclusion
+        - hue
+        - saturation
+        - color
+        - luminosity
+        - add
+        - subtract
+
+    GaussianBlurParameters:
+      type: object
+      properties:
+        radius:
+          type: number
+          minimum: 0.1
+          maximum: 100
+        sigma:
+          type: number
+          minimum: 0.1
+          maximum: 50
+        quality:
+          type: string
+          enum: [low, medium, high]
+
+    ColorCorrectionParameters:
+      type: object
+      properties:
+        brightness:
+          type: number
+          minimum: -100
+          maximum: 100
+        contrast:
+          type: number
+          minimum: -100
+          maximum: 100
+        preserveLuminosity:
+          type: boolean
+
+    LevelsParameters:
+      type: object
+      properties:
+        inputBlack:
+          type: number
+          minimum: 0
+          maximum: 255
+        inputWhite:
+          type: number
+          minimum: 0
+          maximum: 255
+        gamma:
+          type: number
+          minimum: 0.1
+          maximum: 10
+        outputBlack:
+          type: number
+          minimum: 0
+          maximum: 255
+        outputWhite:
+          type: number
+          minimum: 0
+          maximum: 255
+        channel:
+          type: string
+          enum: [rgb, red, green, blue]
+
+    CurvesParameters:
+      type: object
+      properties:
+        redCurve:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurvePoint'
+        greenCurve:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurvePoint'
+        blueCurve:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurvePoint'
+        masterCurve:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurvePoint'
+
+    CurvePoint:
+      type: object
+      required:
+        - time
+        - value
+      properties:
+        time:
+          type: number
+          minimum: 0
+          maximum: 1
+        value:
+          type: number
+        interpolation:
+          type: string
+          enum: [linear, bezier, hold]
+        tangentIn:
+          type: number
+        tangentOut:
+          type: number
+
+    EffectParameters:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          default: true
+        opacity:
+          type: number
+          minimum: 0
+          maximum: 100
+          default: 100
+        blendMode:
+          $ref: '#/components/schemas/BlendMode'
+        mask:
+          $ref: '#/components/schemas/MaskReference'
+        # Effect-specific parameters will be added based on effect type
+
+    MaskReference:
+      type: object
+      properties:
+        maskLayer:
+          type: string
+        maskChannel:
+          type: string
+          enum: [luma, alpha, red, green, blue]
+        invert:
+          type: boolean
+        feather:
+          type: number
+          minimum: 0
+          maximum: 100
+
+    PerformanceSettings:
+      type: object
+      properties:
+        quality:
+          type: string
+          enum: [low, medium, high]
+        maxMemoryMB:
+          type: number
+          minimum: 1
+          maximum: 4096
+        adaptiveQuality:
+          type: boolean
+        cacheEnabled:
+          type: boolean
+        shaderPrecision:
+          type: string
+          enum: [fp16, fp32]
+
+    EffectNode:
+      type: object
+      required:
+        - id
+        - type
+        - parameters
+        - enabled
+        - blendMode
+        - performanceSettings
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/EffectType'
+        name:
+          type: string
+        parameters:
+          $ref: '#/components/schemas/EffectParameters'
+        enabled:
+          type: boolean
+        blendMode:
+          $ref: '#/components/schemas/BlendMode'
+        mask:
+          $ref: '#/components/schemas/MaskReference'
+        performanceSettings:
+          $ref: '#/components/schemas/PerformanceSettings'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

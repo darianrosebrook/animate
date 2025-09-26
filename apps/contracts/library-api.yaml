@@ -1,0 +1,661 @@
+openapi: 3.0.3
+info:
+  title: Library Management API
+  description: |
+    API for managing reusable motion graphics libraries including color tokens,
+    components, presets, and variable collections.
+
+    ## Design Philosophy
+    - **Deterministic**: Same library version + inputs = identical outputs
+    - **Composable**: Libraries can depend on other libraries
+    - **Versioned**: Semantic versioning with breaking change detection
+    - **Accessible**: Full WCAG 2.1 AA compliance for color and motion
+
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: Development server
+
+paths:
+  # Color Token Management
+  /libraries/{libraryId}/color-tokens:
+    get:
+      summary: Get all color tokens in a library
+      operationId: getColorTokens
+      tags: [libraries, color]
+      parameters:
+        - name: libraryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of color tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorTokensResponse'
+        '404':
+          description: Library not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create a new color token
+      operationId: createColorToken
+      tags: [libraries, color]
+      parameters:
+        - name: libraryId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateColorTokenRequest'
+      responses:
+        '201':
+          description: Color token created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorTokenResponse'
+        '400':
+          description: Invalid color token data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Library not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Color token with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /libraries/{libraryId}/color-tokens/{tokenId}:
+    get:
+      summary: Get a specific color token
+      operationId: getColorToken
+      tags: [libraries, color]
+      parameters:
+        - name: libraryId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tokenId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Color token details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorTokenResponse'
+        '404':
+          description: Library or token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update a color token
+      operationId: updateColorToken
+      tags: [libraries, color]
+      parameters:
+        - name: libraryId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tokenId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateColorTokenRequest'
+      responses:
+        '200':
+          description: Color token updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorTokenResponse'
+        '400':
+          description: Invalid update data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Library or token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a color token
+      operationId: deleteColorToken
+      tags: [libraries, color]
+      parameters:
+        - name: libraryId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tokenId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Color token deleted
+        '404':
+          description: Library or token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Library Variable Collections with Color Support
+  /libraries/{libraryId}/variables:
+    get:
+      summary: Get variable collections in a library
+      operationId: getLibraryVariables
+      tags: [libraries, variables]
+      parameters:
+        - name: libraryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of variable collections
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariableCollectionsResponse'
+    post:
+      summary: Create a variable collection
+      operationId: createVariableCollection
+      tags: [libraries, variables]
+      parameters:
+        - name: libraryId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVariableCollectionRequest'
+      responses:
+        '201':
+          description: Variable collection created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariableCollectionResponse'
+
+  /libraries/{libraryId}/variables/{collectionId}/modes:
+    post:
+      summary: Add a mode to a variable collection
+      operationId: addVariableMode
+      tags: [libraries, variables]
+      parameters:
+        - name: libraryId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddVariableModeRequest'
+      responses:
+        '200':
+          description: Mode added to variable collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariableCollectionResponse'
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+      required:
+        - error
+        - message
+
+    # Color Token Schemas
+    ColorToken:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the color token
+        name:
+          type: string
+          description: Human-readable name for the color token
+        color:
+          $ref: '#/components/schemas/Color'
+        libraryId:
+          type: string
+          description: ID of the library containing this token
+        version:
+          type: string
+          description: Version of the library when this token was created
+        description:
+          type: string
+          description: Optional description of the color token's purpose
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags for categorization and search
+        accessibility:
+          $ref: '#/components/schemas/ColorAccessibilityInfo'
+        usage:
+          type: array
+          items:
+            $ref: '#/components/schemas/ColorTokenUsage'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - color
+        - libraryId
+        - version
+
+    Color:
+      type: object
+      properties:
+        r:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Red component (0-1 range)
+        g:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Green component (0-1 range)
+        b:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Blue component (0-1 range)
+        a:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Alpha component (0-1 range)
+        colorSpace:
+          type: string
+          enum: [sRGB, Linear, P3, Rec709, Rec2020]
+          description: Color space of this color
+        gamma:
+          type: number
+          minimum: 0.1
+          maximum: 5.0
+          description: Gamma correction value
+      required:
+        - r
+        - g
+        - b
+        - colorSpace
+
+    ColorAccessibilityInfo:
+      type: object
+      properties:
+        contrastRatios:
+          type: object
+          properties:
+            white:
+              type: number
+              description: Contrast ratio against white background
+            black:
+              type: number
+              description: Contrast ratio against black background
+            largeText:
+              type: boolean
+              description: Whether this color meets large text contrast requirements
+          description: Accessibility contrast information
+        reducedMotion:
+          type: boolean
+          description: Whether this color supports reduced motion preferences
+        highContrast:
+          type: boolean
+          description: Whether this color works in high contrast mode
+        colorBlindFriendly:
+          type: object
+          properties:
+            protanopia:
+              type: boolean
+            deuteranopia:
+              type: boolean
+            tritanopia:
+              type: boolean
+          description: Color blindness compatibility
+      required:
+        - contrastRatios
+
+    ColorTokenUsage:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: ID of document using this token
+        nodeIds:
+          type: array
+          items:
+            type: string
+          description: IDs of nodes using this token
+        lastUsed:
+          type: string
+          format: date-time
+          description: When this token was last used in this document
+        pinnedModes:
+          type: object
+          additionalProperties:
+            type: string
+          description: Mode values pinned for this usage
+      required:
+        - documentId
+        - nodeIds
+
+    CreateColorTokenRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Name for the color token
+        color:
+          $ref: '#/components/schemas/Color'
+        description:
+          type: string
+          maxLength: 500
+          description: Optional description
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+          description: Tags for categorization
+      required:
+        - name
+        - color
+
+    UpdateColorTokenRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Updated name
+        color:
+          $ref: '#/components/schemas/Color'
+        description:
+          type: string
+          maxLength: 500
+          description: Updated description
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+          description: Updated tags
+      description: Partial update - only provided fields will be updated
+
+    ColorTokenResponse:
+      type: object
+      properties:
+        token:
+          $ref: '#/components/schemas/ColorToken'
+        usageCount:
+          type: integer
+          description: Number of documents using this token
+        lastUsed:
+          type: string
+          format: date-time
+          description: When this token was last used
+      required:
+        - token
+
+    ColorTokensResponse:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/ColorToken'
+        totalCount:
+          type: integer
+          description: Total number of color tokens
+        libraryVersion:
+          type: string
+          description: Version of the library
+      required:
+        - tokens
+        - totalCount
+        - libraryVersion
+
+    # Variable Collection Schemas
+    VariableCollection:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the collection
+        name:
+          type: string
+          description: Human-readable name
+        description:
+          type: string
+          description: Description of the collection's purpose
+        axes:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariableAxis'
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variable'
+        libraryId:
+          type: string
+          description: ID of the library containing this collection
+        version:
+          type: string
+          description: Version of the library when this collection was created
+      required:
+        - id
+        - name
+        - axes
+        - variables
+        - libraryId
+        - version
+
+    VariableAxis:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the axis (e.g., "theme", "motion")
+        values:
+          type: array
+          items:
+            type: string
+          description: Possible values for this axis
+        default:
+          type: string
+          description: Default value for this axis
+      required:
+        - name
+        - values
+        - default
+
+    Variable:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Unique key for this variable (e.g., "color.surface")
+        name:
+          type: string
+          description: Human-readable name
+        type:
+          type: string
+          enum: [color, number, string, boolean]
+          description: Type of the variable value
+        values:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/VariableValue'
+          description: Values for each mode combination
+        fallback:
+          $ref: '#/components/schemas/VariableValue'
+          description: Fallback value when mode combination not found
+        description:
+          type: string
+          description: Description of the variable's purpose
+      required:
+        - key
+        - type
+        - values
+        - fallback
+
+    VariableValue:
+      oneOf:
+        - type: object
+          properties:
+            color:
+              $ref: '#/components/schemas/Color'
+          required:
+            - color
+        - type: number
+        - type: string
+        - type: boolean
+
+    CreateVariableCollectionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Name for the variable collection
+        description:
+          type: string
+          maxLength: 500
+          description: Description of the collection
+        axes:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariableAxis'
+          minItems: 1
+          maxItems: 3
+          description: Variable axes (e.g., theme, motion, density)
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variable'
+          minItems: 1
+          description: Variables in this collection
+      required:
+        - name
+        - axes
+        - variables
+
+    AddVariableModeRequest:
+      type: object
+      properties:
+        axisName:
+          type: string
+          description: Name of the axis to add mode to
+        modeValue:
+          type: string
+          description: New mode value to add
+      required:
+        - axisName
+        - modeValue
+
+    VariableCollectionResponse:
+      type: object
+      properties:
+        collection:
+          $ref: '#/components/schemas/VariableCollection'
+        modeMatrix:
+          type: object
+          description: All possible mode combinations and their coverage
+        validationErrors:
+          type: array
+          items:
+            type: string
+          description: Any validation errors for the collection
+      required:
+        - collection
+
+    VariableCollectionsResponse:
+      type: object
+      properties:
+        collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariableCollection'
+        totalCount:
+          type: integer
+          description: Total number of variable collections
+        libraryVersion:
+          type: string
+          description: Version of the library
+      required:
+        - collections
+        - totalCount
+        - libraryVersion

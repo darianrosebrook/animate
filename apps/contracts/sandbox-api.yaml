@@ -1,0 +1,361 @@
+openapi: 3.0.3
+info:
+  title: Animator Sandbox API
+  description: |
+    Secure execution environment for running user code in isolation.
+    Provides controlled access to Animator APIs with security boundaries
+    and resource limits to prevent malicious or resource-intensive code.
+  version: 1.0.0
+
+servers:
+  - url: /api/v1/sandbox
+    description: Sandbox API endpoint
+
+security:
+  - bearerAuth: []
+
+paths:
+  /create:
+    post:
+      summary: Create a new sandbox environment
+      description: |
+        Creates a new isolated execution environment for running code.
+        The sandbox provides controlled access to Animator APIs with
+        configurable security and resource limits.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSandboxRequest'
+      responses:
+        '201':
+          description: Sandbox created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSandboxResponse'
+        '400':
+          description: Invalid sandbox configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions to create sandbox
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /execute:
+    post:
+      summary: Execute code in an existing sandbox
+      description: |
+        Executes JavaScript code within a previously created sandbox environment.
+        The code runs with the security boundaries and resource limits
+        configured for that sandbox.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteInSandboxRequest'
+      responses:
+        '200':
+          description: Code executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecuteInSandboxResponse'
+        '400':
+          description: Invalid execution request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sandbox not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '408':
+          description: Execution timeout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Memory limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /destroy:
+    post:
+      summary: Destroy a sandbox environment
+      description: |
+        Permanently destroys a sandbox environment and cleans up all
+        associated resources. This action cannot be undone.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DestroySandboxRequest'
+      responses:
+        '200':
+          description: Sandbox destroyed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DestroySandboxResponse'
+        '404':
+          description: Sandbox not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /info/{sandboxId}:
+    get:
+      summary: Get sandbox environment information
+      parameters:
+        - name: sandboxId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sandbox information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SandboxInfo'
+        '404':
+          description: Sandbox not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CreateSandboxRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Human-readable name for the sandbox
+        permissions:
+          type: array
+          items:
+            type: string
+          description: List of permissions to grant to this sandbox
+          default: ["sceneGraph", "timeline"]
+        memoryLimit:
+          type: number
+          description: Memory limit in MB
+          minimum: 10
+          maximum: 200
+          default: 50
+        timeout:
+          type: number
+          description: Execution timeout in milliseconds
+          minimum: 100
+          maximum: 30000
+          default: 5000
+        networkAccess:
+          type: boolean
+          description: Allow network access
+          default: false
+        fileSystemAccess:
+          type: boolean
+          description: Allow file system access
+          default: false
+        apis:
+          type: array
+          items:
+            type: string
+          description: Specific APIs to expose
+          default: ["sceneGraph", "timeline", "rendering"]
+        environment:
+          type: object
+          description: Environment variables to set in the sandbox
+
+    CreateSandboxResponse:
+      type: object
+      properties:
+        sandboxId:
+          type: string
+          description: Unique identifier for the created sandbox
+        status:
+          type: string
+          enum: [created, error]
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ExecuteInSandboxRequest:
+      type: object
+      required:
+        - sandboxId
+        - code
+      properties:
+        sandboxId:
+          type: string
+          description: ID of the sandbox to execute in
+        code:
+          type: string
+          description: JavaScript code to execute
+        parameters:
+          type: object
+          description: Parameters to pass to the code
+        captureConsole:
+          type: boolean
+          description: Capture console.log output
+          default: true
+        captureErrors:
+          type: boolean
+          description: Capture and format errors
+          default: true
+
+    ExecuteInSandboxResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether execution was successful
+        result:
+          description: The return value of the executed code
+        output:
+          type: string
+          description: Console output from the execution
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/SandboxError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/SandboxWarning'
+        executionTime:
+          type: number
+          description: Time taken to execute in milliseconds
+        memoryUsed:
+          type: number
+          description: Memory used during execution in MB
+
+    SandboxError:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [syntax, runtime, timeout, memory, permission, security]
+        message:
+          type: string
+        line:
+          type: number
+        column:
+          type: number
+        stack:
+          type: string
+        code:
+          type: string
+
+    SandboxWarning:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [performance, deprecated, unsafe, resource]
+        message:
+          type: string
+        line:
+          type: number
+        suggestion:
+          type: string
+
+    DestroySandboxRequest:
+      type: object
+      required:
+        - sandboxId
+      properties:
+        sandboxId:
+          type: string
+          description: ID of the sandbox to destroy
+        force:
+          type: boolean
+          description: Force destroy even if sandbox is in use
+          default: false
+
+    DestroySandboxResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        resourcesFreed:
+          type: number
+          description: Number of resources freed
+
+    SandboxInfo:
+      type: object
+      properties:
+        sandboxId:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [active, idle, destroyed]
+        createdAt:
+          type: string
+          format: date-time
+        lastUsed:
+          type: string
+          format: date-time
+        memoryLimit:
+          type: number
+        currentMemoryUsage:
+          type: number
+        timeout:
+          type: number
+        permissions:
+          type: array
+          items:
+            type: string
+        apis:
+          type: array
+          items:
+            type: string
+        networkAccess:
+          type: boolean
+        fileSystemAccess:
+          type: boolean
+        executionCount:
+          type: number
+        errorCount:
+          type: number
+        averageExecutionTime:
+          type: number
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+        details:
+          type: object

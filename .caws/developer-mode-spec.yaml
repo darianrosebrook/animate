@@ -1,0 +1,97 @@
+id: DEV-001
+title: "Developer Mode - Built-in Code Editor and API Sandbox"
+risk_tier: 2
+mode: feature
+change_budget:
+  max_files: 25
+  max_loc: 1200
+blast_radius:
+  modules: ["ui", "api", "core"]
+  data_migration: false
+operational_rollback_slo: "30m"
+threats:
+  - "Security vulnerabilities in code execution sandbox"
+  - "Performance impact on main application from code editor"
+  - "Breaking changes to API surface affecting developer experience"
+  - "Memory leaks from long-running code execution"
+scope:
+  in:
+    - "src/ui/components/DeveloperMode/"
+    - "src/api/sandbox/"
+    - "src/api/wrappers/"
+    - "src/ui/components/CodeEditor/"
+    - "src/core/sandbox/"
+    - "apps/contracts/developer-mode-api.yaml"
+  out:
+    - "core rendering pipeline"
+    - "real-time collaboration"
+    - "plugin system"
+    - "export functionality"
+invariants:
+  - "Code execution maintains application security boundaries"
+  - "Developer mode does not impact main application performance"
+  - "API wrapper maintains backward compatibility with future API changes"
+  - "Error handling prevents crashes from user code"
+  - "Code editor provides real-time syntax highlighting and error feedback"
+acceptance:
+  - id: A1
+    given: "user opens developer mode panel"
+    when: "they write valid JavaScript code using the Animator API"
+    then: "code executes immediately with visual feedback in the canvas"
+  - id: A2
+    given: "user writes code with syntax errors"
+    when: "they attempt to execute the code"
+    then: "clear error messages are displayed with line numbers and suggestions"
+  - id: A3
+    given: "user creates complex animations via code"
+    when: "they preview the animation"
+    then: "animation renders at 60fps without impacting main application performance"
+  - id: A4
+    given: "user saves code snippets"
+    when: "they reopen developer mode"
+    then: "saved snippets are available and executable"
+  - id: A5
+    given: "user has limited API permissions"
+    when: "they attempt restricted operations"
+    then: "appropriate error messages are shown without exposing internal APIs"
+non_functional:
+  a11y:
+    - "code editor supports screen reader navigation"
+    - "keyboard shortcuts for common operations"
+    - "high contrast mode for syntax highlighting"
+    - "error messages announced to screen readers"
+  perf:
+    api_p95_ms: 50
+    lcp_ms: 1000
+    memory_mb: 100
+  security:
+    - "code execution sandboxed from main application"
+    - "no access to Node.js APIs or file system"
+    - "rate limiting on code execution"
+    - "memory and execution time limits enforced"
+contracts:
+  - type: openapi
+    path: "apps/contracts/developer-mode-api.yaml"
+  - type: openapi
+    path: "apps/contracts/sandbox-api.yaml"
+observability:
+  logs:
+    - "developer_mode.code_execution"
+    - "developer_mode.syntax_errors"
+    - "developer_mode.performance_warnings"
+    - "developer_mode.api_usage"
+  metrics:
+    - "developer_mode_active_sessions"
+    - "developer_mode_code_execution_count"
+    - "developer_mode_error_rate"
+    - "developer_mode_performance_score"
+  traces:
+    - "developer_mode_execution_span"
+    - "developer_mode_error_handling_span"
+    - "developer_mode_api_call_span"
+migrations: []
+rollback:
+  - "feature flag kill-switch"
+  - "developer mode panel removal"
+  - "sandbox environment cleanup"
+  - "API wrapper removal"
