@@ -1,0 +1,37 @@
+{
+  "1": {
+    "min_branch": 0.90,
+    "min_mutation": 0.70,
+    "requires_contracts": true,
+    "requires_manual_review": true,
+    "requires_golden_frame_tests": true,
+    "requires_cross_platform_validation": true,
+    "max_files": 40,
+    "max_loc": 1500,
+    "allowed_modes": ["feature", "refactor", "fix"],
+    "perf_budget_required": true,
+    "a11y_required": true
+  },
+  "2": {
+    "min_branch": 0.80,
+    "min_mutation": 0.50,
+    "requires_contracts": true,
+    "requires_codec_compliance_testing": true,
+    "max_files": 25,
+    "max_loc": 1000,
+    "allowed_modes": ["feature", "refactor", "fix"],
+    "perf_budget_required": true,
+    "a11y_required": true
+  },
+  "3": {
+    "min_branch": 0.70,
+    "min_mutation": 0.30,
+    "requires_contracts": false,
+    "requires_accessibility_testing": true,
+    "max_files": 15,
+    "max_loc": 600,
+    "allowed_modes": ["feature", "refactor", "fix", "doc", "chore"],
+    "perf_budget_required": false,
+    "a11y_required": true
+  }
+}

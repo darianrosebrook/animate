@@ -26,7 +26,8 @@ export class WebGPUContext {
           success: false,
           error: {
             code: 'WEBGPU_NOT_SUPPORTED',
-            message: 'WebGPU is not supported in this browser. Please use Chrome, Firefox, or Safari Technology Preview.',
+            message:
+              'WebGPU is not supported in this browser. Please use Chrome, Firefox, or Safari Technology Preview.',
           },
         }
       }
@@ -152,7 +153,11 @@ export class WebGPUContext {
 
     // Copy data to buffer
     const dstBuffer = buffer.getMappedRange()
-    new Uint8Array(dstBuffer).set(new Uint8Array(data))
+    if (data instanceof ArrayBuffer) {
+      new Uint8Array(dstBuffer).set(new Uint8Array(data))
+    } else {
+      new Uint8Array(dstBuffer).set(data)
+    }
     buffer.unmap()
 
     return buffer
@@ -184,9 +189,7 @@ export class WebGPUContext {
   /**
    * Create a GPU sampler
    */
-  createSampler(
-    options: GPUSamplerDescriptor = {}
-  ): GPUSampler | null {
+  createSampler(options: GPUSamplerDescriptor = {}): GPUSampler | null {
     if (!this.device) {
       console.error('WebGPU device not initialized')
       return null
@@ -208,9 +211,11 @@ export class WebGPUContext {
     vertexShader: string,
     fragmentShader: string,
     bindGroupLayouts: GPUBindGroupLayout[] = [],
-    targets: GPUColorTargetState[] = [{
-      format: this.format,
-    }]
+    targets: GPUColorTargetState[] = [
+      {
+        format: this.format,
+      },
+    ]
   ): GPURenderPipeline | null {
     if (!this.device) {
       console.error('WebGPU device not initialized')

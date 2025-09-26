@@ -316,7 +316,7 @@ export class ShaderManager {
     let hash = 0
     for (let i = 0; i < code.length; i++) {
       const char = code.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
+      hash = (hash << 5) - hash + char
       hash = hash & hash // Convert to 32-bit integer
     }
     return hash.toString()

@@ -19,4 +19,11 @@ export {
 } from './shaders'
 
 // Re-export types for convenience
-export type { Result, AnimatorError, Time, EvaluationContext, SceneGraph, RenderOutput } from '@/types'
+export type {
+  Result,
+  AnimatorError,
+  Time,
+  EvaluationContext,
+  SceneGraph,
+  RenderOutput,
+} from '@/types'

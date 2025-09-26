@@ -3,9 +3,25 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError, Time, EvaluationContext, SceneGraph, RenderOutput } from '@/types'
+import {
+  Result,
+  AnimatorError,
+  Time,
+  EvaluationContext,
+  SceneGraph,
+  RenderOutput,
+} from '@/types'
 import { WebGPUContext } from './webgpu-context'
-import { ShaderManager, rectangleVertexShader, rectangleFragmentShader, circleVertexShader, circleFragmentShader } from './shaders'
+import {
+  ShaderManager,
+  rectangleVertexShader,
+  rectangleFragmentShader,
+  circleVertexShader,
+  circleFragmentShader,
+} from './shaders'
+import { TextRenderer } from './text-renderer'
+import { ImageRenderer, ImageProperties, BlendMode } from './image-renderer'
+import { TransformUtils, Transform2D } from './transforms'
 
 /**
  * Main renderer that coordinates WebGPU rendering with the scene graph
@@ -13,6 +29,8 @@ import { ShaderManager, rectangleVertexShader, rectangleFragmentShader, circleVe
 export class Renderer {
   private webgpuContext: WebGPUContext
   private shaderManager: ShaderManager
+  private textRenderer: TextRenderer | null = null
+  private imageRenderer: ImageRenderer | null = null
   private renderPipelines: Map<string, GPURenderPipeline> = new Map()
   private vertexBuffers: Map<string, GPUBuffer> = new Map()
   private indexBuffers: Map<string, GPUBuffer> = new Map()
@@ -35,6 +53,23 @@ export class Renderer {
 
     // Initialize shader manager with device
     this.shaderManager = new ShaderManager(this.webgpuContext.getDevice()!)
+
+    // Initialize text renderer
+    this.textRenderer = new TextRenderer(this.webgpuContext)
+    const fontData = this.createDefaultFontData() // Placeholder font data
+    const textResult = await this.textRenderer.initialize(fontData)
+    if (!textResult.success) {
+      console.warn('Text renderer initialization failed:', textResult.error)
+      this.textRenderer = null
+    }
+
+    // Initialize image renderer
+    this.imageRenderer = new ImageRenderer(this.webgpuContext)
+    const imageResult = await this.imageRenderer.initialize()
+    if (!imageResult.success) {
+      console.warn('Image renderer initialization failed:', imageResult.error)
+      this.imageRenderer = null
+    }
 
     // Create basic render pipelines
     this.createBasicPipelines()
@@ -92,14 +127,32 @@ export class Renderer {
     // Rectangle vertices (2 triangles)
     const rectVertices = new Float32Array([
       // Triangle 1
-      -0.5, -0.5,  0.0, 1.0,  // Bottom-left
-       0.5, -0.5,  1.0, 1.0,  // Bottom-right
-      -0.5,  0.5,  0.0, 0.0,  // Top-left
+      -0.5,
+      -0.5,
+      0.0,
+      1.0, // Bottom-left
+      0.5,
+      -0.5,
+      1.0,
+      1.0, // Bottom-right
+      -0.5,
+      0.5,
+      0.0,
+      0.0, // Top-left
 
       // Triangle 2
-      -0.5,  0.5,  0.0, 0.0,  // Top-left
-       0.5, -0.5,  1.0, 1.0,  // Bottom-right
-       0.5,  0.5,  1.0, 0.0,  // Top-right
+      -0.5,
+      0.5,
+      0.0,
+      0.0, // Top-left
+      0.5,
+      -0.5,
+      1.0,
+      1.0, // Bottom-right
+      0.5,
+      0.5,
+      1.0,
+      0.0, // Top-right
     ])
 
     const rectBuffer = this.webgpuContext.createBuffer(
@@ -117,18 +170,18 @@ export class Renderer {
     const circleVertices = new Float32Array((circleSegments + 2) * 4) // center + segments + tex coords
 
     // Center point
-    circleVertices[0] = 0.0   // x
-    circleVertices[1] = 0.0   // y
-    circleVertices[2] = 0.5   // u
-    circleVertices[3] = 0.5   // v
+    circleVertices[0] = 0.0 // x
+    circleVertices[1] = 0.0 // y
+    circleVertices[2] = 0.5 // u
+    circleVertices[3] = 0.5 // v
 
     // Generate circle points
     for (let i = 0; i <= circleSegments; i++) {
       const angle = (i / circleSegments) * Math.PI * 2
       const idx = (i + 1) * 4
 
-      circleVertices[idx + 0] = Math.cos(angle) * 0.5     // x
-      circleVertices[idx + 1] = Math.sin(angle) * 0.5     // y
+      circleVertices[idx + 0] = Math.cos(angle) * 0.5 // x
+      circleVertices[idx + 1] = Math.sin(angle) * 0.5 // y
       circleVertices[idx + 2] = Math.cos(angle) * 0.5 + 0.5 // u
       circleVertices[idx + 3] = Math.sin(angle) * 0.5 + 0.5 // v
     }
@@ -150,11 +203,14 @@ export class Renderer {
   async renderFrame(
     sceneGraph: SceneGraph,
     time: Time,
-    context: EvaluationContext
+    context: EvaluationContext | RenderContext
   ): Promise<Result<RenderOutput>> {
     try {
       // Evaluate the scene graph
-      const evaluationResult = sceneGraph.evaluate(time, context)
+      const evaluationResult = sceneGraph.evaluate(
+        time,
+        context as EvaluationContext
+      )
       if (!evaluationResult.success) {
         return evaluationResult
       }
@@ -162,7 +218,8 @@ export class Renderer {
       const evaluatedNodes = evaluationResult.data
 
       // Create command encoder
-      const commandEncoder = this.webgpuContext.createCommandEncoder('Render Frame')
+      const commandEncoder =
+        this.webgpuContext.createCommandEncoder('Render Frame')
       if (!commandEncoder) {
         return {
           success: false,
@@ -175,12 +232,17 @@ export class Renderer {
 
       // Begin render pass
       const renderPassDescriptor: GPURenderPassDescriptor = {
-        colorAttachments: [{
-          view: this.webgpuContext.getContext()!.getCurrentTexture().createView(),
-          loadOp: 'clear',
-          storeOp: 'store',
-          clearValue: { r: 0.1, g: 0.1, b: 0.1, a: 1.0 },
-        }],
+        colorAttachments: [
+          {
+            view: this.webgpuContext
+              .getContext()!
+              .getCurrentTexture()
+              .createView(),
+            loadOp: 'clear',
+            storeOp: 'store',
+            clearValue: { r: 0.1, g: 0.1, b: 0.1, a: 1.0 },
+          },
+        ],
       }
 
       const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
@@ -201,8 +263,9 @@ export class Renderer {
 
       // Return render output
       const canvas = this.webgpuContext.getCanvas()!
+      const context = this.webgpuContext.getContext()!
       const renderOutput: RenderOutput = {
-        frameBuffer: canvas.getContext('webgpu')!.getCurrentTexture().getTexture(),
+        frameBuffer: context.getCurrentTexture(),
         width: canvas.width,
         height: canvas.height,
         format: 'rgba_f32',
@@ -231,7 +294,58 @@ export class Renderer {
     context: EvaluationContext
   ): Result<boolean> {
     try {
-      // Get appropriate pipeline and geometry for node type
+      // Handle text nodes separately
+      if (node.type === 'text' && this.textRenderer) {
+        const textProperties = {
+          fontFamily: node.fontFamily || 'default',
+          fontSize: node.fontSize || 16,
+          fontWeight: node.fontWeight || 400,
+          fontStyle: node.fontStyle || 'normal',
+          color: node.color || { r: 0, g: 0, b: 0, a: 1 },
+          position: node.position || { x: 0, y: 0 },
+          maxWidth: node.maxWidth,
+          textAlign: node.textAlign || 'left',
+          lineHeight: node.lineHeight || 1.2,
+          letterSpacing: node.letterSpacing || 0,
+          wordSpacing: node.wordSpacing || 0,
+        }
+
+        const textResult = this.textRenderer.renderText(
+          node.text || '',
+          textProperties,
+          renderPass
+        )
+        if (!textResult.success) {
+          return textResult
+        }
+        return { success: true, data: true }
+      }
+
+      // Handle image nodes
+      if (node.type === 'media' && this.imageRenderer && node.source) {
+        const imageProperties = {
+          source: node.source,
+          position: node.position || { x: 0, y: 0 },
+          size: node.size,
+          opacity: node.opacity || 1,
+          blendMode: node.blendMode || ('normal' as any),
+          flipX: node.flipX || false,
+          flipY: node.flipY || false,
+          rotation: node.rotation || 0,
+          scale: node.scale || { x: 1, y: 1 },
+        }
+
+        const imageResult = this.imageRenderer.renderImage(
+          imageProperties,
+          renderPass
+        )
+        if (!imageResult.success) {
+          return imageResult
+        }
+        return { success: true, data: true }
+      }
+
+      // Handle shape nodes
       const { pipeline, vertexBuffer } = this.getRenderResourcesForNode(node)
       if (!pipeline || !vertexBuffer) {
         return {
@@ -252,7 +366,10 @@ export class Renderer {
       // Create and set uniforms
       const uniformBuffer = this.createUniformBufferForNode(node)
       if (uniformBuffer) {
-        renderPass.setBindGroup(0, this.createBindGroupForNode(pipeline, uniformBuffer))
+        renderPass.setBindGroup(
+          0,
+          this.createBindGroupForNode(pipeline, uniformBuffer)
+        )
       }
 
       // Draw
@@ -293,6 +410,12 @@ export class Renderer {
           }
         }
         break
+      case 'text':
+        // Text rendering is handled separately in renderNode
+        return { pipeline: null, vertexBuffer: null }
+      case 'media':
+        // Image/media rendering is handled separately in renderNode
+        return { pipeline: null, vertexBuffer: null }
     }
 
     return { pipeline: null, vertexBuffer: null }
@@ -306,18 +429,22 @@ export class Renderer {
       return null
     }
 
-    // Create basic transform matrix (identity for now)
-    const transform = new Float32Array([
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1,
-    ])
+    // Create transform from node properties
+    const transform2D: Transform2D = {
+      position: node.position || { x: 0, y: 0 },
+      scale: node.scale || { width: 1, height: 1 },
+      rotation: node.rotation || 0,
+      anchor: node.anchor || { x: 0, y: 0 },
+      skewX: node.skewX || 0,
+      skewY: node.skewY || 0,
+    }
+
+    const transformMatrix = TransformUtils.fromTransform(transform2D)
 
     // Create uniforms based on node properties
     const uniforms = new Float32Array([
       // Transform matrix (4x4 = 16 floats)
-      ...transform,
+      ...transformMatrix,
       // Color (RGBA)
       (node.fillColor?.r || 255) / 255,
       (node.fillColor?.g || 255) / 255,
@@ -326,9 +453,9 @@ export class Renderer {
       // Size
       node.size?.width || 100,
       node.size?.height || 100,
-      // Position
-      node.position?.x || 0,
-      node.position?.y || 0,
+      // Additional properties for text and other nodes
+      node.fontSize || 16,
+      node.lineHeight || 1.2,
     ])
 
     return this.webgpuContext.createBuffer(
@@ -410,6 +537,23 @@ export class Renderer {
   }
 
   /**
+   * Create default font data (placeholder for real font loading)
+   */
+  private createDefaultFontData(): ArrayBuffer {
+    // This is a placeholder - in a real implementation, we'd load
+    // actual font data from TTF/OTF files or use a font library
+    const fontData = new ArrayBuffer(1024)
+    const view = new Uint8Array(fontData)
+
+    // Fill with some basic pattern to simulate font data
+    for (let i = 0; i < view.length; i++) {
+      view[i] = (i * 37) % 256 // Pseudo-random pattern
+    }
+
+    return fontData
+  }
+
+  /**
    * Clean up resources
    */
   destroy(): void {
@@ -417,6 +561,12 @@ export class Renderer {
     this.vertexBuffers.clear()
     this.indexBuffers.clear()
     this.uniformBuffers.clear()
+    if (this.textRenderer) {
+      this.textRenderer.destroy()
+    }
+    if (this.imageRenderer) {
+      this.imageRenderer.destroy()
+    }
     this.shaderManager.destroy()
     this.webgpuContext.destroy()
   }
