@@ -41,8 +41,17 @@ export class EffectsSystem implements IEffectSystem {
     this.monitor = new EffectPerformanceMonitor()
     this.cache = new EffectCache()
     this.validator = new EffectValidator()
-    this.renderer = new EffectRendererImpl(webgpuContext, this.library, this.cache, this.monitor)
-    this.composer = new EffectComposerImpl(webgpuContext, this.renderer, this.monitor)
+    this.renderer = new EffectRendererImpl(
+      webgpuContext,
+      this.library,
+      this.cache,
+      this.monitor
+    )
+    this.composer = new EffectComposerImpl(
+      webgpuContext,
+      this.renderer,
+      this.monitor
+    )
   }
 
   initialize(): Result<boolean> {
@@ -79,7 +88,10 @@ export class EffectsSystem implements IEffectSystem {
     }
   }
 
-  createEffect(effectType: string, parameters?: Record<string, any>): Result<EffectInstance> {
+  createEffect(
+    effectType: string,
+    parameters?: Record<string, any>
+  ): Result<EffectInstance> {
     try {
       const effectTypeDef = this.library.getEffectType(effectType)
       if (!effectTypeDef) {
@@ -93,7 +105,10 @@ export class EffectsSystem implements IEffectSystem {
       }
 
       // Validate parameters
-      const validationResult = this.validator.validateParameters(effectTypeDef, parameters || {})
+      const validationResult = this.validator.validateParameters(
+        effectTypeDef,
+        parameters || {}
+      )
       if (!validationResult.success) {
         return validationResult
       }
@@ -121,7 +136,11 @@ export class EffectsSystem implements IEffectSystem {
     }
   }
 
-  applyEffect(effect: EffectInstance, inputTexture: GPUTexture, time: Time): Result<GPUTexture> {
+  applyEffect(
+    effect: EffectInstance,
+    inputTexture: GPUTexture,
+    time: Time
+  ): Result<GPUTexture> {
     try {
       if (!effect.enabled) {
         return { success: true, data: inputTexture }
@@ -177,7 +196,10 @@ export class EffectsSystem implements IEffectSystem {
     console.log('🧹 Effects system destroyed')
   }
 
-  private getDefaultParameters(effectType: EffectType, userParameters?: Record<string, any>): Record<string, any> {
+  private getDefaultParameters(
+    effectType: EffectType,
+    userParameters?: Record<string, any>
+  ): Record<string, any> {
     const parameters: Record<string, any> = {}
 
     for (const paramDef of effectType.parameters) {
@@ -239,7 +261,10 @@ class EffectRendererImpl implements EffectRenderer {
     }
   }
 
-  renderEffect(effect: EffectInstance, context: EffectContext): Result<boolean> {
+  renderEffect(
+    effect: EffectInstance,
+    context: EffectContext
+  ): Result<boolean> {
     try {
       const device = this.webgpuContext.getDevice()
       if (!device) {
@@ -409,7 +434,9 @@ class EffectRendererImpl implements EffectRenderer {
     }
   }
 
-  private getOrCreatePipeline(effectType: EffectType): GPURenderPipeline | null {
+  private getOrCreatePipeline(
+    effectType: EffectType
+  ): GPURenderPipeline | null {
     let pipeline = this.pipelines.get(effectType.name)
     if (!pipeline) {
       const result = this.createEffectPipeline(effectType)
@@ -420,7 +447,11 @@ class EffectRendererImpl implements EffectRenderer {
     return pipeline || null
   }
 
-  private createBindGroups(effect: EffectInstance, context: EffectContext, pipeline: GPURenderPipeline): GPUBindGroup[] {
+  private createBindGroups(
+    effect: EffectInstance,
+    context: EffectContext,
+    pipeline: GPURenderPipeline
+  ): GPUBindGroup[] {
     const device = this.webgpuContext.getDevice()!
     const bindGroups: GPUBindGroup[] = []
 
@@ -458,7 +489,10 @@ class EffectRendererImpl implements EffectRenderer {
     return bindGroups
   }
 
-  private createParameterBuffer(effect: EffectInstance, context: EffectContext): GPUBuffer {
+  private createParameterBuffer(
+    effect: EffectInstance,
+    context: EffectContext
+  ): GPUBuffer {
     const device = this.webgpuContext.getDevice()!
 
     // Create a buffer with effect parameters
@@ -543,7 +577,7 @@ class EffectComposerImpl implements EffectComposer {
   }
 
   removeEffect(effectId: string): void {
-    this.effects = this.effects.filter(e => e.id !== effectId)
+    this.effects = this.effects.filter((e) => e.id !== effectId)
   }
 
   reorderEffects(effects: EffectInstance[]): void {
@@ -675,7 +709,10 @@ class EffectPerformanceMonitor implements EffectPerformanceMonitor {
     }
 
     const averageFrameTime = effectCount > 0 ? totalRenderTime / effectCount : 0
-    const memoryUsage = Array.from(this.memoryUsage.values()).reduce((sum, usage) => sum + usage, 0)
+    const memoryUsage = Array.from(this.memoryUsage.values()).reduce(
+      (sum, usage) => sum + usage,
+      0
+    )
 
     return {
       totalRenderTime,
@@ -690,7 +727,8 @@ class EffectPerformanceMonitor implements EffectPerformanceMonitor {
  * Effect cache implementation
  */
 class EffectCache implements EffectCache {
-  private cache: Map<string, { texture: GPUTexture; timestamp: number }> = new Map()
+  private cache: Map<string, { texture: GPUTexture; timestamp: number }> =
+    new Map()
   private maxSize = 50
   private maxAge = 5000 // 5 seconds
 
@@ -710,8 +748,9 @@ class EffectCache implements EffectCache {
 
     // Remove old entries if cache is full
     if (this.cache.size >= this.maxSize) {
-      const oldestKey = Array.from(this.cache.entries())
-        .sort((a, b) => a[1].timestamp - b[1].timestamp)[0][0]
+      const oldestKey = Array.from(this.cache.entries()).sort(
+        (a, b) => a[1].timestamp - b[1].timestamp
+      )[0][0]
       this.cache.delete(oldestKey)
     }
 
@@ -764,7 +803,10 @@ class EffectValidator implements EffectValidator {
         }
       }
 
-      const paramResult = this.validateParameters(effect.type, effect.parameters)
+      const paramResult = this.validateParameters(
+        effect.type,
+        effect.parameters
+      )
       if (!paramResult.success) {
         return paramResult
       }
@@ -782,7 +824,10 @@ class EffectValidator implements EffectValidator {
     }
   }
 
-  validateParameters(effectType: EffectType, parameters: Record<string, any>): Result<boolean> {
+  validateParameters(
+    effectType: EffectType,
+    parameters: Record<string, any>
+  ): Result<boolean> {
     try {
       for (const paramDef of effectType.parameters) {
         const value = parameters[paramDef.name]
@@ -846,7 +891,11 @@ class EffectValidator implements EffectValidator {
   validateShader(shader: string): Result<boolean> {
     try {
       // Basic shader validation (simplified)
-      if (!shader.includes('@compute') && !shader.includes('@vertex') && !shader.includes('@fragment')) {
+      if (
+        !shader.includes('@compute') &&
+        !shader.includes('@vertex') &&
+        !shader.includes('@fragment')
+      ) {
         return {
           success: false,
           error: {

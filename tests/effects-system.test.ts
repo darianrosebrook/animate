@@ -6,7 +6,11 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { EffectsSystem } from '../src/effects/effects-system'
 import { EffectsLibrary } from '../src/effects/effects-library'
-import { EffectCategory, EffectParameterType, BlendMode } from '../src/effects/effects-types'
+import {
+  EffectCategory,
+  EffectParameterType,
+  BlendMode,
+} from '../src/effects/effects-types'
 import { WebGPUContext } from '../src/core/renderer/webgpu-context'
 
 describe('Effects System - Comprehensive Tests', () => {
@@ -177,7 +181,9 @@ describe('Effects System - Comprehensive Tests', () => {
         effectsSystem.composer.addEffect(effect2.data)
 
         expect(effectsSystem.composer.effects).toHaveLength(2)
-        expect(effectsSystem.composer.effects[0].order).toBeLessThan(effectsSystem.composer.effects[1].order)
+        expect(effectsSystem.composer.effects[0].order).toBeLessThan(
+          effectsSystem.composer.effects[1].order
+        )
       }
     })
 
@@ -223,7 +229,9 @@ describe('Effects System - Comprehensive Tests', () => {
         // Simulate tracking render time
         effectsSystem.monitor.trackRenderTime(effectResult.data.id, 8.5)
 
-        const avgTime = effectsSystem.monitor.getAverageRenderTime(effectResult.data.id)
+        const avgTime = effectsSystem.monitor.getAverageRenderTime(
+          effectResult.data.id
+        )
         expect(avgTime).toBe(8.5)
       }
     })
@@ -235,7 +243,9 @@ describe('Effects System - Comprehensive Tests', () => {
       if (effectResult.data) {
         effectsSystem.monitor.trackMemoryUsage(effectResult.data.id, 32.0)
 
-        const memoryUsage = effectsSystem.monitor.getMemoryUsage(effectResult.data.id)
+        const memoryUsage = effectsSystem.monitor.getMemoryUsage(
+          effectResult.data.id
+        )
         expect(memoryUsage).toBe(32.0)
       }
     })
@@ -303,7 +313,9 @@ describe('Effects System - Comprehensive Tests', () => {
       expect(effectResult.success).toBe(true)
 
       if (effectResult.data) {
-        const validationResult = effectsSystem.validator.validateEffect(effectResult.data)
+        const validationResult = effectsSystem.validator.validateEffect(
+          effectResult.data
+        )
         expect(validationResult.success).toBe(true)
       }
     })
@@ -320,7 +332,10 @@ describe('Effects System - Comprehensive Tests', () => {
           quality: 'medium',
         }
 
-        const validationResult = effectsSystem.validator.validateParameters(glowEffect, validParams)
+        const validationResult = effectsSystem.validator.validateParameters(
+          glowEffect,
+          validParams
+        )
         expect(validationResult.success).toBe(true)
       }
     })
@@ -335,7 +350,10 @@ describe('Effects System - Comprehensive Tests', () => {
           radius: 10.0,
         }
 
-        const validationResult = effectsSystem.validator.validateParameters(glowEffect, invalidParams)
+        const validationResult = effectsSystem.validator.validateParameters(
+          glowEffect,
+          invalidParams
+        )
         expect(validationResult.success).toBe(false)
         expect(validationResult.error?.code).toBe('PARAMETER_OUT_OF_RANGE')
       }
@@ -349,14 +367,16 @@ describe('Effects System - Comprehensive Tests', () => {
         }
       `
 
-      const validationResult = effectsSystem.validator.validateShader(validShader)
+      const validationResult =
+        effectsSystem.validator.validateShader(validShader)
       expect(validationResult.success).toBe(true)
     })
 
     it('should reject invalid shader code', () => {
       const invalidShader = 'fn main() { return 1; }' // Missing decorators
 
-      const validationResult = effectsSystem.validator.validateShader(invalidShader)
+      const validationResult =
+        effectsSystem.validator.validateShader(invalidShader)
       expect(validationResult.success).toBe(false)
       expect(validationResult.error?.code).toBe('INVALID_SHADER')
     })
@@ -366,14 +386,18 @@ describe('Effects System - Comprehensive Tests', () => {
     it('should handle complex effect workflows', () => {
       // Create multiple effects
       const glowResult = effectsSystem.createEffect('glow', { intensity: 1.5 })
-      const blurResult = effectsSystem.createEffect('gaussian-blur', { radius: 5.0 })
+      const blurResult = effectsSystem.createEffect('gaussian-blur', {
+        radius: 5.0,
+      })
       const colorResult = effectsSystem.createEffect('color-correction', {
         brightness: 0.1,
         contrast: 1.2,
         saturation: 1.1,
       })
 
-      expect(glowResult.success && blurResult.success && colorResult.success).toBe(true)
+      expect(
+        glowResult.success && blurResult.success && colorResult.success
+      ).toBe(true)
 
       if (glowResult.data && blurResult.data && colorResult.data) {
         // Add to composer
@@ -384,8 +408,12 @@ describe('Effects System - Comprehensive Tests', () => {
         expect(effectsSystem.composer.effects).toHaveLength(3)
 
         // Verify effect ordering
-        expect(effectsSystem.composer.effects[0].order).toBeLessThan(effectsSystem.composer.effects[1].order)
-        expect(effectsSystem.composer.effects[1].order).toBeLessThan(effectsSystem.composer.effects[2].order)
+        expect(effectsSystem.composer.effects[0].order).toBeLessThan(
+          effectsSystem.composer.effects[1].order
+        )
+        expect(effectsSystem.composer.effects[1].order).toBeLessThan(
+          effectsSystem.composer.effects[2].order
+        )
       }
     })
 
@@ -423,7 +451,9 @@ describe('Effects System - Comprehensive Tests', () => {
 
     it('should handle performance monitoring across multiple effects', () => {
       const effect1 = effectsSystem.createEffect('glow', { intensity: 1.0 })
-      const effect2 = effectsSystem.createEffect('gaussian-blur', { radius: 5.0 })
+      const effect2 = effectsSystem.createEffect('gaussian-blur', {
+        radius: 5.0,
+      })
 
       expect(effect1.success && effect2.success).toBe(true)
 
@@ -454,7 +484,10 @@ describe('Effects System - Comprehensive Tests', () => {
       expect(glowEffect).toBeDefined()
 
       if (glowEffect) {
-        const validationResult = effectsSystem.validator.validateParameters(glowEffect, {})
+        const validationResult = effectsSystem.validator.validateParameters(
+          glowEffect,
+          {}
+        )
         // Should fail because required parameters are missing
         expect(validationResult.success).toBe(false)
       }
@@ -463,7 +496,8 @@ describe('Effects System - Comprehensive Tests', () => {
     it('should handle shader compilation errors', () => {
       const invalidShader = 'invalid wgsl code'
 
-      const validationResult = effectsSystem.validator.validateShader(invalidShader)
+      const validationResult =
+        effectsSystem.validator.validateShader(invalidShader)
       expect(validationResult.success).toBe(false)
     })
 
@@ -599,7 +633,9 @@ describe('Effects System - Comprehensive Tests', () => {
         expect(effectResult.data.parameters).toBeDefined()
 
         // Parameter validation should work regardless of viewport
-        const validationResult = effectsSystem.validator.validateEffect(effectResult.data)
+        const validationResult = effectsSystem.validator.validateEffect(
+          effectResult.data
+        )
         expect(validationResult.success).toBe(true)
       }
     })
@@ -608,7 +644,7 @@ describe('Effects System - Comprehensive Tests', () => {
   describe('Effect Categories', () => {
     it('should provide effects from all categories', () => {
       const effectTypes = effectsLibrary.getEffectTypes()
-      const categories = new Set(effectTypes.map(e => e.category))
+      const categories = new Set(effectTypes.map((e) => e.category))
 
       expect(categories.has(EffectCategory.Blur)).toBe(true)
       expect(categories.has(EffectCategory.Color)).toBe(true)
@@ -616,13 +652,17 @@ describe('Effects System - Comprehensive Tests', () => {
     })
 
     it('should filter effects by category', () => {
-      const blurEffects = effectTypes.filter(e => e.category === EffectCategory.Blur)
-      const colorEffects = effectTypes.filter(e => e.category === EffectCategory.Color)
+      const blurEffects = effectTypes.filter(
+        (e) => e.category === EffectCategory.Blur
+      )
+      const colorEffects = effectTypes.filter(
+        (e) => e.category === EffectCategory.Color
+      )
 
       expect(blurEffects.length).toBeGreaterThan(0)
       expect(colorEffects.length).toBeGreaterThan(0)
-      expect(blurEffects.some(e => e.name === 'glow')).toBe(true)
-      expect(colorEffects.some(e => e.name === 'color-correction')).toBe(true)
+      expect(blurEffects.some((e) => e.name === 'glow')).toBe(true)
+      expect(colorEffects.some((e) => e.name === 'color-correction')).toBe(true)
     })
   })
 
@@ -632,7 +672,7 @@ describe('Effects System - Comprehensive Tests', () => {
       expect(glowEffect).toBeDefined()
 
       if (glowEffect) {
-        const paramTypes = glowEffect.parameters.map(p => p.type)
+        const paramTypes = glowEffect.parameters.map((p) => p.type)
         expect(paramTypes).toContain(EffectParameterType.Float)
         expect(paramTypes).toContain(EffectParameterType.Color)
         expect(paramTypes).toContain(EffectParameterType.Enum)
@@ -644,7 +684,9 @@ describe('Effects System - Comprehensive Tests', () => {
       expect(glowEffect).toBeDefined()
 
       if (glowEffect) {
-        const intensityParam = glowEffect.parameters.find(p => p.name === 'intensity')
+        const intensityParam = glowEffect.parameters.find(
+          (p) => p.name === 'intensity'
+        )
         expect(intensityParam?.min).toBe(0.0)
         expect(intensityParam?.max).toBe(5.0)
         expect(intensityParam?.step).toBe(0.1)
@@ -656,13 +698,17 @@ describe('Effects System - Comprehensive Tests', () => {
       expect(glowEffect).toBeDefined()
 
       if (glowEffect) {
-        const animatableParams = glowEffect.parameters.filter(p => p.animatable)
-        const nonAnimatableParams = glowEffect.parameters.filter(p => !p.animatable)
+        const animatableParams = glowEffect.parameters.filter(
+          (p) => p.animatable
+        )
+        const nonAnimatableParams = glowEffect.parameters.filter(
+          (p) => !p.animatable
+        )
 
         expect(animatableParams.length).toBeGreaterThan(0)
         expect(nonAnimatableParams.length).toBeGreaterThan(0)
-        expect(animatableParams.some(p => p.name === 'intensity')).toBe(true)
-        expect(nonAnimatableParams.some(p => p.name === 'quality')).toBe(true)
+        expect(animatableParams.some((p) => p.name === 'intensity')).toBe(true)
+        expect(nonAnimatableParams.some((p) => p.name === 'quality')).toBe(true)
       }
     })
   })
@@ -694,7 +740,9 @@ describe('Effects System - Comprehensive Tests', () => {
         const validBlendModes = Object.values(BlendMode)
         for (const blendMode of validBlendModes) {
           effectResult.data.blendMode = blendMode
-          const validationResult = effectsSystem.validator.validateEffect(effectResult.data)
+          const validationResult = effectsSystem.validator.validateEffect(
+            effectResult.data
+          )
           expect(validationResult.success).toBe(true)
         }
       }
@@ -715,12 +763,22 @@ describe('Effects System - Comprehensive Tests', () => {
     it('should categorize effects by performance impact', () => {
       const effectTypes = effectsLibrary.getEffectTypes()
 
-      const fastEffects = effectTypes.filter(e => e.performance.estimatedRenderTimeMs < 5.0)
-      const mediumEffects = effectTypes.filter(e => e.performance.estimatedRenderTimeMs >= 5.0 && e.performance.estimatedRenderTimeMs < 15.0)
-      const slowEffects = effectTypes.filter(e => e.performance.estimatedRenderTimeMs >= 15.0)
+      const fastEffects = effectTypes.filter(
+        (e) => e.performance.estimatedRenderTimeMs < 5.0
+      )
+      const mediumEffects = effectTypes.filter(
+        (e) =>
+          e.performance.estimatedRenderTimeMs >= 5.0 &&
+          e.performance.estimatedRenderTimeMs < 15.0
+      )
+      const slowEffects = effectTypes.filter(
+        (e) => e.performance.estimatedRenderTimeMs >= 15.0
+      )
 
       // Should have effects in different performance categories
-      expect(fastEffects.length + mediumEffects.length + slowEffects.length).toBe(effectTypes.length)
+      expect(
+        fastEffects.length + mediumEffects.length + slowEffects.length
+      ).toBe(effectTypes.length)
     })
   })
 
@@ -733,7 +791,9 @@ describe('Effects System - Comprehensive Tests', () => {
       expect(glowEffect.success).toBe(true)
 
       if (glowEffect.data) {
-        const animatableParams = glowEffect.data.type.parameters.filter(p => p.animatable)
+        const animatableParams = glowEffect.data.type.parameters.filter(
+          (p) => p.animatable
+        )
         expect(animatableParams.length).toBeGreaterThan(0)
 
         // Effects should be ready for timeline integration
@@ -743,7 +803,9 @@ describe('Effects System - Comprehensive Tests', () => {
     })
 
     it('should support effect chaining', () => {
-      const effect1 = effectsSystem.createEffect('gaussian-blur', { radius: 5.0 })
+      const effect1 = effectsSystem.createEffect('gaussian-blur', {
+        radius: 5.0,
+      })
       const effect2 = effectsSystem.createEffect('glow', { intensity: 1.0 })
 
       expect(effect1.success && effect2.success).toBe(true)
@@ -756,7 +818,9 @@ describe('Effects System - Comprehensive Tests', () => {
         expect(effectsSystem.composer.effects).toHaveLength(2)
 
         // Effects should be ordered correctly
-        expect(effectsSystem.composer.effects[0].order).toBeLessThan(effectsSystem.composer.effects[1].order)
+        expect(effectsSystem.composer.effects[0].order).toBeLessThan(
+          effectsSystem.composer.effects[1].order
+        )
       }
     })
   })

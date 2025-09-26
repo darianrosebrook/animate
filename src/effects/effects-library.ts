@@ -34,7 +34,7 @@ export class EffectsLibrary implements IEffectLibrary {
   getPresets(effectType?: string): EffectPreset[] {
     const presets = Array.from(this.presets.values())
     if (effectType) {
-      return presets.filter(p => p.effectType === effectType)
+      return presets.filter((p) => p.effectType === effectType)
     }
     return presets
   }
@@ -81,7 +81,8 @@ export class EffectsLibrary implements IEffectLibrary {
       name: 'glow',
       displayName: 'Glow',
       category: EffectCategory.Blur,
-      description: 'Creates a soft glow around objects with customizable intensity and color',
+      description:
+        'Creates a soft glow around objects with customizable intensity and color',
       parameters: [
         {
           name: 'intensity',
@@ -136,7 +137,8 @@ export class EffectsLibrary implements IEffectLibrary {
       name: 'gaussian-blur',
       displayName: 'Gaussian Blur',
       category: EffectCategory.Blur,
-      description: 'High-quality Gaussian blur with configurable radius and quality',
+      description:
+        'High-quality Gaussian blur with configurable radius and quality',
       parameters: [
         {
           name: 'radius',
@@ -172,7 +174,8 @@ export class EffectsLibrary implements IEffectLibrary {
       name: 'color-correction',
       displayName: 'Color Correction',
       category: EffectCategory.Color,
-      description: 'Professional color grading with brightness, contrast, and saturation controls',
+      description:
+        'Professional color grading with brightness, contrast, and saturation controls',
       parameters: [
         {
           name: 'brightness',

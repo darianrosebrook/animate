@@ -161,7 +161,10 @@ export interface EffectParameterController {
 
   setParameter(name: string, value: any): Result<void>
   getParameter(name: string): any
-  animateParameter(name: string, keyframes: { time: Time; value: any }[]): Result<void>
+  animateParameter(
+    name: string,
+    keyframes: { time: Time; value: any }[]
+  ): Result<void>
   resetParameter(name: string): Result<void>
   validateParameter(name: string, value: any): Result<boolean>
 }
@@ -227,7 +230,10 @@ export interface EffectCache {
  */
 export interface EffectValidator {
   validateEffect(effect: EffectInstance): Result<boolean>
-  validateParameters(effectType: EffectType, parameters: Record<string, any>): Result<boolean>
+  validateParameters(
+    effectType: EffectType,
+    parameters: Record<string, any>
+  ): Result<boolean>
   validateShader(shader: string): Result<boolean>
   validatePipeline(pipeline: GPURenderPipeline): Result<boolean>
 }
@@ -244,7 +250,14 @@ export interface EffectSystem {
   validator: EffectValidator
 
   initialize(): Result<boolean>
-  createEffect(effectType: string, parameters?: Record<string, any>): Result<EffectInstance>
-  applyEffect(effect: EffectInstance, inputTexture: GPUTexture, time: Time): Result<GPUTexture>
+  createEffect(
+    effectType: string,
+    parameters?: Record<string, any>
+  ): Result<EffectInstance>
+  applyEffect(
+    effect: EffectInstance,
+    inputTexture: GPUTexture,
+    time: Time
+  ): Result<GPUTexture>
   destroy(): void
 }
