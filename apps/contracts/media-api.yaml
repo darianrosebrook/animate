@@ -1,0 +1,621 @@
+openapi: 3.0.3
+info:
+  title: Media Pipeline API
+  description: Professional media import, processing, and playback system
+  version: 1.0.0
+  contact:
+    name: Animator Team
+    email: dev@animator.com
+
+servers:
+  - url: /api/v1
+    description: Media API server
+
+paths:
+  /media:
+    get:
+      summary: List media assets
+      operationId: listMediaAssets
+      tags:
+        - media
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [video, image, audio]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: List of media assets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  assets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MediaAsset'
+                  total:
+                    type: integer
+                  hasMore:
+                    type: boolean
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /media/{assetId}:
+    get:
+      summary: Get media asset details
+      operationId: getMediaAsset
+      tags:
+        - media
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Media asset details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaAsset'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /media/import:
+    post:
+      summary: Import media files
+      operationId: importMedia
+      tags:
+        - media
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                options:
+                  $ref: '#/components/schemas/MediaImportOptions'
+      responses:
+        '200':
+          description: Media import completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaImportResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /media/{assetId}/thumbnail:
+    get:
+      summary: Get media thumbnail
+      operationId: getMediaThumbnail
+      tags:
+        - media
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: time
+          in: query
+          schema:
+            type: number
+            description: Time position for video thumbnails (seconds)
+      responses:
+        '200':
+          description: Media thumbnail
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /media/{assetId}/frame:
+    get:
+      summary: Get video frame at time
+      operationId: getVideoFrame
+      tags:
+        - media
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: time
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: width
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 8192
+        - name: height
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 8192
+      responses:
+        '200':
+          description: Video frame
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /media/{assetId}/audio:
+    get:
+      summary: Get audio waveform data
+      operationId: getAudioWaveform
+      tags:
+        - media
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          schema:
+            type: number
+            default: 0
+        - name: endTime
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Audio waveform data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  waveform:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: number
+                  peaks:
+                    type: array
+                    items:
+                      type: number
+                  rms:
+                    type: array
+                    items:
+                      type: number
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /media/export:
+    post:
+      summary: Export media with effects
+      operationId: exportMedia
+      tags:
+        - media
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaExportRequest'
+      responses:
+        '200':
+          description: Export started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaExportResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /media/tracks:
+    get:
+      summary: List media tracks
+      operationId: listMediaTracks
+      tags:
+        - media
+      responses:
+        '200':
+          description: List of media tracks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaTimelineTrack'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      summary: Create media track
+      operationId: createMediaTrack
+      tags:
+        - media
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaTimelineTrack'
+      responses:
+        '201':
+          description: Media track created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaTimelineTrack'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /media/tracks/{trackId}:
+    put:
+      summary: Update media track
+      operationId: updateMediaTrack
+      tags:
+        - media
+      parameters:
+        - name: trackId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaTimelineTrack'
+      responses:
+        '200':
+          description: Media track updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaTimelineTrack'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      summary: Delete media track
+      operationId: deleteMediaTrack
+      tags:
+        - media
+      parameters:
+        - name: trackId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Media track deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    MediaAsset:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - filePath
+        - metadata
+      properties:
+        id:
+          type: string
+          description: Unique asset identifier
+        name:
+          type: string
+          description: Asset name
+        type:
+          type: string
+          enum: [video, image, audio, image_sequence]
+        filePath:
+          type: string
+          description: File path or blob URL
+        metadata:
+          $ref: '#/components/schemas/MediaMetadata'
+        thumbnail:
+          type: string
+          format: binary
+          description: Thumbnail image data
+        duration:
+          type: number
+          description: Duration in seconds
+        resolution:
+          $ref: '#/components/schemas/Size2D'
+        createdAt:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+
+    MediaMetadata:
+      type: object
+      properties:
+        width:
+          type: integer
+          minimum: 1
+        height:
+          type: integer
+          minimum: 1
+        duration:
+          type: number
+          minimum: 0
+        frameRate:
+          type: number
+          minimum: 1
+        sampleRate:
+          type: integer
+          minimum: 8000
+        channels:
+          type: integer
+          minimum: 1
+        bitRate:
+          type: integer
+          minimum: 1
+        codec:
+          type: string
+          enum: [h264, h265, vp8, vp9, av1, prores, aac, mp3, wav, flac]
+        colorSpace:
+          type: string
+        hasAlpha:
+          type: boolean
+        hasAudio:
+          type: boolean
+        fileSize:
+          type: integer
+          minimum: 0
+        creationDate:
+          type: string
+          format: date-time
+
+    MediaImportOptions:
+      type: object
+      properties:
+        generateThumbnails:
+          type: boolean
+          default: true
+        thumbnailCount:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 1
+        analyzeAudio:
+          type: boolean
+          default: true
+        generateWaveforms:
+          type: boolean
+          default: true
+        targetResolution:
+          $ref: '#/components/schemas/Size2D'
+        preserveAlpha:
+          type: boolean
+          default: true
+
+    MediaImportResult:
+      type: object
+      properties:
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaAsset'
+        totalDuration:
+          type: number
+        importTime:
+          type: number
+        errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+
+    MediaTimelineTrack:
+      type: object
+      required:
+        - id
+        - name
+        - type
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [video, image, audio]
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaAsset'
+        currentTime:
+          type: number
+          default: 0
+        playbackRate:
+          type: number
+          default: 1.0
+        volume:
+          type: number
+          minimum: 0
+          maximum: 2
+          default: 1.0
+        muted:
+          type: boolean
+          default: false
+        solo:
+          type: boolean
+          default: false
+
+    MediaExportRequest:
+      type: object
+      required:
+        - assetIds
+        - options
+      properties:
+        assetIds:
+          type: array
+          items:
+            type: string
+        options:
+          $ref: '#/components/schemas/MediaExportOptions'
+
+    MediaExportOptions:
+      type: object
+      required:
+        - format
+        - resolution
+        - frameRate
+        - startTime
+        - endTime
+      properties:
+        format:
+          type: string
+          enum: [mp4, mov, webm, gif]
+        quality:
+          type: string
+          enum: [low, medium, high, lossless]
+          default: high
+        resolution:
+          $ref: '#/components/schemas/Size2D'
+        frameRate:
+          type: number
+          minimum: 1
+          maximum: 120
+        bitRate:
+          type: integer
+          minimum: 100000
+        includeAudio:
+          type: boolean
+          default: true
+        startTime:
+          type: number
+          minimum: 0
+        endTime:
+          type: number
+          minimum: 0
+
+    MediaExportResponse:
+      type: object
+      properties:
+        exportId:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        progress:
+          type: number
+          minimum: 0
+          maximum: 100
+        estimatedTime:
+          type: number
+        downloadUrl:
+          type: string
+
+    Size2D:
+      type: object
+      properties:
+        width:
+          type: integer
+          minimum: 1
+        height:
+          type: integer
+          minimum: 1
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
