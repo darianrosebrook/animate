@@ -16,6 +16,7 @@ const mockAnimatorEngine = {
       Promise.resolve({
         time,
         nodeCount: 0,
+        nodes: [],
       }),
   }),
 }

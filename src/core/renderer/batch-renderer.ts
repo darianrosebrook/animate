@@ -511,51 +511,319 @@ export class BatchRenderer {
   private getOrCreateBatchPipeline(type: string): GPURenderPipeline {
     const device = this.webgpuContext.getDevice()!
 
-    // For now, return a placeholder pipeline
-    // In production, create specialized pipelines for each type
     const pipelineKey = `batch_${type}`
 
-    // Simplified pipeline creation - in production, create proper pipelines
-    const pipeline = device.createRenderPipeline({
-      layout: 'auto',
-      vertex: {
-        module: device.createShaderModule({
-          code: `
-          struct VertexInput {
-            @location(0) position: vec2<f32>,
-            @location(1) transform: mat4x4<f32>,
-          }
+    // Check if pipeline already exists
+    if (this.pipelines.has(pipelineKey)) {
+      return this.pipelines.get(pipelineKey)!
+    }
 
-          struct VertexOutput {
-            @builtin(position) position: vec4<f32>,
-          }
+    let shaderCode: string
+    let bindGroupLayouts: GPUBindGroupLayout[] = []
 
-          @vertex
-          fn main(input: VertexInput) -> VertexOutput {
-            var output: VertexOutput;
-            output.position = input.transform * vec4<f32>(input.position, 0.0, 1.0);
-            return output;
-          }
-          `,
-        }),
-        entryPoint: 'main',
-      },
-      fragment: {
-        module: device.createShaderModule({
-          code: `
-          @fragment
-          fn main() -> @location(0) vec4<f32> {
-            return vec4<f32>(1.0, 1.0, 1.0, 1.0);
-          }
-          `,
-        }),
-        entryPoint: 'main',
-        targets: [{ format: this.webgpuContext.getFormat() }],
-      },
-      primitive: { topology: 'triangle-list' },
+    // Create specialized pipelines based on renderable type
+    switch (type) {
+      case 'rectangle':
+        shaderCode = this.createRectangleShader()
+        break
+      case 'circle':
+        shaderCode = this.createCircleShader()
+        break
+      case 'text':
+        shaderCode = this.createTextShader()
+        bindGroupLayouts = [this.createTextBindGroupLayout(device)]
+        break
+      default:
+        shaderCode = this.createGenericShader()
+    }
+
+    // Create shader module
+    const shaderModule = device.createShaderModule({
+      code: shaderCode,
     })
 
+    // Create pipeline layout
+    const pipelineLayout = device.createPipelineLayout({
+      bindGroupLayouts,
+    })
+
+    // Create render pipeline
+    const pipeline = device.createRenderPipeline({
+      layout: pipelineLayout,
+      vertex: {
+        module: shaderModule,
+        entryPoint: 'vertex_main',
+        buffers: [
+          {
+            arrayStride: 8 * 4, // 2 floats for position, 4 for color, 2 for size
+            attributes: [
+              {
+                shaderLocation: 0,
+                offset: 0,
+                format: 'float32x2',
+              },
+              {
+                shaderLocation: 1,
+                offset: 8,
+                format: 'float32x4',
+              },
+              {
+                shaderLocation: 2,
+                offset: 24,
+                format: 'float32x2',
+              },
+            ],
+          },
+        ],
+      },
+      fragment: {
+        module: shaderModule,
+        entryPoint: 'fragment_main',
+        targets: [
+          {
+            format: this.webgpuContext.getFormat(),
+            blend: {
+              color: {
+                srcFactor: 'src-alpha',
+                dstFactor: 'one-minus-src-alpha',
+                operation: 'add',
+              },
+              alpha: {
+                srcFactor: 'one',
+                dstFactor: 'one-minus-src-alpha',
+                operation: 'add',
+              },
+            },
+          },
+        ],
+      },
+      primitive: {
+        topology: 'triangle-list',
+        cullMode: 'none',
+      },
+      depthStencil: {
+        format: 'depth24plus',
+        depthWriteEnabled: false,
+        depthCompare: 'always',
+      },
+    })
+
+    this.pipelines.set(pipelineKey, pipeline)
     return pipeline
+  }
+
+  /**
+   * Create rectangle shader for instanced rendering
+   */
+  private createRectangleShader(): string {
+    return `
+      struct InstanceInput {
+        @location(0) position: vec2<f32>,
+        @location(1) color: vec4<f32>,
+        @location(2) size: vec2<f32>,
+      }
+
+      struct VertexOutput {
+        @builtin(position) position: vec4<f32>,
+        @location(0) color: vec4<f32>,
+      }
+
+      @vertex
+      fn vertex_main(@builtin(vertex_index) vertexIndex: u32, instance: InstanceInput) -> VertexOutput {
+        var output: VertexOutput;
+
+        // Create rectangle vertices from vertex index
+        var pos: vec2<f32>;
+        switch vertexIndex {
+          case 0u: { pos = vec2<f32>(0.0, 0.0); }
+          case 1u: { pos = vec2<f32>(1.0, 0.0); }
+          case 2u: { pos = vec2<f32>(0.0, 1.0); }
+          case 3u: { pos = vec2<f32>(1.0, 1.0); }
+          default: { pos = vec2<f32>(0.0, 0.0); }
+        }
+
+        // Scale and position the rectangle
+        let scaledPos = pos * instance.size;
+        let finalPos = instance.position + scaledPos;
+
+        output.position = vec4<f32>(finalPos, 0.0, 1.0);
+        output.color = instance.color;
+
+        return output;
+      }
+
+      @fragment
+      fn fragment_main(@location(0) color: vec4<f32>) -> @location(0) vec4<f32> {
+        return color;
+      }
+    `
+  }
+
+  /**
+   * Create circle shader for instanced rendering
+   */
+  private createCircleShader(): string {
+    return `
+      struct InstanceInput {
+        @location(0) position: vec2<f32>,
+        @location(1) color: vec4<f32>,
+        @location(2) size: vec2<f32>,
+      }
+
+      struct VertexOutput {
+        @builtin(position) position: vec4<f32>,
+        @location(0) color: vec4<f32>,
+        @location(1) localPos: vec2<f32>,
+      }
+
+      @vertex
+      fn vertex_main(@builtin(vertex_index) vertexIndex: u32, instance: InstanceInput) -> VertexOutput {
+        var output: VertexOutput;
+
+        // Create circle vertices (triangle fan around center)
+        let angle = f32(vertexIndex) * 2.0 * 3.14159 / 6.0;
+        let radius = 0.5;
+        let pos = vec2<f32>(cos(angle) * radius, sin(angle) * radius);
+
+        output.position = vec4<f32>(instance.position + pos * instance.size, 0.0, 1.0);
+        output.color = instance.color;
+        output.localPos = pos;
+
+        return output;
+      }
+
+      @fragment
+      fn fragment_main(@location(0) color: vec4<f32>, @location(1) localPos: vec2<f32>) -> @location(0) vec4<f32> {
+        let distance = length(localPos);
+        if (distance > 0.5) {
+          discard;
+        }
+        return color;
+      }
+    `
+  }
+
+  /**
+   * Create text shader for instanced rendering
+   */
+  private createTextShader(): string {
+    return `
+      struct InstanceInput {
+        @location(0) position: vec2<f32>,
+        @location(1) color: vec4<f32>,
+        @location(2) size: vec2<f32>,
+        @location(3) texCoord: vec2<f32>,
+      }
+
+      struct VertexOutput {
+        @builtin(position) position: vec4<f32>,
+        @location(0) color: vec4<f32>,
+        @location(1) texCoord: vec2<f32>,
+      }
+
+      @vertex
+      fn vertex_main(@builtin(vertex_index) vertexIndex: u32, instance: InstanceInput) -> VertexOutput {
+        var output: VertexOutput;
+
+        // Create quad vertices
+        var pos: vec2<f32>;
+        var uv: vec2<f32>;
+        switch vertexIndex {
+          case 0u: { pos = vec2<f32>(0.0, 0.0); uv = vec2<f32>(0.0, 1.0); }
+          case 1u: { pos = vec2<f32>(1.0, 0.0); uv = vec2<f32>(1.0, 1.0); }
+          case 2u: { pos = vec2<f32>(0.0, 1.0); uv = vec2<f32>(0.0, 0.0); }
+          case 3u: { pos = vec2<f32>(1.0, 1.0); uv = vec2<f32>(1.0, 0.0); }
+          default: { pos = vec2<f32>(0.0, 0.0); uv = vec2<f32>(0.0, 0.0); }
+        }
+
+        let scaledPos = pos * instance.size;
+        let finalPos = instance.position + scaledPos;
+
+        output.position = vec4<f32>(finalPos, 0.0, 1.0);
+        output.color = instance.color;
+        output.texCoord = instance.texCoord + uv;
+
+        return output;
+      }
+
+      @fragment
+      fn fragment_main(@location(0) color: vec4<f32>, @location(1) texCoord: vec2<f32>) -> @location(0) vec4<f32> {
+        // Sample from font texture (placeholder - would need texture binding)
+        let alpha = 1.0; // Would sample from texture
+        return vec4<f32>(color.rgb, color.a * alpha);
+      }
+    `
+  }
+
+  /**
+   * Create generic shader for other renderable types
+   */
+  private createGenericShader(): string {
+    return `
+      struct InstanceInput {
+        @location(0) position: vec2<f32>,
+        @location(1) color: vec4<f32>,
+        @location(2) size: vec2<f32>,
+      }
+
+      struct VertexOutput {
+        @builtin(position) position: vec4<f32>,
+        @location(0) color: vec4<f32>,
+      }
+
+      @vertex
+      fn vertex_main(@builtin(vertex_index) vertexIndex: u32, instance: InstanceInput) -> VertexOutput {
+        var output: VertexOutput;
+
+        var pos: vec2<f32>;
+        switch vertexIndex {
+          case 0u: { pos = vec2<f32>(-0.5, -0.5); }
+          case 1u: { pos = vec2<f32>(0.5, -0.5); }
+          case 2u: { pos = vec2<f32>(-0.5, 0.5); }
+          case 3u: { pos = vec2<f32>(0.5, 0.5); }
+          default: { pos = vec2<f32>(0.0, 0.0); }
+        }
+
+        let scaledPos = pos * instance.size;
+        let finalPos = instance.position + scaledPos;
+
+        output.position = vec4<f32>(finalPos, 0.0, 1.0);
+        output.color = instance.color;
+
+        return output;
+      }
+
+      @fragment
+      fn fragment_main(@location(0) color: vec4<f32>) -> @location(0) vec4<f32> {
+        return color;
+      }
+    `
+  }
+
+  /**
+   * Create text bind group layout for font texture
+   */
+  private createTextBindGroupLayout(device: GPUDevice): GPUBindGroupLayout {
+    return device.createBindGroupLayout({
+      entries: [
+        {
+          binding: 0,
+          visibility: GPUShaderStage.FRAGMENT,
+          texture: {
+            sampleType: 'float',
+            viewDimension: '2d',
+            multisampled: false,
+          },
+        },
+        {
+          binding: 1,
+          visibility: GPUShaderStage.FRAGMENT,
+          sampler: {
+            type: 'filtering',
+          },
+        },
+      ],
+    })
   }
 
   /**
