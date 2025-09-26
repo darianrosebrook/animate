@@ -1,16 +1,39 @@
-# CAWS v1.0 — Engineering-Grade Operating System for Coding Agents
+# Animator CAWS v1.0 — Engineering-Grade Operating System for Motion Graphics Development
 
 ## Purpose
 Our "engineering-grade" operating system for coding agents that (1) forces planning before code, (2) bakes in tests as first-class artifacts, (3) creates explainable provenance, and (4) enforces quality via automated CI gates. It's expressed as a Working Spec + Ruleset the agent must follow, with schemas, templates, scripts, and verification hooks that enable better collaboration between agent and our human in the loop.
 
+This CAWS instance is specifically tailored for the Animator project - a comprehensive motion graphics platform. The framework enforces deterministic rendering, real-time collaboration, and production-grade quality standards essential for motion design workflows.
+
+## Animator-Specific Context
+
+**Domain Challenges:**
+- **Deterministic Rendering**: Pixel-perfect output across different GPUs, platforms, and rendering backends
+- **Real-time Collaboration**: Multi-user editing with conflict-free replicated data types at timeline scale
+- **Performance Criticality**: 60fps timeline interaction with complex compositions and GPU-intensive effects
+- **Media Pipeline Complexity**: Professional codec support with hardware-accelerated decoding/encoding
+- **Cross-Platform Fidelity**: Identical output on web, desktop, and mobile platforms
+
+**Quality Standards:**
+- **Golden Frame Testing**: Automated validation against reference renders with perceptual difference scoring
+- **Accessibility Compliance**: WCAG 2.1 AA compliance for motion and interaction design
+- **Broadcast Standards**: Professional audio/video compliance with EBU R128, ATSC A/85
+- **Performance Budgeting**: Strict frame time budgets with real-time monitoring and adaptive quality
+
 ## 1) Core Framework
 
-### Risk Tiering → Drives Rigor
-• **Tier 1** (Core/critical path, auth/billing, migrations): highest rigor; mutation ≥ 70, branch cov ≥ 90, contract tests mandatory, chaos tests optional, manual review required.
-• **Tier 2** (Common features, data writes, cross-service APIs): mutation ≥ 50, branch cov ≥ 80, contracts mandatory if any external API, e2e smoke required.
-• **Tier 3** (Low risk, read-only UI, internal tooling): mutation ≥ 30, branch cov ≥ 70, integration happy-path + unit thoroughness, e2e optional.
+### Risk Tiering → Drives Rigor (Animator-Specific)
 
-Agent must infer and declare tier in the plan; human reviewer may bump it up, never down.
+• **Tier 1** (Core rendering engine, scene graph, collaboration, deterministic output): highest rigor; mutation ≥ 70, branch cov ≥ 90, golden-frame tests mandatory, cross-platform validation required, manual review required.
+• **Tier 2** (Media pipeline, audio system, plugin architecture, export functionality): mutation ≥ 50, branch cov ≥ 80, integration tests with Testcontainers mandatory, codec compliance testing required.
+• **Tier 3** (UI components, preview systems, documentation, developer tools): mutation ≥ 30, branch cov ≥ 70, accessibility testing mandatory, performance budget validation required.
+
+**Animator-Specific Tier Guidelines:**
+- **Tier 1**: Changes affecting rendering output, collaboration state, or core data models
+- **Tier 2**: New effects, media format support, plugin APIs, or performance optimizations
+- **Tier 3**: UI improvements, documentation updates, development tooling, or non-critical features
+
+Agent must infer and declare tier in the plan; human reviewer may bump it up, never down. Motion graphics features default to Tier 2 due to visual quality implications.
 
 ### New Invariants (Repository-Level "Operating Envelope")
 
@@ -234,12 +257,44 @@ git diff --cached --name-only | grep -E "$PATTERN" && {
 }
 ```
 
-#### Tier Policy Configuration
+#### Tier Policy Configuration (Animator-Specific)
 ```json
 {
-  "1": {"min_branch": 0.90, "min_mutation": 0.70, "requires_contracts": true, "requires_manual_review": true, "max_files": 40, "max_loc": 1500, "allowed_modes": ["feature","refactor","fix"]},
-  "2": {"min_branch": 0.80, "min_mutation": 0.50, "requires_contracts": true, "max_files": 25, "max_loc": 1000, "allowed_modes": ["feature","refactor","fix"]},
-  "3": {"min_branch": 0.70, "min_mutation": 0.30, "requires_contracts": false, "max_files": 15, "max_loc": 600, "allowed_modes": ["feature","refactor","fix","doc","chore"]}
+  "1": {
+    "min_branch": 0.90,
+    "min_mutation": 0.70,
+    "requires_contracts": true,
+    "requires_manual_review": true,
+    "requires_golden_frame_tests": true,
+    "requires_cross_platform_validation": true,
+    "max_files": 40,
+    "max_loc": 1500,
+    "allowed_modes": ["feature","refactor","fix"],
+    "perf_budget_required": true,
+    "a11y_required": true
+  },
+  "2": {
+    "min_branch": 0.80,
+    "min_mutation": 0.50,
+    "requires_contracts": true,
+    "requires_codec_compliance_testing": true,
+    "max_files": 25,
+    "max_loc": 1000,
+    "allowed_modes": ["feature","refactor","fix"],
+    "perf_budget_required": true,
+    "a11y_required": true
+  },
+  "3": {
+    "min_branch": 0.70,
+    "min_mutation": 0.30,
+    "requires_contracts": false,
+    "requires_accessibility_testing": true,
+    "max_files": 15,
+    "max_loc": 600,
+    "allowed_modes": ["feature","refactor","fix","doc","chore"],
+    "perf_budget_required": false,
+    "a11y_required": true
+  }
 }
 ```
 
@@ -419,203 +474,369 @@ jobs:
         run: node apps/tools/caws/gates.js trust --tier ${{ needs.setup.outputs.risk }}
 ```
 
-### C) Repository Scaffold
+### C) Repository Scaffold (Animator-Specific)
 ```
 .caws/
   policy/tier-policy.json
   schemas/{working-spec.schema.json, provenance.schema.json}
-  templates/{pr.md, feature.plan.md, test-plan.md}
-apps/contracts/     # OpenAPI/GraphQL/Pact
-docs/                # human docs; ADRs
+  templates/{pr.md, feature.plan.md, test-plan.md, motion-feature.yaml}
+apps/contracts/     # OpenAPI for scene-graph, timeline, plugin APIs
+  scene-graph-api.yaml
+  timeline-api.yaml
+  plugin-api.yaml
+docs/                # human docs; ADRs; comprehensive plan
+  v.0.plan.md       # comprehensive technical specification
+  scene-graph.impact-map.md
+  scene-graph.non-functional.md
+  scene-graph.test-plan.md
 src/
+  core/             # Rust core engine (scene graph, evaluator, cache)
+    scene-graph/
+    renderer/
+    audio/
+    collaboration/
+  ui/               # TypeScript/React UI layer
+    components/
+    canvas/
+    timeline/
+    properties/
+  effects/          # GPU effects and shaders
+    blur/
+    color/
+    distortion/
+    generators/
+  plugins/          # Plugin system and SDK
+    runtime/
+    sdk/
+    examples/
 tests/
-  unit/
-  contract/
-  integration/
-  e2e/
-  axe/
-  mutation/
-apps/tools/caws/
+  unit/             # Fast, deterministic unit tests
+    core/
+    effects/
+    expressions/
+  contract/         # Pact contract tests for APIs
+    scene-graph/
+    timeline/
+    plugins/
+  integration/      # Testcontainers with media fixtures
+    rendering/
+    audio/
+    collaboration/
+  e2e/              # Playwright for critical user paths
+    composition/
+    collaboration/
+    export/
+  axe/              # Accessibility testing
+    motion/
+    keyboard/
+    screen-reader/
+  mutation/         # Mutation testing for deterministic systems
+    core-logic/
+    rendering/
+  golden-frame/     # Reference render validation
+    compositions/
+    effects/
+    cross-platform/
+apps/tools/caws/    # CAWS tooling and validation
   validate.ts
-  gates.ts          # thresholds, trust score
+  gates.ts          # thresholds, trust score, golden-frame validation
   provenance.ts
   prompt-lint.js    # prompt hygiene & tool allowlist
   attest.js         # SBOM + SLSA attestation generator
   tools-allow.json  # allowed tools for agents
+  motion-tools.json # motion graphics specific tools
 codemod/            # AST transformation scripts for refactor mode
   rename.ts         # example codemod for renaming modules
+  scene-refactor.ts # scene graph refactoring tools
 .agent/             # provenance artifacts (generated)
   sbom.json
   attestation.json
   provenance.json
   tools-allow.json
+  golden-frames/    # reference render repository
 .github/
-  workflows/caws.yml
-CODEOWNERS
+  workflows/caws.yml # comprehensive CI/CD with GPU testing
+  workflows/render-farm.yml # distributed rendering pipeline
+  CODEOWNERS        # tier-1 path ownership
+LICENSE
+README.md
 ```
 
 ## 3) Templates & Examples
 
-### Working Spec YAML Template
+### Working Spec YAML Template (Motion Graphics Feature)
 ```yaml
-id: FEAT-1234
-title: "Apply coupon at checkout"
+id: MOTION-1234
+title: "Add GPU-accelerated glow effect with real-time parameter feedback"
 risk_tier: 2
 mode: feature
 change_budget:
   max_files: 25
-  max_loc: 1000
+  max_loc: 1200
 blast_radius:
-  modules: ["checkout", "discounts"]
-  data_migration: true
-operational_rollback_slo: "5m"
+  modules: ["renderer", "effects", "timeline", "preview"]
+  data_migration: false
+operational_rollback_slo: "15m"
 threats:
-  - "Race condition in concurrent coupon application"
-  - "Expired coupon validation bypass"
+  - "Performance regression on low-end GPUs"
+  - "Color accuracy drift across different color spaces"
+  - "Inconsistent behavior between preview and export rendering"
 scope:
-  in: ["apply percentage/fixed coupons", "stacking rules per business policy"]
-  out: ["gift cards", "multi-currency proration"]
+  in: ["glow effect implementation", "GPU shader optimization", "real-time parameter preview", "color space handling"]
+  out: ["3D lighting effects", "particle systems", "advanced color grading"]
 invariants:
-  - "Total ≥ 0"
-  - "Coupon validity window respected (server time)"
-  - "Max one store-wide coupon; stacking only with product-specific coupons"
+  - "Glow effect maintains deterministic output across all supported GPUs"
+  - "Real-time parameter changes reflect immediately in timeline preview (≤16ms response)"
+  - "Glow effect preserves alpha channel and layer blending modes"
+  - "Performance impact ≤5% on existing compositions with similar effects"
 acceptance:
   - id: A1
-    given: "valid percentage coupon and eligible cart"
-    when:  "user applies coupon"
-    then:  "subtotal reduces by rate; taxes recomputed; UI reflects discount"
+    given: "composition with 50+ layers including text, shapes, and media"
+    when:  "apply glow effect with intensity=0.8, radius=20, color=#FF6B35"
+    then:  "glow renders correctly in real-time preview; exported ProRes matches preview within ΔE < 1.0"
   - id: A2
-    given: "expired coupon"
-    when:  "apply"
-    then:  "explainable error; no state change"
+    given: "glow effect applied to layer with alpha transparency"
+    when:  "scrub timeline at 60fps"
+    then:  "smooth playback without frame drops; alpha compositing preserved"
+  - id: A3
+    given: "glow effect with extreme parameters (radius=100, intensity=2.0)"
+    when:  "render at 4K resolution"
+    then:  "graceful fallback to software rendering if GPU memory insufficient"
 non_functional:
-  a11y: ["keyboard reachable apply/remove", "announce errors with aria-live"]
-  perf: { api_p95_ms: 250 }
-  security: ["server-side validation; no client trust"]
+  a11y: ["glow effect supports reduced motion preferences", "parameter controls keyboard accessible", "effect preview announced to screen readers"]
+  perf: { render_thread_ms: 8, memory_mb: 256, gpu_memory_mb: 512 }
+  security: ["shader inputs sanitized", "GPU memory bounds checked", "no resource leaks in effect lifecycle"]
 contracts:
   - type: openapi
-    path: "apps/contracts/checkout.yaml#/applyCoupon"
+    path: "apps/contracts/scene-graph-api.yaml#/effects/glow"
+  - type: openapi
+    path: "apps/contracts/timeline-api.yaml#/preview-updates"
 observability:
-  logs: ["coupon.apply result, reason"]
-  metrics: ["coupon_apply_success_count", "failure_reason"]
-  traces: ["applyCoupon span with coupon_id, cart_id"]
-migrations:
-  - "add coupon_usages table with FK and unique constraints"
-rollback: ["feature flag kill-switch; revert migration step DDL"]
+  logs: ["glow_effect.render_time", "glow_effect.parameter_change", "glow_effect.gpu_memory_usage"]
+  metrics: ["glow_effect_success_rate", "glow_effect_avg_render_time", "glow_effect_memory_peak"]
+  traces: ["glow_effect span with layer_id, parameters, render_context"]
+migrations: []
+rollback: ["feature flag kill-switch; shader cache invalidation; parameter reset to defaults"]
 ```
 
-### PR Description Template
+### PR Description Template (Motion Graphics Feature)
 ```markdown
 ## Summary
-What changed and why (business value), link to ticket.
+Added GPU-accelerated glow effect with real-time parameter feedback, enabling designers to create professional lighting effects with immediate visual feedback. This addresses the need for high-performance effects that maintain deterministic output across platforms.
 
 ## Working Spec
-- Risk Tier: 2
-- Invariants: ...
-- Acceptance IDs covered: A1, A2, ...
+- Risk Tier: 2 (media pipeline, effects system)
+- Motion Design Invariants: Deterministic rendering, real-time preview (≤16ms), alpha preservation
+- Acceptance IDs covered: A1, A2, A3
 
 ## Contracts
-- OpenAPI diff: apps/contracts/checkout.yaml (v1.3 → v1.4)
-- Consumer tests: ✅ 12
-- Provider verification: ✅
+- Scene Graph API: apps/contracts/scene-graph-api.yaml#/effects/glow (v1.2 → v1.3)
+- Timeline API: apps/contracts/timeline-api.yaml#/preview-updates (v1.1 → v1.2)
+- Consumer tests: ✅ 18 (effect application, parameter validation)
+- Provider verification: ✅ (rendering pipeline, preview system)
 
 ## Tests
-- Unit: 74 tests, branch cov 86% (target 80%)
-- Mutation: 56% (target 50%) – survived mutants listed below (rationale)
-- Integration: 8 flows (Testcontainers Postgres)
-- E2E smoke: 3 (Playwright) – recordings & traces attached
-- A11y: axe 0 critical; keyboard path video attached
+- Unit: 89 tests, branch cov 92% (target 80%) - core logic, shader validation, parameter handling
+- Mutation: 68% (target 50%) - rendering logic, color space conversion, performance paths
+- Integration: 12 flows (Testcontainers with media fixtures) - effect composition, timeline preview, export pipeline
+- E2E smoke: 6 (Playwright) - effect application workflow, real-time preview, cross-platform rendering
+- Golden Frame: 4 reference renders validated (ΔE < 1.0, SSIM > 0.98) across GPU types
+- A11y: axe 0 critical; keyboard navigation tested; reduced motion support verified
 
 ## Non-functional
-- API p95 212ms (budget 250ms)
-- Zero SAST criticals; deps policy compliant
+- Render thread 6.2ms avg (budget 8ms) - maintains 60fps timeline interaction
+- GPU memory 184MB peak (budget 512MB) - efficient resource usage
+- Zero SAST criticals; WGSL shaders security reviewed
 
 ## Observability
-- New metrics: coupon_apply_success_count
-- OTel spans: applyCoupon with attributes
+- New metrics: glow_effect_render_time, glow_effect_success_rate, gpu_memory_usage
+- OTel spans: glow_effect with layer_id, parameters, render_context
+- Performance dashboards: real-time effect performance monitoring
 
 ## Migration & Rollback
-- DDL: coupons_usages (idempotent)
-- Kill switch env: FEATURE_COUPONS_APPLY=false
+- Database: none required (shader cache auto-invalidates)
+- Kill switch env: FEATURE_GLOW_EFFECT=false
+- Rollback: shader cache clear; parameter defaults reset
 
 ## Known Limits / Follow-ups
-- Stacking with gift cards is out of scope (FEAT-1290)
+- 3D mesh glow effects deferred to MOTION-1250 (requires depth buffer integration)
+- Advanced color grading integration planned for MOTION-1260
+- Particle system integration for animated glow effects in MOTION-1270
+
+## Files Changed
+- `src/effects/glow/` - Core glow effect implementation
+- `src/renderer/shaders/` - WGSL glow shaders with optimization
+- `src/timeline/preview/` - Real-time parameter feedback system
+- `tests/golden-frame/effects/` - Reference render validation
+- `apps/contracts/scene-graph-api.yaml` - Effect API contract updates
 ```
 
-### Testing Patterns
+### Testing Patterns (Motion Graphics-Specific)
 
-#### Property-Based Unit Test
+#### Property-Based Unit Test (Deterministic Rendering)
 ```typescript
 import fc from "fast-check";
-import { applyCoupon } from "../../src/discount";
+import { applyGlowEffect } from "../../src/effects/glow";
 import { fixedClock } from "../helpers/clock";
+import { createTestScene } from "../helpers/scene-fixtures";
 
-it("total never < 0 [INV: Total ≥ 0]", () => {
-  const cart = cartArb(); const coupon = couponArb();
-  fc.assert(fc.property(cart, coupon, (c,k) => {
-    const r = applyCoupon(c,k,fixedClock("2025-09-17T00:00:00Z"));
-    return r.total >= 0;
+it("glow effect maintains deterministic output [INV: Deterministic Rendering]", () => {
+  const scene = createTestScene();
+  const effectParams = {
+    intensity: fc.float({ min: 0, max: 2 }),
+    radius: fc.integer({ min: 1, max: 100 }),
+    color: fc.tuple(fc.integer({ min: 0, max: 255 }), fc.integer({ min: 0, max: 255 }), fc.integer({ min: 0, max: 255 }))
+  };
+
+  fc.assert(fc.property(effectParams, (params) => {
+    const result1 = applyGlowEffect(scene, params, fixedClock("2025-09-17T10:00:00Z"));
+    const result2 = applyGlowEffect(scene, params, fixedClock("2025-09-17T10:00:00Z"));
+    return buffersEqual(result1.frameBuffer, result2.frameBuffer);
   }));
 });
 ```
 
-#### Contract Consumer Test
+#### Contract Consumer Test (Scene Graph API)
 ```typescript
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import { ApplyCouponResponse } from "../../apps/contracts/checkout.types";
+import { GlowEffectRequest, GlowEffectResponse } from "../../apps/contracts/scene-graph.types";
 
 const server = setupServer(
-  http.post("/applyCoupon", () => HttpResponse.json({ success:true, subtotal:90 } satisfies ApplyCouponResponse))
+  http.post("/api/v1/effects/glow", ({ request }) => {
+    const body = request.body as GlowEffectRequest;
+    return HttpResponse.json({
+      success: true,
+      effectId: "glow_123",
+      renderTimeMs: 6.2,
+      memoryUsageMb: 45.2
+    } satisfies GlowEffectResponse);
+  })
 );
-beforeAll(()=>server.listen()); afterAll(()=>server.close());
+beforeAll(() => server.listen()); afterAll(() => server.close());
 
-it("conforms to /applyCoupon schema [contract]", async () => {
-  const res = await client.applyCoupon({ code:"SAVE10" });
-  expect(res.success).toBe(true);
+it("glow effect API conforms to scene-graph contract [contract]", async () => {
+  const response = await client.applyGlowEffect({
+    layerId: "layer_456",
+    intensity: 0.8,
+    radius: 20,
+    color: { r: 255, g: 107, b: 53 }
+  });
+
+  expect(response.success).toBe(true);
+  expect(response.renderTimeMs).toBeLessThan(16); // Real-time requirement
 });
 ```
 
-#### Integration Test with Testcontainers
+#### Integration Test with Testcontainers (Media Pipeline)
 ```typescript
-import { StartedPostgreSqlContainer, PostgreSqlContainer } from "@testcontainers/postgresql";
+import { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import { GenericContainer } from "@testcontainers/generic-container";
+import { createSceneWithMedia } from "../helpers/media-fixtures";
+
 let pg: StartedPostgreSqlContainer;
+let ffmpeg: GenericContainer;
 
-beforeAll(async ()=> { pg = await new PostgreSqlContainer().start(); await migrate(pg); });
-afterAll(async ()=> await pg.stop());
+beforeAll(async () => {
+  pg = await new PostgreSqlContainer().start();
+  await migrateMediaDb(pg);
+  ffmpeg = await new GenericContainer("ffmpeg:latest").start();
+});
+afterAll(async () => { await pg.stop(); await ffmpeg.stop(); });
 
-it("persists coupon usage [flow A1]", async () => {
-  await seed(pg).withCustomer().withEligibleItems();
-  const res = await api(pg).applyCoupon("SAVE10");
-  expect(res.status).toBe(200);
-  const cnt = await countUsages(pg, "SAVE10");
-  expect(cnt).toBe(1);
+it("glow effect processes media layers correctly [integration]", async () => {
+  const scene = await createSceneWithMedia(pg, {
+    videoFile: "test-assets/sample_video.mp4",
+    imageFile: "test-assets/logo.png"
+  });
+
+  const result = await renderer.renderGlowEffect({
+    sceneId: scene.id,
+    effectParams: { intensity: 0.5, radius: 10 }
+  });
+
+  expect(result.renderTimeMs).toBeLessThan(16);
+  expect(result.outputFormat).toBe("rgba_f32"); // GPU pipeline format
+  expect(result.frameCount).toBe(scene.frameCount);
 });
 ```
 
-#### E2E Smoke Test
+#### Golden Frame Test (Reference Render Validation)
 ```typescript
-test("apply coupon updates subtotal [A1]", async ({ page }) => {
-  await page.goto("/checkout");
-  await page.getByRole("textbox", { name: /coupon/i }).fill("SAVE10");
-  await page.getByRole("button", { name: /apply/i }).click();
-  await expect(page.getByRole("status")).toHaveText(/discount applied/i);
-  await expect(page.getByTestId("subtotal")).toContainText("$90.00");
+import { compareGoldenFrame } from "../helpers/golden-frame";
+import { createComplexScene } from "../helpers/complex-fixtures";
+
+test("glow effect matches golden frame reference [golden-frame]", async () => {
+  const scene = createComplexScene({
+    layers: 50,
+    effects: ["blur", "color_correction", "glow"],
+    resolution: "1920x1080"
+  });
+
+  const renderedFrame = await renderer.renderFrame(scene, 30); // Frame 30
+  const goldenFrame = await loadGoldenFrame("effects/glow/complex_scene_frame_30");
+
+  const comparison = compareGoldenFrame(renderedFrame, goldenFrame, {
+    deltaEThreshold: 1.0,    // Perceptual color difference
+    ssimThreshold: 0.98,     // Structural similarity
+    alphaTolerance: 0.01     // Alpha channel tolerance
+  });
+
+  expect(comparison.passes).toBe(true);
+  expect(comparison.maxDeltaE).toBeLessThan(1.0);
+  expect(comparison.ssim).toBeGreaterThan(0.98);
 });
 ```
 
-## 4) Agent Conduct Rules (Hard Constraints)
+#### E2E Smoke Test (Motion Graphics Workflow)
+```typescript
+test("apply glow effect updates timeline preview in real-time [e2e]", async ({ page }) => {
+  await page.goto("/animator/composition/test-comp");
 
-1. **Spec adherence**: Do not implement beyond scope.in; if discovered dependency changes spec, open "Spec delta" in PR and update tests first.
-2. **No hidden state/time/net**: All non-determinism injected and controlled in tests.
-3. **Explainable mocks**: Only mock boundaries; never mock the function under test; document any mock behavior in comments.
-4. **Idempotency & error paths**: Provide tests for retries/timeouts/cancel; assert invariants on error.
-5. **Observability parity**: Every key acceptance path emits logs/metrics/traces; tests assert on them when feasible (e.g., fake exporter assertions).
-6. **Data safety**: No real PII in fixtures; factories generate realistic but synthetic data.
-7. **Accessibility required**: For UI changes: keyboard path test + axe scan; for API: error messages human-readable and localizable.
-8. **Performance ownership**: Include micro-bench (where hot path) or budget check; document algorithmic complexity if changed.
-9. **Docs as code**: Update README/usage snippets; add example code; regenerate typed clients from contracts.
-10. **Rollback ready**: Feature-flag new behavior; write a reversible migration or provide kill-switch.
+  // Apply glow effect to selected layer
+  await page.getByRole("button", { name: /effects/i }).click();
+  await page.getByRole("button", { name: /add glow/i }).click();
+
+  // Verify real-time parameter feedback
+  await page.getByLabel("Glow Intensity").fill("0.8");
+  await page.getByLabel("Glow Radius").fill("20");
+
+  // Timeline should update immediately (≤16ms)
+  await expect(page.getByTestId("timeline-scrubber")).toBeVisible();
+  await page.dragTimelineToFrame(30);
+
+  // Verify preview updates without frame drops
+  const previewUpdateTime = await measurePreviewUpdateTime();
+  expect(previewUpdateTime).toBeLessThan(16);
+
+  // Export and verify quality
+  await page.getByRole("button", { name: /export/i }).click();
+  await page.getByRole("button", { name: /prores 422/i }).click();
+
+  const exportResult = await waitForExportCompletion();
+  expect(exportResult.qualityScore).toBeGreaterThan(0.95); // SSIM vs preview
+});
+```
+
+## 4) Agent Conduct Rules (Hard Constraints - Motion Graphics)
+
+1. **Spec adherence**: Do not implement beyond scope.in; if discovered dependency changes spec, open "Spec delta" in PR and update golden-frame tests first.
+2. **Deterministic rendering**: All visual output must be pixel-identical across platforms; GPU shaders must be deterministic with seeded randomness.
+3. **Real-time performance**: All timeline interactions must maintain 60fps; parameter changes must reflect in ≤16ms; document frame budget impact.
+4. **Visual quality invariants**: Effects must preserve alpha channels, maintain color accuracy (ΔE < 1.0), and support all blend modes.
+5. **GPU safety**: Shader bounds checking mandatory; memory leaks forbidden; graceful fallback to software rendering required.
+6. **Cross-platform validation**: Test on multiple GPU vendors (NVIDIA/AMD/Intel/Apple); golden-frame validation on reference hardware.
+7. **Accessibility required**: Motion effects must support reduced motion preferences; keyboard navigation mandatory; screen reader announcements required.
+8. **Media pipeline integrity**: Codec compliance testing mandatory; no data corruption in decode/encode cycles; professional format support.
+9. **Observability parity**: Every render path emits timing metrics; GPU memory usage tracked; performance regressions trigger alerts.
+10. **Rollback ready**: Feature-flag all visual changes; shader cache invalidation; parameter defaults reset; export quality validation.
+
+**Motion Graphics-Specific Rules:**
+- **Golden frame validation**: All visual changes require golden-frame test approval before merge
+- **Performance regression prevention**: 5%+ performance degradation blocks merge; requires optimization or scope reduction
+- **Visual artifact prevention**: No flickering, color banding, or alpha compositing errors allowed
+- **Memory safety**: GPU memory leaks must be impossible; automatic cleanup on effect disposal
+- **Color accuracy**: All color transformations must maintain professional color fidelity across gamuts
 
 ## 5) Trust & Telemetry
 
@@ -642,131 +863,186 @@ test("apply coupon updates subtotal [A1]", async ({ page }) => {
 • **Performance**: k6 scripts for API budgets; LHCI for web budgets; regressions fail gate.
 • **Migrations**: lint for reversibility; dry-run in CI; forward-compat contract tests.
 
-## 7) Language & Tooling Ecosystem
+## 7) Language & Tooling Ecosystem (Motion Graphics)
 
-### TypeScript Stack (Recommended)
-• **Testing**: Jest/Vitest, fast-check, Playwright, Testcontainers, Stryker, MSW or Pact
-• **Quality**: ESLint + types, LHCI, axe-core
-• **CI**: GitHub Actions with Node 20
+### Core Stack (TypeScript + Rust + WGSL)
+• **Testing**: Jest/Vitest, fast-check, Playwright, Testcontainers, Stryker, MSW, Pact
+• **Quality**: ESLint + types, LHCI, axe-core, WGSL shader validation
+• **CI**: GitHub Actions with GPU runners, golden-frame validation
+• **Performance**: WebGPU profiling, render time analysis, memory leak detection
+• **Motion Graphics**: Custom property-based testing for deterministic rendering, perceptual diff tools
 
-### Python Stack
-• **Testing**: pytest, hypothesis, Playwright (Python), Testcontainers-py, mutmut, Schemathesis
-• **Quality**: bandit/semgrep, Lighthouse CI, axe-core
+### Media Processing Stack
+• **FFmpeg Integration**: Node-ffmpeg, fluent-ffmpeg for codec testing
+• **Image Processing**: Sharp, Jimp for texture and asset validation
+• **Audio Analysis**: Web Audio API testing, audio feature extraction validation
+• **Codec Testing**: Comprehensive codec compliance testing across platforms
 
-### JVM Stack
-• **Testing**: JUnit5, jqwik, Testcontainers, PIT (mutation), Pact-JVM
-• **Quality**: OWASP dependency check, SonarQube, axe-core
+### GPU & Rendering Stack
+• **WebGPU Testing**: wgpu-rs testing, cross-platform GPU validation
+• **Shader Testing**: WGSL compilation testing, shader performance profiling
+• **Render Validation**: Golden frame comparison, perceptual difference scoring
+• **Memory Testing**: GPU memory leak detection, resource usage validation
 
-**Note**: Mutation testing is non-negotiable for tiers ≥2; it's the only reliable guard against assertion theater.
+### Specialized Motion Graphics Tools
+• **Color Science**: Delta-E color difference validation, gamut mapping testing
+• **Animation Testing**: Interpolation accuracy testing, timing precision validation
+• **Visual Regression**: Automated screenshot comparison with motion-specific thresholds
+• **Performance Budgeting**: Frame time analysis, GPU utilization monitoring
 
-## 8) Review Rubric (Scriptable Scoring)
+**Note**: Golden-frame testing is non-negotiable for visual changes; mutation testing mandatory for deterministic systems; all GPU code requires cross-platform validation on multiple vendors (NVIDIA, AMD, Intel, Apple Silicon).
+
+## 8) Review Rubric (Scriptable Scoring - Motion Graphics)
 
 | Category | Weight | Criteria | 0 | 1 | 2 |
 |----------|--------|----------|----|----|----|
-| Spec clarity & invariants | ×5 | Clear, testable invariants | Missing/unclear | Basic coverage | Comprehensive + edge cases |
-| Contract correctness & versioning | ×5 | Schema accuracy + versioning | Errors present | Minor issues | Perfect + versioned |
-| Unit thoroughness & edge coverage | ×5 | Branch coverage + property tests | <70% coverage | Meets tier minimum | >90% + properties |
-| Integration realism | ×4 | Real containers + seeds | Mocked heavily | Basic containers | Full stack + realistic data |
-| E2E relevance & stability | ×3 | Critical paths + semantic selectors | Brittle selectors | Basic coverage | Semantic + stable |
-| Mutation adequacy | ×4 | Score vs tier threshold | <50% | Meets minimum | >80% |
-| A11y pathways & results | ×3 | Keyboard + axe clean | Major issues | Basic compliance | Full WCAG + keyboard |
-| Perf/Resilience | ×3 | Budgets + timeouts/retries | No checks | Basic budgets | Full resilience |
-| Observability | ×3 | Logs/metrics/traces asserted | Missing | Basic emission | Asserted in tests |
-| Migration safety & rollback | ×3 | Reversible + kill-switch | No rollback | Basic revert | Full rollback + testing |
-| Docs & PR explainability | ×3 | Clear rationale + limits | Minimal | Basic docs | Comprehensive + ADR |
+| Spec clarity & invariants | ×5 | Clear, testable invariants | Missing/unclear | Basic coverage | Comprehensive + visual edge cases |
+| Contract correctness & versioning | ×5 | API schema accuracy + versioning | Errors present | Minor issues | Perfect + versioned |
+| Unit thoroughness & deterministic testing | ×5 | Branch coverage + property tests | <70% coverage | Meets tier minimum | >90% + deterministic rendering |
+| Golden frame validation | ×4 | Reference render validation | No golden frames | Basic validation | Cross-platform golden frame coverage |
+| Integration realism & media pipeline | ×4 | Real containers + media fixtures | Mocked heavily | Basic containers | Full media pipeline + codec testing |
+| GPU/rendering testing | ×4 | Cross-platform GPU validation | Single GPU only | Multi-vendor testing | Full GPU matrix + performance validation |
+| E2E motion workflow stability | ×3 | Critical motion paths + semantic selectors | Brittle selectors | Basic coverage | Motion-specific semantic + stable |
+| Mutation adequacy for visual logic | ×4 | Score vs tier threshold | <50% | Meets minimum | >80% + visual mutants |
+| A11y motion & interaction pathways | ×3 | Motion accessibility + keyboard | Major issues | Basic compliance | Full WCAG + reduced motion support |
+| Render perf & GPU resilience | ×3 | Frame budgets + GPU error handling | No GPU checks | Basic budgets | Full GPU resilience + monitoring |
+| Visual quality & color accuracy | ×3 | Perceptual diff + color science | No quality checks | Basic validation | ΔE < 1.0 + gamut coverage |
+| Observability & render telemetry | ×3 | Render metrics/traces asserted | Missing | Basic emission | Full render observability in tests |
+| Migration safety & visual rollback | ×3 | Reversible + shader cache invalidation | No rollback | Basic revert | Full visual rollback + testing |
+| Motion docs & PR explainability | ×3 | Clear visual rationale + limits | Minimal | Basic docs | Comprehensive + motion examples |
 | **Mode compliance** | ×3 | Changes match declared `mode` | Violations | Minor drift | Full compliance |
 | **Scope & budget discipline** | ×3 | Diff within `scope.in` & budget | Exceeded | Near limit | Within limits |
-| **Supply-chain attestations** | ×2 | SBOM + SLSA attestation | Missing | Partial | Complete & valid |
+| **Render determinism** | ×2 | Cross-platform identical output | Platform variance | Basic consistency | Pixel-perfect across all platforms |
 
-**Target**: ≥ 82/100 (weighted sum). Calculator in `apps/tools/caws/rubric.ts`.
+**Target**: ≥ 85/100 (weighted sum). Calculator in `apps/tools/caws/rubric.ts`. Motion graphics features must achieve ≥90 for visual categories.
 
-## 9) Anti-patterns (Explicitly Rejected)
+## 9) Anti-patterns (Explicitly Rejected - Motion Graphics)
 
-• **Over-mocked integration tests**: mocking ORM or HTTP client where containerized integration is feasible.
-• **UI tests keyed on CSS classes**: brittle selectors instead of semantic roles/labels.
-• **Coupling tests to implementation details**: private method calls, internal sequence assertions.
-• **"Retry until green" CI culture**: quarantines without expiry or owner.
-• **100% coverage mandates**: without mutation testing or risk awareness.
+• **Over-mocked rendering tests**: Mocking GPU shaders or media pipelines instead of testing with real GPU contexts and codec fixtures.
+• **UI tests keyed on visual appearance**: Testing visual output with CSS selectors instead of semantic roles and perceptual validation.
+• **Non-deterministic rendering**: GPU shaders without seeded randomness or platform-dependent visual output.
+• **Performance-ignorant effects**: Adding visual effects without frame budget analysis or GPU memory impact assessment.
+• **Color-unsafe operations**: Color transformations without gamut mapping or cross-platform color validation.
+• **Media pipeline brittleness**: Codec assumptions without comprehensive format testing or graceful fallback handling.
+• **"Retry until green" CI culture**: Quarantining flaky golden-frame tests without expiry or visual regression investigation.
+• **100% coverage without visual validation**: High test coverage without golden-frame validation or perceptual difference testing.
 
-## 13) Failure-Mode Cards (Common Traps & Recovery)
+## 13) Failure-Mode Cards (Motion Graphics Traps & Recovery)
 
 Add a small section of "If you see X, do Y":
 
-1. **Symptom:** Large rename + re-exports create `*-copy.ts` or `enhanced-*.ts`.
-   **Action:** Switch to **refactor mode**. Generate `codemod/rename.ts` that updates imports/exports in place. Validate with `tsc --noEmit` and run mutation tests to ensure unchanged behavior.
+1. **Symptom:** GPU shaders produce different output across platforms (NVIDIA vs AMD vs Apple Silicon).
+   **Action:** Switch to **Tier 1** classification. Implement deterministic shaders with fixed precision policy. Add golden-frame tests for all target platforms. Use software fallback rendering for validation.
 
-2. **Symptom:** Contract change proliferates across services.
-   **Action:** Declare **blast\_radius.modules**; create consumer **Pact** tests first. Stage changes behind a feature flag; ship provider compatibility for both old/new fields.
+2. **Symptom:** Visual effects cause performance regression (frame drops during timeline scrubbing).
+   **Action:** Declare **perf_budget_required**. Implement frame time budgeting with real-time monitoring. Add performance regression tests with 5% degradation threshold. Optimize or reduce effect scope.
 
-3. **Symptom:** Flaky time-based tests.
-   **Action:** Inject `Clock` and use fixed timestamps; assert **idempotency** with property tests.
+3. **Symptom:** Color differences between preview and export (ΔE > 1.0).
+   **Action:** Declare **color_accuracy_required**. Implement end-to-end color management pipeline. Add perceptual validation tests with SSIM scoring. Validate against professional color standards (Rec. 709, P3).
 
-4. **Symptom:** Agent proposes new external tool/library.
-   **Action:** Fail unless added to `tool_allowlist`. Require SBOM delta review and perf/a11y/security notes in the PR.
+4. **Symptom:** Flaky golden-frame tests with visual differences.
+   **Action:** Inject `GpuContext` with fixed seed. Implement deterministic random number generation. Add cross-platform validation fixtures. Investigate GPU driver differences and implement workarounds.
 
-## 10) Cursor/Codex Agent Integration
+5. **Symptom:** Agent proposes new GPU library or shader framework.
+   **Action:** Fail unless added to `motion-tools.json`. Require cross-platform validation on 4+ GPU vendors. Add SBOM security review and performance benchmarking. Implement graceful fallback to software rendering.
 
-### Agent Commands
-• `agent plan` → emits plan + test matrix
-• `agent verify` → runs local gates; generates provenance
-• `agent prove` → creates provenance manifest
-• `agent doc` → updates README/changelog from spec
+6. **Symptom:** Memory leaks in GPU-accelerated effects (increasing memory usage over time).
+   **Action:** Switch to **Tier 1** for GPU changes. Implement GPU memory pool management. Add memory leak detection tests. Validate memory cleanup on effect disposal and timeline navigation.
 
-### Guardrails
-• **Templates**: Inject Working Spec YAML + PR template on "New Feature" command
-• **Scaffold**: Pre-wire tests/* skeletons with containers and contracts
-• **Context discipline**: Restrict writes to spec-touched modules; deny outside scope unless spec updated
-• **Feedback loop**: PR comments show coverage, mutation diff, contract verification summary
+7. **Symptom:** Accessibility issues with motion effects (no reduced motion support, poor keyboard navigation).
+   **Action:** Add accessibility testing requirements. Implement reduced motion preferences. Add keyboard navigation tests. Validate with screen readers and motion-sensitive users.
 
-## 11) Adoption Roadmap
+## 10) Animator Agent Integration
 
-### Phase 1: Foundation (Week 1)
-- [ ] Add .caws/ directory with schemas and templates
-- [ ] Create apps/tools/caws/ validation scripts
-- [ ] Wire basic GitHub Actions workflow
-- [ ] Add CODEOWNERS for Tier-1 paths
+### Agent Commands (Motion Graphics-Specific)
+• `agent plan` → emits motion feature plan + golden-frame test matrix
+• `agent render` → generates GPU shaders and preview implementations
+• `agent validate` → runs cross-platform GPU validation and golden-frame testing
+• `agent optimize` → optimizes shaders for performance and memory usage
+• `agent prove` → creates provenance manifest with visual validation results
+• `agent doc` → updates motion documentation and shader specifications
 
-### Phase 2: Quality Gates (Week 2)
-- [ ] Enable Testcontainers for integration tests
-- [ ] Add mutation testing with tier thresholds
-- [ ] Implement trust score calculation
-- [ ] Add axe + Playwright smoke for UI changes
+### Guardrails (Motion Graphics)
+• **Templates**: Inject Motion Graphics Working Spec YAML + golden-frame test requirements
+• **Scaffold**: Pre-wire GPU tests, golden-frame fixtures, and shader validation
+• **Context discipline**: Restrict writes to rendering pipeline; require visual diff approval for UI changes
+• **Performance gates**: Automatic frame budget validation and GPU memory impact assessment
+• **Visual validation**: Golden-frame testing required before PR approval
+• **Feedback loop**: PR comments show render performance, GPU compatibility, and visual quality scores
 
-### Phase 3: Operational Excellence (Week 3)
-- [ ] Publish provenance manifest with PRs
-- [ ] Implement flake detector and quarantine process
-- [ ] Add waiver system with trust score caps
-- [ ] Socialize review rubric and block merges <80
+### Motion Graphics Agent Rules
+- **Visual changes require golden-frame tests**: Any shader or rendering changes must include reference validation
+- **Cross-platform GPU testing mandatory**: All GPU code tested on NVIDIA, AMD, Intel, and Apple Silicon
+- **Performance regression prevention**: 5%+ performance degradation blocks merge
+- **Color accuracy validation**: ΔE < 1.0 requirement for all color transformations
+- **Memory safety**: GPU memory leak detection required for all shader operations
 
-### Phase 4: Continuous Improvement (Ongoing)
-- [ ] Monitor drift in contract usage
-- [ ] Refine tooling based on feedback
-- [ ] Expand language support as needed
-- [ ] Track trust score trends and flake rates
+## 11) Animator Adoption Roadmap
 
-## 12) Trust Score Formula
+### Phase 1: Foundation (Week 1-2)
+- [ ] Set up .caws/ directory with motion graphics schemas and templates
+- [ ] Create GPU testing infrastructure with cross-platform validation
+- [ ] Wire GitHub Actions workflow with golden-frame testing pipeline
+- [ ] Add CODEOWNERS for Tier-1 rendering and core engine paths
+- [ ] Implement basic shader validation and compilation testing
+
+### Phase 2: Motion Graphics Quality Gates (Week 3-4)
+- [ ] Enable GPU-accelerated testing with real hardware runners
+- [ ] Add golden-frame validation for all visual effects
+- [ ] Implement mutation testing for deterministic rendering systems
+- [ ] Add perceptual difference scoring (ΔE, SSIM) validation
+- [ ] Set up cross-platform GPU matrix testing (NVIDIA, AMD, Intel, Apple Silicon)
+
+### Phase 3: Production Motion Workflows (Week 5-6)
+- [ ] Publish comprehensive provenance manifest with render validation
+- [ ] Implement visual regression detection and quarantine process
+- [ ] Add automated performance budgeting with frame time validation
+- [ ] Set up codec compliance testing pipeline
+- [ ] Socialize motion graphics review rubric and block merges <85
+
+### Phase 4: Advanced Motion Graphics (Week 7-8)
+- [ ] Add ML-assisted motion analysis and optimization
+- [ ] Implement advanced color science validation (gamut mapping, HDR)
+- [ ] Set up distributed rendering farm for golden-frame validation
+- [ ] Add real-time collaboration testing and validation
+- [ ] Implement comprehensive accessibility testing for motion effects
+
+### Phase 5: Enterprise Motion Production (Week 9+)
+- [ ] Monitor visual quality drift across different output formats
+- [ ] Refine GPU performance optimization based on real-world usage
+- [ ] Expand plugin ecosystem with CAWS-compliant validation
+- [ ] Track visual quality trends and user experience metrics
+- [ ] Implement automated visual compliance checking for brand guidelines
+
+## 12) Motion Graphics Trust Score Formula
 
 ```typescript
 const weights = {
-  coverage: 0.20,
-  mutation: 0.20,
-  contracts: 0.16,
+  coverage: 0.15,
+  mutation: 0.15,
+  golden_frame: 0.15,    // Visual quality validation
+  contracts: 0.12,
+  gpu_validation: 0.12,  // Cross-platform GPU testing
   a11y: 0.08,
   perf: 0.08,
-  flake: 0.08,
-  mode: 0.06,
-  scope: 0.06,
-  supplychain: 0.04
+  visual_quality: 0.08,  // ΔE, SSIM scoring
+  flake: 0.04,
+  mode: 0.04,
+  scope: 0.04,
+  supplychain: 0.02
 };
 
-function trustScore(tier: string, prov: Provenance) {
+function motionGraphicsTrustScore(tier: string, prov: Provenance) {
   const wsum = Object.values(weights).reduce((a,b)=>a+b,0);
   const score =
     weights.coverage * normalize(prov.results.coverage_branch, tiers[tier].min_branch, 0.95) +
     weights.mutation * normalize(prov.results.mutation_score, tiers[tier].min_mutation, 0.9) +
+    weights.golden_frame * (prov.results.golden_frame_pass_rate || 0) +
     weights.contracts * (tiers[tier].requires_contracts ? (prov.results.contracts.consumer && prov.results.contracts.provider ? 1 : 0) : 1) +
+    weights.gpu_validation * (prov.results.gpu_platforms_tested >= 3 ? 1 : prov.results.gpu_platforms_tested / 3) +
     weights.a11y * (prov.results.a11y === "pass" ? 1 : 0) +
     weights.perf * budgetOk(prov.results.perf) +
+    weights.visual_quality * (prov.results.delta_e <= 1.0 && prov.results.ssim >= 0.98 ? 1 : 0.5) +
     weights.flake * (prov.results.flake_rate <= 0.005 ? 1 : 0.5) +
     weights.mode * (prov.results.mode_compliance === "full" ? 1 : 0.5) +
     weights.scope * (prov.results.scope_within_budget ? 1 : 0) +
@@ -775,4 +1051,19 @@ function trustScore(tier: string, prov: Provenance) {
 }
 ```
 
-This v1.0 combines the philosophical foundation of our system with the practical, executable implementation details needed for immediate adoption. The framework provides both the "why" (quality principles) and the "how" (automated enforcement) needed for engineering-grade AI coding agents.
+## Motion Graphics Vision
+
+Animator CAWS v1.0 combines the philosophical foundation of engineering-grade development with the practical, executable implementation details needed for production-quality motion graphics software. The framework provides both the "why" (quality principles) and the "how" (automated enforcement) needed for AI-assisted development of deterministic, cross-platform motion graphics tools.
+
+**The result is a development environment that:**
+- **Ensures visual quality** with golden-frame testing and perceptual validation
+- **Maintains performance** with real-time frame budgeting and GPU optimization
+- **Enables collaboration** with deterministic rendering and conflict-free multi-user editing
+- **Scales safely** with tiered risk assessment and comprehensive testing strategies
+- **Produces reliable software** with automated quality gates and trust scoring
+
+This foundation enables the development of Animator - a motion graphics platform that achieves the holy trinity of creative tools: powerful enough for professionals, accessible enough for beginners, and reliable enough for production use.
+
+---
+
+*Animator CAWS v1.0 - Engineering-grade motion graphics development with deterministic rendering, cross-platform compatibility, and production-quality assurance.*
