@@ -1,0 +1,57 @@
+id: EFFECTS-001
+title: "GPU-Accelerated Visual Effects System with Timeline Integration"
+risk_tier: 2
+mode: feature
+change_budget:
+  max_files: 45
+  max_loc: 3500
+blast_radius:
+  modules: ["effects", "renderer", "timeline", "scene-graph", "ui"]
+  data_migration: false
+operational_rollback_slo: "45m"
+threats:
+  - "Complex GPU shaders may impact performance on lower-end hardware"
+  - "Effect composition may introduce visual artifacts or color inaccuracies"
+  - "Timeline integration could cause frame drops during effect animation"
+  - "Large effect libraries may cause memory pressure"
+scope:
+  in: ["effects architecture", "GPU shader framework", "effect composition", "timeline integration", "glow/blur/color effects", "effect parameters", "performance optimization"]
+  out: ["particle systems", "advanced distortion effects", "LUT color grading", "3D effects", "video effects"]
+invariants:
+  - "Effects maintain 60fps performance during real-time playback"
+  - "Effect composition preserves color accuracy and visual consistency"
+  - "Effect parameters provide immediate visual feedback during adjustment"
+  - "GPU memory usage optimized for complex effect stacks"
+  - "Effects work correctly across different GPU architectures and drivers"
+acceptance:
+  - id: E1
+    given: "user applies glow effect to a layer with intensity=0.8, radius=20"
+    when:  "user scrubs timeline at 60fps"
+    then:  "glow effect renders smoothly without frame drops; exported ProRes matches preview"
+  - id: E2
+    given: "user stacks multiple effects (blur + color correction + glow)"
+    when:  "user adjusts effect parameters in real-time"
+    then:  "effects compose correctly with proper blend modes; performance remains above 50fps"
+  - id: E3
+    given: "user animates effect parameters over time using keyframes"
+    when:  "user plays back complex animation with 20+ effect keyframes"
+    then:  "effect animation plays smoothly with accurate timing; memory usage stable"
+  - id: E4
+    given: "user works with effect library containing 50+ professional effects"
+    when:  "user applies effects to multiple layers simultaneously"
+    then:  "effects load quickly; GPU memory usage optimized; no memory leaks"
+non_functional:
+  a11y: ["effect controls keyboard accessible", "high contrast mode for effect parameters", "screen reader support for effect descriptions"]
+  perf: { effect_render_ms: 8, composition_ms: 4, memory_mb: 512 }
+  security: ["shader input validation", "GPU memory bounds checking", "safe parameter evaluation"]
+contracts:
+  - type: openapi
+    path: "apps/contracts/effects-api.yaml"
+  - type: openapi
+    path: "apps/contracts/timeline-api.yaml#/effects"
+observability:
+  logs: ["effects.render_time", "effects.parameter_change", "effects.gpu_memory", "effects.composition_error"]
+  metrics: ["effects_success_rate", "effects_avg_render_time", "effects_memory_peak", "effects_cache_hit_rate"]
+  traces: ["effects_composition", "timeline_effect_evaluation", "gpu_effect_rendering"]
+migrations: []
+rollback: ["effect cache invalidation", "shader parameter reset", "GPU memory cleanup"]

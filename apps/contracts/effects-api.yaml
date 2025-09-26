@@ -1,0 +1,377 @@
+openapi: 3.0.3
+info:
+  title: Effects API
+  description: GPU-accelerated visual effects system with timeline integration
+  version: 1.0.0
+  contact:
+    name: Animator Team
+    email: dev@animator.com
+
+servers:
+  - url: /api/v1
+    description: Effects API server
+
+paths:
+  /effects:
+    get:
+      summary: List available effects
+      operationId: listEffects
+      tags:
+        - effects
+      responses:
+        '200':
+          description: List of available effects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EffectType'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /effects/{effectType}:
+    get:
+      summary: Get effect type details
+      operationId: getEffectType
+      tags:
+        - effects
+      parameters:
+        - name: effectType
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Effect type details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EffectType'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /effects/{effectType}/preview:
+    post:
+      summary: Generate effect preview
+      operationId: previewEffect
+      tags:
+        - effects
+      parameters:
+        - name: effectType
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EffectPreviewRequest'
+      responses:
+        '200':
+          description: Effect preview generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EffectPreviewResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /effects/{effectType}/presets:
+    get:
+      summary: Get effect presets
+      operationId: getEffectPresets
+      tags:
+        - effects
+      parameters:
+        - name: effectType
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Effect presets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EffectPreset'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /effects/{effectType}/presets/{presetId}:
+    post:
+      summary: Create effect preset
+      operationId: createEffectPreset
+      tags:
+        - effects
+      parameters:
+        - name: effectType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: presetId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EffectPreset'
+      responses:
+        '201':
+          description: Effect preset created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EffectPreset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    EffectType:
+      type: object
+      required:
+        - name
+        - category
+        - parameters
+      properties:
+        name:
+          type: string
+          description: Effect type identifier
+        displayName:
+          type: string
+          description: Human-readable effect name
+        category:
+          type: string
+          enum: [blur, color, distortion, generative, composite]
+        description:
+          type: string
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/EffectParameterDefinition'
+        defaultParameters:
+          type: object
+          description: Default parameter values
+        shader:
+          type: string
+          description: WGSL shader code
+        passes:
+          type: integer
+          minimum: 1
+          default: 1
+        performance:
+          type: object
+          properties:
+            estimatedRenderTimeMs:
+              type: number
+            memoryUsageMB:
+              type: number
+
+    EffectParameterDefinition:
+      type: object
+      required:
+        - name
+        - type
+        - defaultValue
+      properties:
+        name:
+          type: string
+        displayName:
+          type: string
+        type:
+          type: string
+          enum: [float, int, color, point, size, bool, enum]
+        defaultValue:
+          description: Default parameter value
+        min:
+          type: number
+        max:
+          type: number
+        step:
+          type: number
+        options:
+          type: array
+          items:
+            type: string
+          description: For enum type parameters
+        description:
+          type: string
+        animatable:
+          type: boolean
+          default: true
+
+    EffectPreviewRequest:
+      type: object
+      required:
+        - parameters
+        - inputData
+      properties:
+        parameters:
+          type: object
+          description: Effect parameters
+        inputData:
+          type: object
+          properties:
+            width:
+              type: integer
+            height:
+              type: integer
+            format:
+              type: string
+              enum: [rgba8unorm, rgba16float, rgba32float]
+            data:
+              type: string
+              format: binary
+              description: Input texture data
+
+    EffectPreviewResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        renderTimeMs:
+          type: number
+        outputData:
+          type: object
+          properties:
+            width:
+              type: integer
+            height:
+              type: integer
+            format:
+              type: string
+            data:
+              type: string
+              format: binary
+        error:
+          type: string
+
+    EffectPreset:
+      type: object
+      required:
+        - name
+        - parameters
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        parameters:
+          type: object
+        category:
+          type: string
+          enum: [professional, creative, utility]
+        thumbnail:
+          type: string
+          format: binary
+          description: Preview thumbnail
+
+    BlendMode:
+      type: string
+      enum:
+        - normal
+        - multiply
+        - screen
+        - overlay
+        - darken
+        - lighten
+        - color-dodge
+        - color-burn
+        - hard-light
+        - soft-light
+        - difference
+        - exclusion
+        - hue
+        - saturation
+        - color
+        - luminosity
+
+    MaskDefinition:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [alpha, luminance, shape]
+        source:
+          type: string
+          description: For alpha/luminance masks
+        shape:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [rectangle, ellipse, path]
+            bounds:
+              $ref: '#/components/schemas/Rect2D'
+        inverted:
+          type: boolean
+          default: false
+
+    Rect2D:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        width:
+          type: number
+        height:
+          type: number
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
