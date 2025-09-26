@@ -1,0 +1,28 @@
+[package]
+name = "animator-core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+console_error_panic_hook = { version = "0.1", optional = true }
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  "console",
+  "Window",
+  "Document",
+  "Element",
+  "HtmlCanvasElement",
+  "WebGlRenderingContext",
+  "WebGl2RenderingContext",
+]
+
+[features]
+default = ["console_error_panic_hook"]
