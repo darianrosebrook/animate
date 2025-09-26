@@ -5,17 +5,19 @@ const mockAnimatorEngine = {
   new: () => ({
     initialize: async () => Promise.resolve(),
     addNode: async (_node: any) => Promise.resolve(),
-    renderFrame: async (context: any) => Promise.resolve({
-      width: context.width,
-      height: context.height,
-      timestamp: context.time
-    }),
+    renderFrame: async (context: any) =>
+      Promise.resolve({
+        width: context.width,
+        height: context.height,
+        timestamp: context.time,
+      }),
     getSceneGraph: async () => Promise.resolve([]),
-    evaluateScene: async (time: number) => Promise.resolve({
-      time,
-      nodeCount: 0
-    })
-  })
+    evaluateScene: async (time: number) =>
+      Promise.resolve({
+        time,
+        nodeCount: 0,
+      }),
+  }),
 }
 
 describe('Animator Core Engine', () => {
@@ -29,7 +31,7 @@ describe('Animator Core Engine', () => {
     const node = {
       id: 'test-node',
       name: 'Test Node',
-      nodeType: 'transform'
+      nodeType: 'transform',
     }
 
     await expect(engine.addNode(node)).resolves.toBeUndefined()
@@ -41,7 +43,7 @@ describe('Animator Core Engine', () => {
       time: 1.0,
       frameRate: 30,
       width: 1920,
-      height: 1080
+      height: 1080,
     }
 
     const result = await engine.renderFrame(context)

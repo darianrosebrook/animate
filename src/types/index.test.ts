@@ -17,7 +17,7 @@ import {
   AnimatorError,
   Result,
   Optional,
-  Nullable
+  Nullable,
 } from './index'
 
 describe('Core Types', () => {
@@ -50,7 +50,7 @@ describe('Animation Types', () => {
     const keyframe: Keyframe = {
       time: 1.0,
       value: 100,
-      interpolation: InterpolationMode.Linear
+      interpolation: InterpolationMode.Linear,
     }
     expect(keyframe.time).toBe(1.0)
     expect(keyframe.value).toBe(100)
@@ -62,7 +62,7 @@ describe('Animation Types', () => {
       p1x: 0.2,
       p1y: 0.0,
       p2x: 0.8,
-      p2y: 1.0
+      p2y: 1.0,
     }
     expect(curve.p1x).toBe(0.2)
     expect(curve.p1y).toBe(0.0)
@@ -85,7 +85,7 @@ describe('Scene Graph Types', () => {
       name: 'Test Node',
       type: NodeType.Transform,
       properties: {},
-      children: []
+      children: [],
     }
     expect(node.id).toBe('node-1')
     expect(node.name).toBe('Test Node')
@@ -107,7 +107,7 @@ describe('Scene Graph Types', () => {
     const properties: PropertyMap = {
       opacity: 0.5,
       position: { x: 10, y: 20 },
-      color: { r: 255, g: 0, b: 0 }
+      color: { r: 255, g: 0, b: 0 },
     }
 
     expect(properties.opacity).toBe(0.5)
@@ -122,7 +122,7 @@ describe('Timeline Types', () => {
       duration: 10.0,
       frameRate: 30,
       tracks: [],
-      markers: []
+      markers: [],
     }
     expect(timeline.duration).toBe(10.0)
     expect(timeline.frameRate).toBe(30)
@@ -135,7 +135,7 @@ describe('Timeline Types', () => {
       type: TrackType.Property,
       keyframes: [],
       enabled: true,
-      locked: false
+      locked: false,
     }
     expect(track.id).toBe('track-1')
     expect(track.type).toBe(TrackType.Property)
@@ -156,7 +156,7 @@ describe('Rendering Types', () => {
       frameRate: 30,
       resolution: { width: 1920, height: 1080 },
       devicePixelRatio: 1.0,
-      globalProperties: {}
+      globalProperties: {},
     }
     expect(context.time).toBe(1.0)
     expect(context.frameRate).toBe(30)
@@ -168,7 +168,7 @@ describe('Rendering Types', () => {
       frameBuffer: new ArrayBuffer(100),
       width: 1920,
       height: 1080,
-      format: 'rgba_f32'
+      format: 'rgba_f32',
     }
     expect(output.width).toBe(1920)
     expect(output.format).toBe('rgba_f32')
@@ -180,7 +180,7 @@ describe('Error Handling Types', () => {
     const error: AnimatorError = {
       code: 'INVALID_NODE',
       message: 'Node not found',
-      details: { nodeId: 'invalid' }
+      details: { nodeId: 'invalid' },
     }
     expect(error.code).toBe('INVALID_NODE')
     expect(error.message).toBe('Node not found')
@@ -191,7 +191,7 @@ describe('Error Handling Types', () => {
     const success: Result<string> = { success: true, data: 'hello' }
     const failure: Result<string> = {
       success: false,
-      error: { code: 'ERROR', message: 'Something failed' }
+      error: { code: 'ERROR', message: 'Something failed' },
     }
 
     expect(success.success).toBe(true)
