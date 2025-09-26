@@ -1,0 +1,450 @@
+openapi: 3.0.3
+info:
+  title: Timeline API
+  description: Timeline management and playback control API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: Development server
+paths:
+  /timelines:
+    post:
+      summary: Create a new timeline
+      operationId: createTimeline
+      tags:
+        - timelines
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTimelineRequest'
+      responses:
+        '201':
+          description: Timeline created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimelineResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List all timelines
+      operationId: listTimelines
+      tags:
+        - timelines
+      responses:
+        '200':
+          description: List of timelines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimelineSummary'
+  /timelines/{timelineId}:
+    get:
+      summary: Get timeline details
+      operationId: getTimeline
+      tags:
+        - timelines
+      parameters:
+        - name: timelineId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Timeline details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimelineResponse'
+        '404':
+          description: Timeline not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update timeline
+      operationId: updateTimeline
+      tags:
+        - timelines
+      parameters:
+        - name: timelineId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTimelineRequest'
+      responses:
+        '200':
+          description: Timeline updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimelineResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Timeline not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete timeline
+      operationId: deleteTimeline
+      tags:
+        - timelines
+      parameters:
+        - name: timelineId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Timeline deleted successfully
+        '404':
+          description: Timeline not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /timelines/{timelineId}/tracks:
+    post:
+      summary: Add track to timeline
+      operationId: addTrack
+      tags:
+        - tracks
+      parameters:
+        - name: timelineId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTrackRequest'
+      responses:
+        '201':
+          description: Track created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /timelines/{timelineId}/scrub:
+    post:
+      summary: Scrub timeline to specific time
+      operationId: scrubTimeline
+      tags:
+        - playback
+      parameters:
+        - name: timelineId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScrubRequest'
+      responses:
+        '200':
+          description: Timeline scrubbed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScrubResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Timeline not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /timelines/{timelineId}/play:
+    post:
+      summary: Start playback
+      operationId: startPlayback
+      tags:
+        - playback
+      parameters:
+        - name: timelineId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Playback started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybackResponse'
+        '404':
+          description: Timeline not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /timelines/{timelineId}/pause:
+    post:
+      summary: Pause playback
+      operationId: pausePlayback
+      tags:
+        - playback
+      parameters:
+        - name: timelineId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Playback paused successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaybackResponse'
+        '404':
+          description: Timeline not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    CreateTimelineRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        duration:
+          type: integer
+          minimum: 1
+          maximum: 3600000
+          default: 10000
+        frameRate:
+          type: number
+          minimum: 1
+          maximum: 120
+          default: 60
+    UpdateTimelineRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        duration:
+          type: integer
+          minimum: 1
+          maximum: 3600000
+        frameRate:
+          type: number
+          minimum: 1
+          maximum: 120
+    TimelineResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        duration:
+          type: integer
+        frameRate:
+          type: number
+        currentTime:
+          type: integer
+          default: 0
+        isPlaying:
+          type: boolean
+          default: false
+        tracks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrackResponse'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    TimelineSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        duration:
+          type: integer
+        frameRate:
+          type: number
+        currentTime:
+          type: integer
+        isPlaying:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    CreateTrackRequest:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        type:
+          type: string
+          enum: [animation, audio, video, data]
+        duration:
+          type: integer
+          minimum: 1
+          maximum: 3600000
+        properties:
+          type: object
+          additionalProperties: true
+    TrackResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        duration:
+          type: integer
+        properties:
+          type: object
+          additionalProperties: true
+        keyframes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyframe'
+    ScrubRequest:
+      type: object
+      required:
+        - time
+      properties:
+        time:
+          type: integer
+          minimum: 0
+          maximum: 3600000
+        options:
+          type: object
+          properties:
+            smooth:
+              type: boolean
+              default: true
+            cache:
+              type: boolean
+              default: true
+    ScrubResponse:
+      type: object
+      properties:
+        previousTime:
+          type: integer
+        currentTime:
+          type: integer
+        frameData:
+          type: object
+          description: Frame data at new position
+        performance:
+          type: object
+          properties:
+            scrubTimeMs:
+              type: number
+            evaluationTimeMs:
+              type: number
+    PlaybackResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [playing, paused, stopped]
+        currentTime:
+          type: integer
+        playbackRate:
+          type: number
+          default: 1.0
+    Keyframe:
+      type: object
+      required:
+        - time
+        - value
+      properties:
+        time:
+          type: integer
+          minimum: 0
+          maximum: 3600000
+        value:
+          description: Keyframe value (type depends on track)
+        easing:
+          type: string
+          enum: [linear, easeIn, easeOut, easeInOut, bezier, step]
+          default: linear
+        easingParams:
+          type: object
+          description: Parameters for easing function
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+      required:
+        - error
+        - message

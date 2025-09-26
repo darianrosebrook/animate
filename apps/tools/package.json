@@ -1,0 +1,25 @@
+{
+  "name": "caws-tools",
+  "version": "1.0.0",
+  "description": "CAWS (Coding Agent Workflow System) tools and utilities",
+  "scripts": {
+    "lint": "eslint **/*.js **/*.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "ts-morph": "^20.0.0",
+    "glob": "^10.3.10",
+    "@cyclonedx/cyclonedx-npm": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/glob": "^8.1.0",
+    "jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "@darianrosebrook",
+  "license": "MIT"
+}

@@ -1,0 +1,431 @@
+openapi: 3.0.3
+info:
+  title: Scene Graph API
+  description: Core scene graph management and evaluation API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: Development server
+paths:
+  /scenes:
+    post:
+      summary: Create a new scene
+      operationId: createScene
+      tags:
+        - scenes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSceneRequest'
+      responses:
+        '201':
+          description: Scene created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SceneResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Scene with this ID already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List all scenes
+      operationId: listScenes
+      tags:
+        - scenes
+      responses:
+        '200':
+          description: List of scenes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SceneSummary'
+  /scenes/{sceneId}:
+    get:
+      summary: Get scene details
+      operationId: getScene
+      tags:
+        - scenes
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Scene details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SceneResponse'
+        '404':
+          description: Scene not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update scene
+      operationId: updateScene
+      tags:
+        - scenes
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSceneRequest'
+      responses:
+        '200':
+          description: Scene updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SceneResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Scene not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete scene
+      operationId: deleteScene
+      tags:
+        - scenes
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Scene deleted successfully
+        '404':
+          description: Scene not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /scenes/{sceneId}/nodes:
+    post:
+      summary: Add node to scene
+      operationId: addNode
+      tags:
+        - nodes
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNodeRequest'
+      responses:
+        '201':
+          description: Node created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /scenes/{sceneId}/evaluate:
+    post:
+      summary: Evaluate scene at specific time
+      operationId: evaluateScene
+      tags:
+        - evaluation
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateSceneRequest'
+      responses:
+        '200':
+          description: Scene evaluation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluateSceneResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Scene not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    CreateSceneRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        duration:
+          type: integer
+          minimum: 1
+          maximum: 3600000
+          default: 10000
+        frameRate:
+          type: number
+          minimum: 1
+          maximum: 120
+          default: 60
+    UpdateSceneRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        duration:
+          type: integer
+          minimum: 1
+          maximum: 3600000
+        frameRate:
+          type: number
+          minimum: 1
+          maximum: 120
+    SceneResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        duration:
+          type: integer
+        frameRate:
+          type: number
+        rootNode:
+          $ref: '#/components/schemas/NodeResponse'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    SceneSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        duration:
+          type: integer
+        frameRate:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+    CreateNodeRequest:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [rectangle, ellipse, text, image, composition]
+        transform:
+          $ref: '#/components/schemas/Transform2D'
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PropertyValue'
+        parentId:
+          type: string
+          format: uuid
+    NodeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        transform:
+          $ref: '#/components/schemas/Transform2D'
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PropertyValue'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeResponse'
+        parentId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+    Transform2D:
+      type: object
+      properties:
+        x:
+          type: number
+          minimum: -10000
+          maximum: 10000
+          default: 0
+        y:
+          type: number
+          minimum: -10000
+          maximum: 10000
+          default: 0
+        scale:
+          type: number
+          minimum: 0.001
+          maximum: 1000
+          default: 1
+        rotation:
+          type: number
+          minimum: -360
+          maximum: 360
+          default: 0
+        opacity:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 1
+    PropertyValue:
+      type: object
+      properties:
+        keyframes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyframe'
+        currentValue:
+          description: Current interpolated value
+    Keyframe:
+      type: object
+      required:
+        - time
+        - value
+      properties:
+        time:
+          type: integer
+          minimum: 0
+          maximum: 3600000
+        value:
+          description: Keyframe value (type depends on property)
+        easing:
+          type: string
+          enum: [linear, easeIn, easeOut, easeInOut, bezier]
+          default: linear
+        easingParams:
+          type: object
+          description: Parameters for easing function
+    EvaluateSceneRequest:
+      type: object
+      required:
+        - time
+      properties:
+        time:
+          type: integer
+          minimum: 0
+          maximum: 3600000
+        options:
+          type: object
+          properties:
+            includeMetadata:
+              type: boolean
+              default: false
+            cacheEnabled:
+              type: boolean
+              default: true
+    EvaluateSceneResponse:
+      type: object
+      properties:
+        frameData:
+          type: object
+          description: Rendered frame data
+        metadata:
+          type: object
+          properties:
+            evaluationTimeMs:
+              type: number
+            nodeCount:
+              type: integer
+            cacheHitRate:
+              type: number
+        errors:
+          type: array
+          items:
+            type: string
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+      required:
+        - error
+        - message

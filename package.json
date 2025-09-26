@@ -1,0 +1,16 @@
+{
+  "name": "animator",
+  "version": "1.0.0",
+  "description": "CAWS (Coding Agent Workflow System) project",
+  "scripts": {
+    "test": "echo 'No tests yet'",
+    "lint": "echo 'No linting yet'"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "@darianrosebrook",
+  "license": "MIT"
+}
