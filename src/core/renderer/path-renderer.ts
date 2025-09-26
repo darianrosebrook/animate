@@ -424,15 +424,23 @@ export class SVGPathRenderer {
         }
       }
 
-      // Tessellate segments into triangles
-      const vertices: number[] = []
-      const indices: number[] = []
-      let vertexIndex = 0
-
+      // Calculate bounds from segment endpoints (not stroked geometry)
       let minX = Infinity
       let minY = Infinity
       let maxX = -Infinity
       let maxY = -Infinity
+
+      for (const segment of segments) {
+        minX = Math.min(minX, segment.start.x, segment.end.x)
+        minY = Math.min(minY, segment.start.y, segment.end.y)
+        maxX = Math.max(maxX, segment.start.x, segment.end.x)
+        maxY = Math.max(maxY, segment.start.y, segment.end.y)
+      }
+
+      // Tessellate segments into triangles
+      const vertices: number[] = []
+      const indices: number[] = []
+      let vertexIndex = 0
 
       for (const segment of segments) {
         const segmentTriangles = this.tessellateSegment(segment)
@@ -440,10 +448,6 @@ export class SVGPathRenderer {
         // Add vertices
         for (const vertex of segmentTriangles.vertices) {
           vertices.push(vertex.x, vertex.y, 1, 1, 1, 1) // position + color (white for now)
-          minX = Math.min(minX, vertex.x)
-          minY = Math.min(minY, vertex.y)
-          maxX = Math.max(maxX, vertex.x)
-          maxY = Math.max(maxY, vertex.y)
         }
 
         // Add indices with offset

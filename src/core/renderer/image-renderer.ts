@@ -358,10 +358,10 @@ export class ImageRenderer {
   /**
    * Render image with given properties
    */
-  renderImage(
+  async renderImage(
     properties: ImageProperties,
     renderPass: GPURenderPassEncoder
-  ): Result<boolean> {
+  ): Promise<Result<boolean>> {
     try {
       if (!this.textureAtlas || !this.renderPipeline) {
         return {

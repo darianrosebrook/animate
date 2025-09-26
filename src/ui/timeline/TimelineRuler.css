@@ -1,0 +1,101 @@
+.timeline-ruler {
+  position: relative;
+  height: 24px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+  overflow: hidden;
+}
+
+.ruler-markers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+}
+
+.ruler-marker {
+  position: absolute;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.ruler-marker-major {
+  width: 2px;
+  background: #666;
+}
+
+.ruler-marker-minor {
+  width: 1px;
+  background: #444;
+}
+
+.marker-line {
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+}
+
+.marker-label {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #999;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 1px 3px;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.current-time-indicator {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: #007acc;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.time-line {
+  width: 100%;
+  height: 100%;
+  background: #007acc;
+  box-shadow: 0 0 4px rgba(0, 122, 204, 0.5);
+}
+
+.time-label {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #007acc;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 1px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+  .timeline-ruler {
+    height: 20px;
+  }
+
+  .marker-label {
+    font-size: 9px;
+    bottom: -14px;
+  }
+
+  .time-label {
+    font-size: 9px;
+    top: -18px;
+  }
+}

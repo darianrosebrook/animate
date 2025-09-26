@@ -1,0 +1,56 @@
+.timeline-scrubber {
+  position: absolute;
+  top: 0;
+  width: 12px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 20;
+  transition: opacity 0.2s;
+}
+
+.timeline-scrubber.dragging {
+  cursor: grabbing;
+}
+
+.scrubber-handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 8px solid #007acc;
+  transition: border-color 0.2s;
+}
+
+.timeline-scrubber.dragging .scrubber-handle {
+  border-bottom-color: #00aaff;
+}
+
+.scrubber-line {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: calc(100% - 8px);
+  background: #007acc;
+  box-shadow: 0 0 4px rgba(0, 122, 204, 0.5);
+}
+
+.timeline-scrubber.dragging .scrubber-line {
+  background: #00aaff;
+  box-shadow: 0 0 6px rgba(0, 170, 255, 0.7);
+}
+
+/* Hover effects */
+.timeline-scrubber:hover .scrubber-handle {
+  border-bottom-color: #00aaff;
+}
+
+.timeline-scrubber:hover .scrubber-line {
+  background: #00aaff;
+  box-shadow: 0 0 6px rgba(0, 170, 255, 0.5);
+}

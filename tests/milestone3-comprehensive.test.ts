@@ -215,7 +215,6 @@ describe('Milestone 3: Basic Rendering System - Comprehensive Tests', () => {
           expect(renderResult.success).toBe(true)
         })
       })
-    })
 
     describe('Transform Hierarchy', () => {
       it('should apply transforms correctly to child nodes', async () => {

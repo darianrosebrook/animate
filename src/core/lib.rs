@@ -109,6 +109,10 @@ impl RenderContext {
 #[wasm_bindgen]
 pub struct AnimatorEngine {
     scene_graph: Vec<SceneNode>,
+    gpu_device: Option<wgpu::Device>,
+    gpu_queue: Option<wgpu::Queue>,
+    render_pipeline: Option<wgpu::RenderPipeline>,
+    shader_modules: std::collections::HashMap<String, wgpu::ShaderModule>,
 }
 
 #[wasm_bindgen]
@@ -119,18 +123,133 @@ impl AnimatorEngine {
 
         AnimatorEngine {
             scene_graph: Vec::new(),
+            gpu_device: None,
+            gpu_queue: None,
+            render_pipeline: None,
+            shader_modules: std::collections::HashMap::new(),
         }
     }
 
-    /// Initialize the engine and set up WebGL context
+    /// Initialize the engine and set up WebGPU context
     #[wasm_bindgen]
-    pub fn initialize(&mut self) -> Result<(), JsValue> {
+    pub async fn initialize(&mut self) -> Result<(), JsValue> {
         console_log!("Animator engine initializing...");
 
-        // TODO: Initialize WebGPU context
-        // TODO: Set up shader compilation
-        // TODO: Initialize render pipeline
+        // Initialize WebGPU context
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+            backends: wgpu::Backends::BROWSER_WEBGPU | wgpu::Backends::GL,
+            dx12_shader_compiler: Default::default(),
+        });
 
+        let window = web_sys::window().ok_or("No global `window` exists")?;
+        let document = window.document().ok_or("Should have a document on window")?;
+        let canvas = document
+            .get_element_by_id("animator-canvas")
+            .ok_or("No canvas element found")?
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .map_err(|_| "Canvas element is not an HtmlCanvasElement")?;
+
+        let surface = instance.create_surface_from_canvas(&canvas)
+            .map_err(|e| format!("Failed to create surface: {:?}", e))?;
+
+        let adapter = instance
+            .request_adapter(&wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::HighPerformance,
+                compatible_surface: Some(&surface),
+                force_fallback_adapter: false,
+            })
+            .await
+            .ok_or("Failed to find an appropriate adapter")?;
+
+        let (device, queue) = adapter
+            .request_device(
+                &wgpu::DeviceDescriptor {
+                    features: wgpu::Features::empty(),
+                    limits: wgpu::Limits::default(),
+                    label: Some("Animator Device"),
+                },
+                None,
+            )
+            .await
+            .map_err(|e| format!("Failed to create device: {:?}", e))?;
+
+        // Configure the surface
+        let surface_caps = surface.get_capabilities(&adapter);
+        let surface_format = surface_caps.formats[0];
+
+        let config = wgpu::SurfaceConfiguration {
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            format: surface_format,
+            width: canvas.width(),
+            height: canvas.height(),
+            present_mode: surface_caps.present_modes[0],
+            alpha_mode: surface_caps.alpha_modes[0],
+            view_formats: vec![],
+        };
+
+        surface.configure(&device, &config);
+
+        // Create shader modules for basic 2D rendering
+        let rectangle_vs_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("Rectangle Vertex Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/rectangle.vert.wgsl").into()),
+        });
+
+        let rectangle_fs_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("Rectangle Fragment Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("../../shaders/rectangle.frag.wgsl").into()),
+        });
+
+        // Create render pipeline
+        let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("Render Pipeline Layout"),
+            bind_group_layouts: &[],
+            push_constant_ranges: &[],
+        });
+
+        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+            label: Some("Render Pipeline"),
+            layout: Some(&render_pipeline_layout),
+            vertex: wgpu::VertexState {
+                module: &rectangle_vs_module,
+                entry_point: "main",
+                buffers: &[],
+            },
+            fragment: Some(wgpu::FragmentState {
+                module: &rectangle_fs_module,
+                entry_point: "main",
+                targets: &[Some(wgpu::ColorTargetState {
+                    format: config.format,
+                    blend: Some(wgpu::BlendState::REPLACE),
+                    write_mask: wgpu::ColorWrites::ALL,
+                })],
+            }),
+            primitive: wgpu::PrimitiveState {
+                topology: wgpu::PrimitiveTopology::TriangleList,
+                strip_index_format: None,
+                front_face: wgpu::FrontFace::Ccw,
+                cull_mode: Some(wgpu::Face::Back),
+                polygon_mode: wgpu::PolygonMode::Fill,
+                unclipped_depth: false,
+                conservative: false,
+            },
+            depth_stencil: None,
+            multisample: wgpu::MultisampleState {
+                count: 1,
+                mask: !0,
+                alpha_to_coverage_enabled: false,
+            },
+            multiview: None,
+        });
+
+        // Store GPU resources
+        self.gpu_device = Some(device);
+        self.gpu_queue = Some(queue);
+        self.render_pipeline = Some(render_pipeline);
+        self.shader_modules.insert("rectangle_vs".to_string(), rectangle_vs_module);
+        self.shader_modules.insert("rectangle_fs".to_string(), rectangle_fs_module);
+
+        console_log!("WebGPU context initialized successfully");
         Ok(())
     }
 
@@ -144,16 +263,84 @@ impl AnimatorEngine {
 
     /// Render a frame
     #[wasm_bindgen]
-    pub fn render_frame(&self, context: &RenderContext) -> Result<JsValue, JsValue> {
+    pub async fn render_frame(&self, context: &RenderContext) -> Result<JsValue, JsValue> {
         console_log!("Rendering frame at time: {}", context.time);
 
-        // TODO: Implement actual rendering logic
-        // For now, return a simple frame buffer representation
+        // Get GPU resources
+        let device = self.gpu_device.as_ref()
+            .ok_or("GPU device not initialized")?;
+        let queue = self.gpu_queue.as_ref()
+            .ok_or("GPU queue not initialized")?;
+        let pipeline = self.render_pipeline.as_ref()
+            .ok_or("Render pipeline not initialized")?;
 
+        // Get the window and canvas
+        let window = web_sys::window().ok_or("No global `window` exists")?;
+        let document = window.document().ok_or("Should have a document on window")?;
+        let canvas = document
+            .get_element_by_id("animator-canvas")
+            .ok_or("No canvas element found")?
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .map_err(|_| "Canvas element is not an HtmlCanvasElement")?;
+
+        // Get the surface (we need to recreate it since it's not stored)
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+            backends: wgpu::Backends::BROWSER_WEBGPU | wgpu::Backends::GL,
+            dx12_shader_compiler: Default::default(),
+        });
+
+        let surface = instance.create_surface_from_canvas(&canvas)
+            .map_err(|e| format!("Failed to create surface: {:?}", e))?;
+
+        // Get current surface texture
+        let output = surface.get_current_texture()
+            .map_err(|e| format!("Failed to get surface texture: {:?}", e))?;
+
+        let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+        // Create command encoder
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Render Encoder"),
+        });
+
+        // Begin render pass
+        {
+            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("Render Pass"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: &view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color {
+                            r: 0.1,
+                            g: 0.1,
+                            b: 0.1,
+                            a: 1.0,
+                        }),
+                        store: true,
+                    },
+                })],
+                depth_stencil_attachment: None,
+            });
+
+            // Set render pipeline and draw a test rectangle
+            render_pass.set_pipeline(pipeline);
+
+            // For now, draw a simple test rectangle
+            // In a real implementation, this would iterate through scene graph nodes
+            render_pass.draw(0..6, 0..1);
+        }
+
+        // Submit commands
+        queue.submit(std::iter::once(encoder.finish()));
+        output.present();
+
+        // Return frame metadata
         let frame_data = js_sys::Object::new();
         js_sys::Reflect::set(&frame_data, &"width".into(), &context.width.into())?;
         js_sys::Reflect::set(&frame_data, &"height".into(), &context.height.into())?;
         js_sys::Reflect::set(&frame_data, &"timestamp".into(), &context.time.into())?;
+        js_sys::Reflect::set(&frame_data, &"rendered".into(), &true.into())?;
 
         Ok(frame_data.into())
     }
@@ -170,12 +357,16 @@ impl AnimatorEngine {
     pub fn evaluate_scene(&self, time: f64) -> Result<JsValue, JsValue> {
         console_log!("Evaluating scene at time: {}", time);
 
-        // TODO: Implement scene evaluation logic
-        let result = js_sys::Object::new();
-        js_sys::Reflect::set(&result, &"time".into(), &time.into())?;
-        js_sys::Reflect::set(&result, &"node_count".into(), &(self.scene_graph.len() as u32).into())?;
+        // Critical functionality - scene evaluation must be implemented
+        // For now, throw an error to indicate this needs proper implementation
+        return Err(JsValue::from_str("Scene evaluation not implemented. This is critical functionality that must be implemented for the engine to work."));
 
-        Ok(result.into())
+        // TODO: Implement proper scene evaluation logic:
+        // 1. Traverse scene graph hierarchy
+        // 2. Evaluate node properties at given time
+        // 3. Handle animation curves and keyframes
+        // 4. Apply transforms and effects
+        // 5. Return evaluated scene state for rendering
     }
 }
 

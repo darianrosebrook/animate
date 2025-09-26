@@ -1,0 +1,40 @@
+.curve-editor {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  overflow: hidden;
+  user-select: none;
+}
+
+.curve-editor-svg {
+  display: block;
+  cursor: crosshair;
+}
+
+.curve-path {
+  filter: drop-shadow(0 0 2px rgba(74, 222, 128, 0.5));
+}
+
+.curve-point {
+  cursor: move;
+  transition: all 0.1s ease;
+}
+
+.curve-point:hover {
+  filter: drop-shadow(0 0 4px rgba(74, 222, 128, 0.8));
+}
+
+.curve-handle {
+  cursor: move;
+  transition: all 0.1s ease;
+}
+
+.curve-handle:hover {
+  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.8));
+}
+
+.curve-editor-svg text {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  user-select: none;
+}
+

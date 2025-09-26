@@ -126,12 +126,20 @@ export interface TimelineMarker {
 }
 
 // Rendering types
+export interface CanvasConfig {
+  width: number
+  height: number
+  devicePixelRatio: number
+  aspectRatio: number
+}
+
 export interface RenderContext {
   time: Time
   frameRate: FrameRate
   resolution: Size2D
   devicePixelRatio: number
   globalProperties: PropertyMap
+  canvas?: CanvasConfig
 }
 
 export interface EvaluationContext {

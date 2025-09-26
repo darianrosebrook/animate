@@ -370,7 +370,12 @@ export class Renderer {
     context: EvaluationContext
   ): Promise<void> {
     for (const node of nodes) {
-      const renderResult = this.renderNode(node, renderPass, time, context)
+      const renderResult = await this.renderNode(
+        node,
+        renderPass,
+        time,
+        context
+      )
       if (!renderResult.success) {
         console.warn(`Failed to render node ${node.id}:`, renderResult.error)
       }
@@ -464,12 +469,12 @@ export class Renderer {
   /**
    * Render a single node
    */
-  private renderNode(
+  private async renderNode(
     node: any,
     renderPass: GPURenderPassEncoder,
     time: Time,
     context: EvaluationContext
-  ): Result<boolean> {
+  ): Promise<Result<boolean>> {
     try {
       // Handle text nodes separately
       if (node.type === 'text' && this.textRenderer) {

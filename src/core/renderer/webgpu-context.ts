@@ -15,12 +15,19 @@ export class WebGPUContext {
   private canvas: HTMLCanvasElement | null = null
   private format: GPUTextureFormat = 'bgra8unorm'
 
+  constructor() {
+    console.log('WebGPUContext constructor called')
+  }
+
   /**
    * Initialize WebGPU context with canvas
    */
   async initialize(canvas: HTMLCanvasElement): Promise<Result<boolean>> {
+    console.log('WebGPUContext.initialize called')
     try {
+      console.log('About to check navigator.gpu')
       // Check for WebGPU support
+      console.log('Checking WebGPU support, navigator.gpu:', !!navigator.gpu)
       if (!navigator.gpu) {
         return {
           success: false,
@@ -347,6 +354,29 @@ export class WebGPUContext {
   }
 
   /**
+   * Get canvas aspect ratio
+   */
+  getAspectRatio(): number {
+    const size = this.getSize()
+    return size.width / size.height
+  }
+
+  /**
+   * Get canvas resolution (accounting for device pixel ratio)
+   */
+  getResolution(): { width: number; height: number } {
+    if (!this.canvas) {
+      return { width: 0, height: 0 }
+    }
+
+    const devicePixelRatio = window.devicePixelRatio || 1
+    return {
+      width: this.canvas.width * devicePixelRatio,
+      height: this.canvas.height * devicePixelRatio,
+    }
+  }
+
+  /**
    * Check if WebGPU is supported
    */
   static isSupported(): boolean {
@@ -407,5 +437,419 @@ export class WebGPUContext {
     this.context = null
     this.adapter = null
     this.canvas = null
+  }
+
+  /**
+   * Initialize mock WebGPU context for testing
+   */
+  private initializeMockContext(canvas: HTMLCanvasElement): Result<boolean> {
+    try {
+      // Set up mock properties for testing
+      this.canvas = canvas
+      this.format = 'bgra8unorm'
+
+      // Create mock device
+      this.device = this.createMockDevice()
+      this.adapter = this.createMockAdapter()
+
+      console.log('🧪 Mock WebGPU context initialized for testing')
+      return { success: true, data: true }
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'MOCK_INIT_ERROR',
+          message: `Failed to initialize mock WebGPU context: ${error}`,
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+      }
+    }
+  }
+
+  /**
+   * Create mock GPU device for testing
+   */
+  private createMockDevice(): GPUDevice {
+    return {
+      createBuffer: (descriptor: GPUBufferDescriptor) =>
+        this.createMockBuffer(descriptor),
+      createTexture: (descriptor: GPUTextureDescriptor) =>
+        this.createMockTexture(descriptor),
+      createSampler: (descriptor?: GPUSamplerDescriptor) =>
+        this.createMockSampler(descriptor),
+      createBindGroupLayout: (descriptor: GPUBindGroupLayoutDescriptor) =>
+        this.createMockBindGroupLayout(descriptor),
+      createPipelineLayout: (descriptor: GPUPipelineLayoutDescriptor) =>
+        this.createMockPipelineLayout(descriptor),
+      createRenderPipeline: (descriptor: GPURenderPipelineDescriptor) =>
+        this.createMockRenderPipeline(descriptor),
+      createComputePipeline: (descriptor: GPUComputePipelineDescriptor) =>
+        this.createMockComputePipeline(descriptor),
+      createBindGroup: (descriptor: GPUBindGroupDescriptor) =>
+        this.createMockBindGroup(descriptor),
+      createCommandEncoder: (descriptor?: GPUCommandEncoderDescriptor) =>
+        this.createMockCommandEncoder(descriptor),
+      createRenderBundleEncoder: (
+        descriptor: GPURenderBundleEncoderDescriptor
+      ) => this.createMockRenderBundleEncoder(descriptor),
+      createQuerySet: (descriptor: GPUQuerySetDescriptor) =>
+        this.createMockQuerySet(descriptor),
+      destroy: () => {},
+      getQueue: () => this.createMockQueue(),
+      pushErrorScope: (filter: GPUErrorFilter) => {},
+      popErrorScope: () => Promise.resolve(null),
+      name: 'Mock GPU Device',
+      features: new Set(),
+      limits: {
+        maxTextureDimension1D: 8192,
+        maxTextureDimension2D: 8192,
+        maxTextureDimension3D: 2048,
+        maxTextureArrayLayers: 256,
+        maxBindGroups: 4,
+        maxBindGroupsPlusVertexBuffers: 24,
+        maxBindingsPerBindGroup: 640,
+        maxDynamicUniformBuffersPerPipelineLayout: 8,
+        maxDynamicStorageBuffersPerPipelineLayout: 4,
+        maxSampledTexturesPerShaderStage: 16,
+        maxSamplersPerShaderStage: 16,
+        maxStorageBuffersPerShaderStage: 8,
+        maxStorageTexturesPerShaderStage: 4,
+        maxUniformBuffersPerShaderStage: 12,
+        maxUniformBufferBindingSize: 65536,
+        maxStorageBufferBindingSize: 134217728,
+        maxVertexBuffers: 8,
+        maxBufferSize: 268435456,
+        maxVertexAttributes: 16,
+        maxVertexBufferArrayStride: 2048,
+        maxInterStageShaderComponents: 60,
+        maxColorAttachments: 8,
+        maxColorAttachmentBytesPerSample: 32,
+        maxComputeWorkgroupStorageSize: 16384,
+        maxComputeInvocationsPerWorkgroup: 256,
+        maxComputeWorkgroupSizeX: 256,
+        maxComputeWorkgroupSizeY: 256,
+        maxComputeWorkgroupSizeZ: 64,
+        maxComputeWorkgroupsPerDimension: 65535,
+      },
+    } as GPUDevice
+  }
+
+  /**
+   * Create mock GPU adapter for testing
+   */
+  private createMockAdapter(): GPUAdapter {
+    return {
+      name: 'Mock GPU Adapter',
+      isFallbackAdapter: false,
+      features: new Set(),
+      limits: {
+        maxTextureDimension1D: 8192,
+        maxTextureDimension2D: 8192,
+        maxTextureDimension3D: 2048,
+        maxTextureArrayLayers: 256,
+        maxBindGroups: 4,
+        maxBindGroupsPlusVertexBuffers: 24,
+        maxBindingsPerBindGroup: 640,
+        maxDynamicUniformBuffersPerPipelineLayout: 8,
+        maxDynamicStorageBuffersPerPipelineLayout: 4,
+        maxSampledTexturesPerShaderStage: 16,
+        maxSamplersPerShaderStage: 16,
+        maxStorageBuffersPerShaderStage: 8,
+        maxStorageTexturesPerShaderStage: 4,
+        maxUniformBuffersPerShaderStage: 12,
+        maxUniformBufferBindingSize: 65536,
+        maxStorageBufferBindingSize: 134217728,
+        maxVertexBuffers: 8,
+        maxBufferSize: 268435456,
+        maxVertexAttributes: 16,
+        maxVertexBufferArrayStride: 2048,
+        maxInterStageShaderComponents: 60,
+        maxColorAttachments: 8,
+        maxColorAttachmentBytesPerSample: 32,
+        maxComputeWorkgroupStorageSize: 16384,
+        maxComputeInvocationsPerWorkgroup: 256,
+        maxComputeWorkgroupSizeX: 256,
+        maxComputeWorkgroupSizeY: 256,
+        maxComputeWorkgroupSizeZ: 64,
+        maxComputeWorkgroupsPerDimension: 65535,
+      },
+      requestDevice: () => Promise.resolve(this.createMockDevice()),
+      requestAdapterInfo: () =>
+        Promise.resolve({
+          vendor: 'Mock Vendor',
+          architecture: 'Mock Architecture',
+          device: 'Mock Device',
+          description: 'Mock GPU Adapter for Testing',
+        }),
+    } as GPUAdapter
+  }
+
+  /**
+   * Create mock GPU buffer for testing
+   */
+  private createMockBuffer(descriptor: GPUBufferDescriptor): GPUBuffer {
+    return {
+      size: descriptor.size,
+      usage: descriptor.usage,
+      mapState: 'unmapped',
+      destroy: () => {},
+      getMappedRange: (offset?: number, size?: number) =>
+        new ArrayBuffer(size || descriptor.size),
+      unmap: () => {},
+      mapAsync: (mode: GPUMapModeFlags, offset?: number, size?: number) =>
+        Promise.resolve(),
+      label: descriptor.label || 'Mock Buffer',
+    } as GPUBuffer
+  }
+
+  /**
+   * Create mock GPU texture for testing
+   */
+  private createMockTexture(descriptor: GPUTextureDescriptor): GPUTexture {
+    return {
+      width: descriptor.size[0],
+      height: descriptor.size[1] || 1,
+      depthOrArrayLayers: descriptor.size[2] || 1,
+      mipLevelCount: descriptor.mipLevelCount || 1,
+      sampleCount: descriptor.sampleCount || 1,
+      dimension: descriptor.dimension || '2d',
+      format: descriptor.format,
+      usage: descriptor.usage,
+      label: descriptor.label || 'Mock Texture',
+      createView: (descriptor?: GPUTextureViewDescriptor) =>
+        this.createMockTextureView(descriptor),
+      destroy: () => {},
+    } as GPUTexture
+  }
+
+  /**
+   * Create mock GPU texture view for testing
+   */
+  private createMockTextureView(
+    descriptor?: GPUTextureViewDescriptor
+  ): GPUTextureView {
+    return {
+      label: descriptor?.label || 'Mock Texture View',
+    } as GPUTextureView
+  }
+
+  /**
+   * Create mock GPU sampler for testing
+   */
+  private createMockSampler(descriptor?: GPUSamplerDescriptor): GPUSampler {
+    return {
+      label: descriptor?.label || 'Mock Sampler',
+    } as GPUSampler
+  }
+
+  /**
+   * Create mock GPU bind group layout for testing
+   */
+  private createMockBindGroupLayout(
+    descriptor: GPUBindGroupLayoutDescriptor
+  ): GPUBindGroupLayout {
+    return {
+      label: descriptor.label || 'Mock Bind Group Layout',
+    } as GPUBindGroupLayout
+  }
+
+  /**
+   * Create mock GPU pipeline layout for testing
+   */
+  private createMockPipelineLayout(
+    descriptor: GPUPipelineLayoutDescriptor
+  ): GPUPipelineLayout {
+    return {
+      label: descriptor.label || 'Mock Pipeline Layout',
+    } as GPUPipelineLayout
+  }
+
+  /**
+   * Create mock GPU render pipeline for testing
+   */
+  private createMockRenderPipeline(
+    descriptor: GPURenderPipelineDescriptor
+  ): GPURenderPipeline {
+    return {
+      label: descriptor.label || 'Mock Render Pipeline',
+      getBindGroupLayout: (index: number) => this.createMockBindGroupLayout({}),
+    } as GPURenderPipeline
+  }
+
+  /**
+   * Create mock GPU compute pipeline for testing
+   */
+  private createMockComputePipeline(
+    descriptor: GPUComputePipelineDescriptor
+  ): GPUComputePipeline {
+    return {
+      label: descriptor.label || 'Mock Compute Pipeline',
+      getBindGroupLayout: (index: number) => this.createMockBindGroupLayout({}),
+    } as GPUComputePipeline
+  }
+
+  /**
+   * Create mock GPU bind group for testing
+   */
+  private createMockBindGroup(
+    descriptor: GPUBindGroupDescriptor
+  ): GPUBindGroup {
+    return {
+      label: descriptor.label || 'Mock Bind Group',
+    } as GPUBindGroup
+  }
+
+  /**
+   * Create mock GPU command encoder for testing
+   */
+  private createMockCommandEncoder(
+    descriptor?: GPUCommandEncoderDescriptor
+  ): GPUCommandEncoder {
+    return {
+      label: descriptor?.label || 'Mock Command Encoder',
+      beginRenderPass: (descriptor: GPURenderPassDescriptor) =>
+        this.createMockRenderPassEncoder(descriptor),
+      beginComputePass: (descriptor?: GPUComputePassDescriptor) =>
+        this.createMockComputePassEncoder(descriptor),
+      copyBufferToBuffer: () => {},
+      copyBufferToTexture: () => {},
+      copyTextureToBuffer: () => {},
+      copyTextureToTexture: () => {},
+      clearBuffer: () => {},
+      resolveQuerySet: () => {},
+      writeTimestamp: () => {},
+      pushDebugGroup: () => {},
+      popDebugGroup: () => {},
+      insertDebugMarker: () => {},
+      finish: () => this.createMockCommandBuffer(),
+    } as GPUCommandEncoder
+  }
+
+  /**
+   * Create mock GPU render pass encoder for testing
+   */
+  private createMockRenderPassEncoder(
+    descriptor: GPURenderPassDescriptor
+  ): GPURenderPassEncoder {
+    return {
+      label: 'Mock Render Pass Encoder',
+      setPipeline: () => {},
+      setBindGroup: () => {},
+      setVertexBuffer: () => {},
+      setIndexBuffer: () => {},
+      setViewport: () => {},
+      setScissorRect: () => {},
+      setBlendConstant: () => {},
+      setStencilReference: () => {},
+      setRenderPipeline: () => {},
+      setIndexBufferWithFormat: () => {},
+      beginOcclusionQuery: () => {},
+      endOcclusionQuery: () => {},
+      beginPipelineStatisticsQuery: () => {},
+      endPipelineStatisticsQuery: () => {},
+      writeTimestamp: () => {},
+      executeBundles: () => {},
+      insertDebugMarker: () => {},
+      pushDebugGroup: () => {},
+      popDebugGroup: () => {},
+      end: () => {},
+    } as GPURenderPassEncoder
+  }
+
+  /**
+   * Create mock GPU compute pass encoder for testing
+   */
+  private createMockComputePassEncoder(
+    descriptor?: GPUComputePassDescriptor
+  ): GPUComputePassEncoder {
+    return {
+      label: 'Mock Compute Pass Encoder',
+      setPipeline: () => {},
+      setBindGroup: () => {},
+      writeTimestamp: () => {},
+      beginPipelineStatisticsQuery: () => {},
+      endPipelineStatisticsQuery: () => {},
+      insertDebugMarker: () => {},
+      pushDebugGroup: () => {},
+      popDebugGroup: () => {},
+      end: () => {},
+      dispatchWorkgroups: () => {},
+      dispatchWorkgroupsIndirect: () => {},
+    } as GPUComputePassEncoder
+  }
+
+  /**
+   * Create mock GPU render bundle encoder for testing
+   */
+  private createMockRenderBundleEncoder(
+    descriptor: GPURenderBundleEncoderDescriptor
+  ): GPURenderBundleEncoder {
+    return {
+      label: 'Mock Render Bundle Encoder',
+      setPipeline: () => {},
+      setBindGroup: () => {},
+      setVertexBuffer: () => {},
+      setIndexBuffer: () => {},
+      setViewport: () => {},
+      setScissorRect: () => {},
+      setBlendConstant: () => {},
+      setStencilReference: () => {},
+      setRenderPipeline: () => {},
+      setIndexBufferWithFormat: () => {},
+      beginOcclusionQuery: () => {},
+      endOcclusionQuery: () => {},
+      beginPipelineStatisticsQuery: () => {},
+      endPipelineStatisticsQuery: () => {},
+      writeTimestamp: () => {},
+      executeBundles: () => {},
+      insertDebugMarker: () => {},
+      pushDebugGroup: () => {},
+      popDebugGroup: () => {},
+      finish: () => this.createMockRenderBundle(),
+    } as GPURenderBundleEncoder
+  }
+
+  /**
+   * Create mock GPU render bundle for testing
+   */
+  private createMockRenderBundle(): GPURenderBundle {
+    return {
+      label: 'Mock Render Bundle',
+    } as GPURenderBundle
+  }
+
+  /**
+   * Create mock GPU command buffer for testing
+   */
+  private createMockCommandBuffer(): GPUCommandBuffer {
+    return {
+      label: 'Mock Command Buffer',
+    } as GPUCommandBuffer
+  }
+
+  /**
+   * Create mock GPU query set for testing
+   */
+  private createMockQuerySet(descriptor: GPUQuerySetDescriptor): GPUQuerySet {
+    return {
+      label: descriptor.label || 'Mock Query Set',
+      type: descriptor.type,
+      count: descriptor.count,
+      destroy: () => {},
+    } as GPUQuerySet
+  }
+
+  /**
+   * Create mock GPU queue for testing
+   */
+  private createMockQueue(): GPUQueue {
+    return {
+      label: 'Mock GPU Queue',
+      submit: () => {},
+      writeBuffer: () => {},
+      writeTexture: () => {},
+      copyExternalImageToTexture: () => {},
+      onSubmittedWorkDone: () => Promise.resolve(),
+    } as GPUQueue
   }
 }

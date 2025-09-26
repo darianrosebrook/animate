@@ -41,20 +41,11 @@ export class EffectsSystem implements IEffectSystem {
     this.monitor = new EffectPerformanceMonitor()
     this.cache = new EffectCache()
     this.validator = new EffectValidator()
-    this.renderer = new EffectRendererImpl(
-      webgpuContext,
-      this.library,
-      this.cache,
-      this.monitor
-    )
-    this.composer = new EffectComposerImpl(
-      webgpuContext,
-      this.renderer,
-      this.monitor
-    )
+    // Initialize components in initialize() method to avoid forward reference issues
   }
 
   initialize(): Result<boolean> {
+    console.log('EffectsSystem.initialize called')
     try {
       // Validate WebGPU context
       const device = this.webgpuContext.getDevice()
@@ -67,6 +58,19 @@ export class EffectsSystem implements IEffectSystem {
           },
         }
       }
+
+      // Initialize components after class definitions are available
+      this.renderer = new EffectRendererImpl(
+        this.webgpuContext,
+        this.library,
+        this.cache,
+        this.monitor
+      )
+      this.composer = new EffectComposerImpl(
+        this.webgpuContext,
+        this.renderer,
+        this.monitor
+      )
 
       // Initialize effect renderer
       const rendererResult = this.renderer.initialize()

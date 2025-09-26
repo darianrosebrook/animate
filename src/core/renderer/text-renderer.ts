@@ -133,29 +133,18 @@ export class FontAtlas {
    * Generate basic glyph data (placeholder for real font parsing)
    */
   private async generateBasicGlyphs(): Promise<void> {
-    // This is a simplified implementation
-    // In production, we'd use a proper font parsing library like opentype.js
-    const charWidth = 16
-    const charHeight = 24
-    this.lineHeight = charHeight
+    // Critical functionality - font loading must be implemented
+    // For now, throw an error to indicate this needs proper implementation
+    throw new Error(
+      'Font loading not implemented. This is critical functionality for text rendering that must be implemented.'
+    )
 
-    // Generate glyphs for basic ASCII characters
-    for (let i = 32; i < 127; i++) {
-      const glyph: GlyphInfo = {
-        codepoint: i,
-        advance: charWidth,
-        bearingX: 0,
-        bearingY: charHeight - 4, // Approximate baseline
-        width: charWidth,
-        height: charHeight,
-        textureX: (i - 32) * charWidth,
-        textureY: 0,
-        textureWidth: charWidth,
-        textureHeight: charHeight,
-      }
-
-      this.glyphs.set(i, glyph)
-    }
+    // TODO: Implement proper font loading:
+    // 1. Use a font parsing library like opentype.js
+    // 2. Parse TTF/OTF font files
+    // 3. Generate font atlas with proper glyph metrics
+    // 4. Handle different font weights and styles
+    // 5. Support font fallback chains
   }
 
   /**

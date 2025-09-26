@@ -10,12 +10,16 @@ This directory contains the comprehensive technical documentation for the **Anim
 
 #### **Core System Implementation**
 - **[🏗️ Feature Plan](scene-graph.plan.md)** - Complete architectural design, interfaces, and test matrix
-- **[🧪 Test Strategy](scene-graph.test-plan.md)** - Comprehensive testing approach with property-based validation
+- **[🧪 Test Strategy](scene-graph.test-plan.md)** - Component-specific testing approach with property-based validation
+- **[🔍 Testing Strategy](testing-strategy.md)** - Comprehensive testing, benchmarking, and bottleneck identification across the entire project
 - **[🔄 Migration Guide](scene-graph.impact-map.md)** - Deployment strategy, rollback plans, and impact analysis
 - **[⚡ Non-Functional Specs](scene-graph.non-functional.md)** - Accessibility, performance, and security requirements
 
 #### **Advanced Features**
 - **[📚 Library Management](features/library-management.plan.md)** - Enterprise-grade asset library system
+- **[🤝 Collaboration Strategy](collaboration-strategy.md)** - Comprehensive multi-player editing and real-time collaboration framework
+- **[🤝 Collaboration Plan](collaboration.plan.md)** - CAWS-compliant feature plan for real-time multi-player editing
+- **[🧪 Collaboration Tests](collaboration.test-plan.md)** - Comprehensive testing strategy for collaboration system
 - **[🎯 Original Vision](v.0.plan.md)** - Product vision, competitive analysis, and strategic positioning
 
 ### **Project Overview**
@@ -61,7 +65,7 @@ The documentation covers the foundational **scene graph and timeline system**:
 1. **Create Working Spec**: Draft new YAML spec in `.caws/working-spec.yaml`
 2. **Risk Assessment**: Determine appropriate tier (1-3) for your feature
 3. **Follow Patterns**: Use established contracts and interfaces
-4. **Test Rigorously**: Apply appropriate testing based on risk tier
+4. **Test Rigorously**: Apply testing strategy from [testing-strategy.md](testing-strategy.md) based on risk tier
 
 ## 🔍 Key Technical Concepts
 
@@ -89,6 +93,7 @@ Time Scrub  Scene State  Topological Order   Property Animation   Render Ready
 - **Integration Testing**: Testing complete workflows with real GPU acceleration
 - **Mutation Testing**: Intentionally breaking code to ensure tests catch the errors
 - **Performance Testing**: Ensuring smooth 60fps playback under various conditions
+- **[Comprehensive Testing Strategy](testing-strategy.md)**: Complete testing, benchmarking, and bottleneck identification framework
 
 ## 📖 Technical Glossary
 
@@ -101,6 +106,9 @@ Time Scrub  Scene State  Topological Order   Property Animation   Render Ready
 | **Deterministic** | Same input always produces same output | Ensures consistent renders across machines |
 | **Mutation Score** | Percentage of code bugs our tests can catch | Higher score = more reliable code |
 | **CRDT** | Conflict-free Replicated Data Type | Enables real-time collaboration |
+| **Operational Transform** | Algorithm for concurrent editing | Merges concurrent changes without conflicts |
+| **Yjs** | CRDT library for collaborative editing | Powers real-time document synchronization |
+| **WebRTC** | Real-time communication protocol | Enables peer-to-peer collaboration |
 | **SBOM** | Software Bill of Materials | Tracks all dependencies and licenses |
 | **SLSA** | Supply chain Levels for Software Artifacts | Ensures software supply chain security |
 | **WebGPU** | Modern graphics API for web browsers | Enables GPU acceleration everywhere |

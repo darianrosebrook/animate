@@ -1,0 +1,995 @@
+
+> animator@0.1.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v0.34.6 /Users/darianrosebrook/Desktop/Projects/Animator
+      Coverage enabled with v8
+
+ ✓ tests/milestone3-core.test.ts  (13 tests) 24ms
+ ❯ tests/milestone3-comprehensive.test.ts  (0 test)
+ ✓ tests/path-renderer.test.ts  (20 tests) 9ms
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Batch Renderer > should initialize successfully
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+🚀 Batch renderer initialized for high-performance rendering
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Batch Renderer > should add and clear renderables
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Batch Renderer > should group renderables by type and properties
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Batch Renderer > should render batches efficiently
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Batch Renderer > should track performance metrics
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Batch Renderer > should detect performance budget violations
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Batch Renderer > should provide optimization recommendations
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should initialize successfully
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should allocate and return buffers
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should reuse buffers from pool
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should clean up old buffers
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should provide memory statistics
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should provide pool-specific statistics
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should optimize pool sizes based on usage
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should provide optimization recommendations
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should handle multiple buffer types
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Pool > should handle buffer allocation failures gracefully
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Integration Tests > should work together for optimal performance
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Performance Benchmarks > should maintain 60fps performance with many objects
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Memory Management > should efficiently manage GPU memory
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Error Handling and Edge Cases > should handle batch renderer initialization failures
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+🚀 Batch renderer initialized for high-performance rendering
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Error Handling and Edge Cases > should handle memory pool allocation failures gracefully
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Error Handling and Edge Cases > should handle empty batches gracefully
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Error Handling and Edge Cases > should handle concurrent operations safely
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Resource Cleanup > should clean up all resources properly
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Resource Cleanup > should handle multiple destroy calls safely
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Performance Monitoring > should track frame times accurately
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+stdout | tests/performance-optimizations.test.ts > Performance Optimizations - Comprehensive Tests > Performance Monitoring > should detect performance regressions
+🚀 Batch renderer initialized for high-performance rendering
+💾 Memory pool initialized for efficient GPU resource management
+
+ ✓ tests/performance-optimizations.test.ts  (28 tests) 10ms
+ ✓ src/types/index.test.ts  (17 tests) 6ms
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects Library > should provide built-in effects
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects Library > should provide effect presets
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects Library > should validate effect parameters
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects Library > should reject invalid effect parameters
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should initialize successfully
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should create effects with default parameters
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should create effects with custom parameters
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should handle non-existent effect types
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Rendering > should render effects with mock GPU context
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Rendering > should handle disabled effects
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Composition > should manage effect order
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Composition > should reorder effects
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Composition > should remove effects
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Monitoring > should track effect render times
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Monitoring > should track memory usage
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Monitoring > should provide overall performance metrics
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Caching > should cache effect results
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Caching > should invalidate cache when effects change
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Caching > should provide cache statistics
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Validation > should validate effect instances
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Validation > should validate effect parameters
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Validation > should reject invalid parameters
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Validation > should validate shader code
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Validation > should reject invalid shader code
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Integration Tests > should handle complex effect workflows
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Integration Tests > should handle effect library management
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Integration Tests > should handle performance monitoring across multiple effects
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Error Handling and Edge Cases > should handle missing effect types gracefully
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Error Handling and Edge Cases > should handle empty parameter validation
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Error Handling and Edge Cases > should handle shader compilation errors
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Error Handling and Edge Cases > should handle cache operations gracefully
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Error Handling and Edge Cases > should handle composer without textures
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Benchmarks > should handle effect creation efficiently
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Benchmarks > should handle large effect libraries
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Benchmarks > should handle preset operations efficiently
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Memory Management > should handle cache cleanup
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Memory Management > should handle effect pipeline cleanup
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Cross-Platform Compatibility > should handle different GPU architectures
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Cross-Platform Compatibility > should handle different viewport sizes
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Categories > should provide effects from all categories
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Categories > should filter effects by category
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Parameters > should handle all parameter types
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Parameters > should validate parameter ranges
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Parameters > should handle animatable parameters
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Blend Modes > should support all blend modes
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Blend Modes > should validate blend mode compatibility
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Performance > should provide performance estimates
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Performance > should categorize effects by performance impact
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect System Integration > should integrate with timeline system
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+stdout | tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect System Integration > should support effect chaining
+⚠️ Effects system initialization failed: WEBGPU_DEVICE_NOT_FOUND - WebGPU device not available for effects system
+⚠️ Skipping effects system tests due to missing WebGPU support
+🧹 Effects system destroyed
+
+ ✓ src/core/scene-graph/scene-graph.test.ts  (19 tests) 10ms
+ ❯ tests/effects-system.test.ts  (50 tests | 27 failed) 43ms
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects Library > should validate effect parameters
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should initialize successfully
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should create effects with default parameters
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should create effects with custom parameters
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Rendering > should render effects with mock GPU context
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Rendering > should handle disabled effects
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Composition > should manage effect order
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Composition > should reorder effects
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Composition > should remove effects
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Monitoring > should track effect render times
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Monitoring > should track memory usage
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Monitoring > should provide overall performance metrics
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Caching > should cache effect results
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Caching > should invalidate cache when effects change
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Validation > should validate effect instances
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Integration Tests > should handle complex effect workflows
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Integration Tests > should handle performance monitoring across multiple effects
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Error Handling and Edge Cases > should handle composer without textures
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Memory Management > should handle cache cleanup
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Memory Management > should handle effect pipeline cleanup
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Cross-Platform Compatibility > should handle different GPU architectures
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Cross-Platform Compatibility > should handle different viewport sizes
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Categories > should filter effects by category
+     → effectTypes is not defined
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Blend Modes > should support all blend modes
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Blend Modes > should validate blend mode compatibility
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect System Integration > should integrate with timeline system
+     → expected false to be true // Object.is equality
+   ❯ tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect System Integration > should support effect chaining
+     → expected false to be true // Object.is equality
+ ✓ tests/milestone3-path-integration.test.ts  (6 tests) 11ms
+ ✓ tests/timeline-system.test.ts  (33 tests) 38ms
+ ✓ src/core/renderer/renderer.test.ts  (11 tests) 4ms
+stdout | tests/timeline-debug.test.ts > Timeline Debug Tests > should debug timeline evaluation
+Track ID: track_0
+Track targetNodeId: node1
+Track propertyPath: position
+Track keyframes: [
+  {
+    id: [32m'keyframe_1'[39m,
+    selected: [33mfalse[39m,
+    time: [33m0[39m,
+    value: { x: [33m0[39m, y: [33m0[39m },
+    interpolation: [32m'linear'[39m
+  },
+  {
+    id: [32m'keyframe_2'[39m,
+    selected: [33mfalse[39m,
+    time: [33m2[39m,
+    value: { x: [33m100[39m, y: [33m50[39m },
+    interpolation: [32m'linear'[39m
+  }
+]
+Timeline evaluation result: {
+  success: [33mtrue[39m,
+  data: Map(1) { [32m'node1.position'[39m => { x: [33m50[39m, y: [33m25[39m } }
+}
+Timeline evaluation data: Map(1) { [32m'node1.position'[39m => { x: [33m50[39m, y: [33m25[39m } }
+node1.position: { x: [33m50[39m, y: [33m25[39m }
+node1.position.x: [33m50[39m
+
+ ✓ tests/timeline-debug.test.ts  (1 test) 4ms
+ ✓ src/core/lib.test.ts  (7 tests) 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/milestone3-comprehensive.test.ts [ tests/milestone3-comprehensive.test.ts ]
+Error: Transform failed with 1 error:
+/Users/darianrosebrook/Desktop/Projects/Animator/tests/milestone3-comprehensive.test.ts:218:4: ERROR: Unexpected "}"
+ ❯ failureErrorWithLog node_modules/esbuild/lib/main.js:1649:15
+ ❯ node_modules/esbuild/lib/main.js:847:29
+ ❯ responseCallbacks.<computed> node_modules/esbuild/lib/main.js:703:9
+ ❯ handleIncomingPacket node_modules/esbuild/lib/main.js:762:9
+ ❯ Socket.readFromStdout node_modules/esbuild/lib/main.js:679:7
+ ❯ Socket.emit node:events:519:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 27 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects Library > should validate effect parameters
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:80:38
+     78| 
+     79|         const createResult = effectsSystem.createEffect('glow', validP…
+     80|         expect(createResult.success).toBe(true)
+       |                                      ^
+     81|         expect(createResult.data?.parameters.intensity).toBe(1.5)
+     82|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should initialize successfully
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:108:34
+    106|     it('should initialize successfully', async () => {
+    107|       const initResult = await effectsSystem.initialize()
+    108|       expect(initResult.success).toBe(true)
+       |                                  ^
+    109|     })
+    110| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should create effects with default parameters
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:113:36
+    111|     it('should create effects with default parameters', () => {
+    112|       const createResult = effectsSystem.createEffect('glow')
+    113|       expect(createResult.success).toBe(true)
+       |                                    ^
+    114| 
+    115|       const effect = createResult.data!
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effects System Core > should create effects with custom parameters
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:131:36
+    129| 
+    130|       const createResult = effectsSystem.createEffect('glow', params)
+    131|       expect(createResult.success).toBe(true)
+       |                                    ^
+    132| 
+    133|       const effect = createResult.data!
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Rendering > should render effects with mock GPU context
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:157:36
+    155|       })
+    156| 
+    157|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    158|       const effect = effectResult.data!
+    159| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Rendering > should handle disabled effects
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:171:36
+    169|     it('should handle disabled effects', () => {
+    170|       const effectResult = effectsSystem.createEffect('glow')
+    171|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    172|       const effect = effectResult.data!
+    173| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Composition > should manage effect order
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:187:50
+    185|       const effect2 = effectsSystem.createEffect('color-correction')
+    186| 
+    187|       expect(effect1.success && effect2.success).toBe(true)
+       |                                                  ^
+    188| 
+    189|       if (effect1.data && effect2.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Composition > should reorder effects
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:204:50
+    202|       const effect2 = effectsSystem.createEffect('color-correction')
+    203| 
+    204|       expect(effect1.success && effect2.success).toBe(true)
+       |                                                  ^
+    205| 
+    206|       if (effect1.data && effect2.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Composition > should remove effects
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:221:36
+    219|     it('should remove effects', () => {
+    220|       const effectResult = effectsSystem.createEffect('glow')
+    221|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    222| 
+    223|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Monitoring > should track effect render times
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:236:36
+    234|     it('should track effect render times', () => {
+    235|       const effectResult = effectsSystem.createEffect('glow')
+    236|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    237| 
+    238|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Monitoring > should track memory usage
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:251:36
+    249|     it('should track memory usage', () => {
+    250|       const effectResult = effectsSystem.createEffect('glow')
+    251|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    252| 
+    253|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Performance Monitoring > should provide overall performance metrics
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:265:36
+    263|     it('should provide overall performance metrics', () => {
+    264|       const effectResult = effectsSystem.createEffect('glow')
+    265|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    266| 
+    267|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Caching > should cache effect results
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:282:36
+    280|     it('should cache effect results', () => {
+    281|       const effectResult = effectsSystem.createEffect('glow')
+    282|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    283| 
+    284|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Caching > should invalidate cache when effects change
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:303:36
+    301|     it('should invalidate cache when effects change', () => {
+    302|       const effectResult = effectsSystem.createEffect('glow')
+    303|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    304| 
+    305|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Validation > should validate effect instances
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:323:36
+    321|     it('should validate effect instances', () => {
+    322|       const effectResult = effectsSystem.createEffect('glow')
+    323|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    324| 
+    325|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Integration Tests > should handle complex effect workflows
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:410:9
+    408|       expect(
+    409|         glowResult.success && blurResult.success && colorResult.success
+    410|       ).toBe(true)
+       |         ^
+    411| 
+    412|       if (glowResult.data && blurResult.data && colorResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Integration Tests > should handle performance monitoring across multiple effects
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:468:50
+    466|       })
+    467| 
+    468|       expect(effect1.success && effect2.success).toBe(true)
+       |                                                  ^
+    469| 
+    470|       if (effect1.data && effect2.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Error Handling and Edge Cases > should handle composer without textures
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:536:36
+    534|     it('should handle composer without textures', () => {
+    535|       const effectResult = effectsSystem.createEffect('glow')
+    536|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    537| 
+    538|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Memory Management > should handle cache cleanup
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:601:36
+    599|     it('should handle cache cleanup', () => {
+    600|       const effectResult = effectsSystem.createEffect('glow')
+    601|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    602| 
+    603|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Memory Management > should handle effect pipeline cleanup
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:611:36
+    609|     it('should handle effect pipeline cleanup', () => {
+    610|       const effectResult = effectsSystem.createEffect('glow')
+    611|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    612| 
+    613|       // In a real implementation, this would clean up GPU resources
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Cross-Platform Compatibility > should handle different GPU architectures
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:628:36
+    626| 
+    627|       const effectResult = effectsSystem.createEffect('glow')
+    628|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    629| 
+    630|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Cross-Platform Compatibility > should handle different viewport sizes
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:639:36
+    637|     it('should handle different viewport sizes', () => {
+    638|       const effectResult = effectsSystem.createEffect('glow')
+    639|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    640| 
+    641|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect Categories > should filter effects by category
+ReferenceError: effectTypes is not defined
+ ❯ tests/effects-system.test.ts:665:27
+    663| 
+    664|     it('should filter effects by category', () => {
+    665|       const blurEffects = effectTypes.filter(
+       |                           ^
+    666|         (e) => e.category === EffectCategory.Blur
+    667|       )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Blend Modes > should support all blend modes
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:732:36
+    730| 
+    731|       const effectResult = effectsSystem.createEffect('glow')
+    732|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    733| 
+    734|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Blend Modes > should validate blend mode compatibility
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:746:36
+    744|     it('should validate blend mode compatibility', () => {
+    745|       const effectResult = effectsSystem.createEffect('glow')
+    746|       expect(effectResult.success).toBe(true)
+       |                                    ^
+    747| 
+    748|       if (effectResult.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect System Integration > should integrate with timeline system
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:801:34
+    799| 
+    800|       const glowEffect = effectsSystem.createEffect('glow', { intensit…
+    801|       expect(glowEffect.success).toBe(true)
+       |                                  ^
+    802| 
+    803|       if (glowEffect.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/28]⎯
+
+ FAIL  tests/effects-system.test.ts > Effects System - Comprehensive Tests > Effect System Integration > should support effect chaining
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/effects-system.test.ts:821:50
+    819|       const effect2 = effectsSystem.createEffect('glow', { intensity: …
+    820| 
+    821|       expect(effect1.success && effect2.success).toBe(true)
+       |                                                  ^
+    822| 
+    823|       if (effect1.data && effect2.data) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/28]⎯
+
+ Test Files  2 failed | 10 passed (12)
+      Tests  27 failed | 178 passed (205)
+   Start at  15:31:57
+   Duration  1.86s (transform 447ms, setup 2.31s, collect 1.07s, tests 161ms, environment 6.09s, prepare 1.26s)
+

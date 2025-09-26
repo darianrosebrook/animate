@@ -40,7 +40,10 @@ export class MediaSystem implements IMediaSystem {
   private nextAssetId = 0
   private mediaTracks: Map<string, MediaTimelineTrack> = new Map()
 
-  constructor(webgpuContext: WebGPUContext, config?: Partial<MediaPipelineConfig>) {
+  constructor(
+    webgpuContext: WebGPUContext,
+    config?: Partial<MediaPipelineConfig>
+  ) {
     this.webgpuContext = webgpuContext
     this.config = {
       maxMemoryUsage: 2048, // 2GB default
@@ -59,7 +62,9 @@ export class MediaSystem implements IMediaSystem {
     this.processingPipeline = new MediaProcessingPipelineImpl(webgpuContext)
   }
 
-  async initialize(config?: Partial<MediaPipelineConfig>): Promise<Result<boolean>> {
+  async initialize(
+    config?: Partial<MediaPipelineConfig>
+  ): Promise<Result<boolean>> {
     try {
       if (config) {
         this.config = { ...this.config, ...config }
@@ -83,7 +88,9 @@ export class MediaSystem implements IMediaSystem {
           this.videoDecoder = new VideoDecoderImpl()
           console.log('✅ Hardware-accelerated video decoder initialized')
         } catch (error) {
-          console.warn('⚠️ Hardware video decoder not available, using software fallback')
+          console.warn(
+            '⚠️ Hardware video decoder not available, using software fallback'
+          )
           this.videoDecoder = null
         }
       }
@@ -113,7 +120,10 @@ export class MediaSystem implements IMediaSystem {
     }
   }
 
-  async importMedia(files: File[], options?: MediaImportOptions): Promise<Result<MediaImportResult>> {
+  async importMedia(
+    files: File[],
+    options?: MediaImportOptions
+  ): Promise<Result<MediaImportResult>> {
     const startTime = performance.now()
     const result: MediaImportResult = {
       assets: [],
@@ -129,14 +139,18 @@ export class MediaSystem implements IMediaSystem {
           // Validate file
           const validationResult = await this.formatDetector.validateFile(file)
           if (!validationResult.success) {
-            result.errors.push(`Invalid file ${file.name}: ${validationResult.error?.message}`)
+            result.errors.push(
+              `Invalid file ${file.name}: ${validationResult.error?.message}`
+            )
             continue
           }
 
           // Detect format
           const formatResult = await this.formatDetector.detectFormat(file)
           if (!formatResult.success) {
-            result.errors.push(`Cannot detect format for ${file.name}: ${formatResult.error?.message}`)
+            result.errors.push(
+              `Cannot detect format for ${file.name}: ${formatResult.error?.message}`
+            )
             continue
           }
 
@@ -157,7 +171,10 @@ export class MediaSystem implements IMediaSystem {
             filePath: URL.createObjectURL(file),
             metadata,
             duration: metadata.duration,
-            resolution: metadata.width && metadata.height ? { width: metadata.width, height: metadata.height } : undefined,
+            resolution:
+              metadata.width && metadata.height
+                ? { width: metadata.width, height: metadata.height }
+                : undefined,
             createdAt: new Date(),
             lastModified: new Date(file.lastModified),
           }
@@ -165,25 +182,29 @@ export class MediaSystem implements IMediaSystem {
           // Generate thumbnail if requested
           if (options?.generateThumbnails !== false) {
             try {
-              const thumbnailResult = await this.thumbnailGenerator.generateThumbnail(asset)
+              const thumbnailResult =
+                await this.thumbnailGenerator.generateThumbnail(asset)
               if (thumbnailResult.success) {
                 asset.thumbnail = thumbnailResult.data
               }
             } catch (thumbnailError) {
-              result.warnings.push(`Could not generate thumbnail for ${file.name}`)
+              result.warnings.push(
+                `Could not generate thumbnail for ${file.name}`
+              )
             }
           }
 
           // Add to library
           const addResult = this.assetLibrary.addAsset(asset)
           if (!addResult.success) {
-            result.errors.push(`Failed to add asset ${file.name} to library: ${addResult.error?.message}`)
+            result.errors.push(
+              `Failed to add asset ${file.name} to library: ${addResult.error?.message}`
+            )
             continue
           }
 
           result.assets.push(asset)
           result.totalDuration += asset.duration || 0
-
         } catch (assetError) {
           result.errors.push(`Error processing ${file.name}: ${assetError}`)
         }
@@ -192,7 +213,9 @@ export class MediaSystem implements IMediaSystem {
       result.importTime = performance.now() - startTime
 
       // Log results
-      console.log(`📥 Media import completed: ${result.assets.length} assets, ${result.errors.length} errors, ${result.warnings.length} warnings`)
+      console.log(
+        `📥 Media import completed: ${result.assets.length} assets, ${result.errors.length} errors, ${result.warnings.length} warnings`
+      )
 
       return { success: true, data: result }
     } catch (error) {
@@ -244,15 +267,12 @@ export class MediaSystem implements IMediaSystem {
         }
       }
 
-      // This would decode the actual video frame
-      // For now, return a placeholder
+      // Not implemented yet – avoid returning fake frames
       return {
-        success: true,
-        data: {
-          texture: null, // Would be actual GPU texture
-          timestamp: time,
-          frameNumber: Math.floor(time * (asset.metadata.frameRate || 30)),
-          presentationTime: time,
+        success: false,
+        error: {
+          code: 'DECODE_NOT_IMPLEMENTED',
+          message: 'Video frame decoding not yet implemented',
         },
       }
     } catch (error) {
@@ -300,11 +320,13 @@ export class MediaSystem implements IMediaSystem {
         }
       }
 
-      // This would analyze the actual audio
-      // For now, return placeholder waveform data
+      // Not implemented yet – avoid returning fake analysis data
       return {
-        success: true,
-        data: [new Float32Array(1024)], // Placeholder waveform
+        success: false,
+        error: {
+          code: 'ANALYZE_NOT_IMPLEMENTED',
+          message: 'Audio analysis not yet implemented',
+        },
       }
     } catch (error) {
       return {
@@ -371,24 +393,32 @@ class MediaAssetLibraryImpl implements MediaAssetLibrary {
 
   search(query: string): MediaAsset[] {
     const lowerQuery = query.toLowerCase()
-    return this.assets.filter(asset =>
-      asset.name.toLowerCase().includes(lowerQuery) ||
-      asset.metadata.codec?.toLowerCase().includes(lowerQuery)
+    return this.assets.filter(
+      (asset) =>
+        asset.name.toLowerCase().includes(lowerQuery) ||
+        asset.metadata.codec?.toLowerCase().includes(lowerQuery)
     )
   }
 
-  filter(type?: MediaType, duration?: { min: number; max: number }): MediaAsset[] {
-    return this.assets.filter(asset => {
+  filter(
+    type?: MediaType,
+    duration?: { min: number; max: number }
+  ): MediaAsset[] {
+    return this.assets.filter((asset) => {
       if (type && asset.type !== type) return false
       if (duration) {
         const assetDuration = asset.duration || 0
-        if (assetDuration < duration.min || assetDuration > duration.max) return false
+        if (assetDuration < duration.min || assetDuration > duration.max)
+          return false
       }
       return true
     })
   }
 
-  sort(by: 'name' | 'date' | 'duration' | 'size', ascending = true): MediaAsset[] {
+  sort(
+    by: 'name' | 'date' | 'duration' | 'size',
+    ascending = true
+  ): MediaAsset[] {
     const sorted = [...this.assets]
 
     sorted.sort((a, b) => {
@@ -416,13 +446,13 @@ class MediaAssetLibraryImpl implements MediaAssetLibrary {
   }
 
   getAsset(id: string): MediaAsset | null {
-    return this.assets.find(asset => asset.id === id) || null
+    return this.assets.find((asset) => asset.id === id) || null
   }
 
   addAsset(asset: MediaAsset): Result<void> {
     try {
       // Check for duplicates
-      if (this.assets.some(a => a.id === asset.id)) {
+      if (this.assets.some((a) => a.id === asset.id)) {
         return {
           success: false,
           error: {
@@ -448,7 +478,7 @@ class MediaAssetLibraryImpl implements MediaAssetLibrary {
 
   removeAsset(id: string): Result<void> {
     try {
-      const index = this.assets.findIndex(asset => asset.id === id)
+      const index = this.assets.findIndex((asset) => asset.id === id)
       if (index === -1) {
         return {
           success: false,
@@ -511,7 +541,10 @@ class MediaThumbnailGeneratorImpl implements MediaThumbnailGenerator {
     this.webgpuContext = webgpuContext
   }
 
-  async generateThumbnail(asset: MediaAsset, time?: Time): Promise<Result<GPUTexture>> {
+  async generateThumbnail(
+    asset: MediaAsset,
+    time?: Time
+  ): Promise<Result<GPUTexture>> {
     try {
       const device = this.webgpuContext.getDevice()
       if (!device) {
@@ -550,7 +583,10 @@ class MediaThumbnailGeneratorImpl implements MediaThumbnailGenerator {
     }
   }
 
-  async generateThumbnails(asset: MediaAsset, count: number): Promise<Result<GPUTexture[]>> {
+  async generateThumbnails(
+    asset: MediaAsset,
+    count: number
+  ): Promise<Result<GPUTexture[]>> {
     try {
       if (asset.type !== MediaType.Video) {
         return {
@@ -592,7 +628,9 @@ class MediaThumbnailGeneratorImpl implements MediaThumbnailGenerator {
     console.log('🖼️ Media thumbnail generator destroyed')
   }
 
-  private async generateImageThumbnail(asset: MediaAsset): Promise<Result<GPUTexture>> {
+  private async generateImageThumbnail(
+    asset: MediaAsset
+  ): Promise<Result<GPUTexture>> {
     try {
       return new Promise((resolve) => {
         const img = new Image()
@@ -636,7 +674,10 @@ class MediaThumbnailGeneratorImpl implements MediaThumbnailGenerator {
     }
   }
 
-  private async generateVideoThumbnail(asset: MediaAsset, time?: Time): Promise<Result<GPUTexture>> {
+  private async generateVideoThumbnail(
+    asset: MediaAsset,
+    time?: Time
+  ): Promise<Result<GPUTexture>> {
     try {
       // For video thumbnails, we'd seek to the specified time and capture a frame
       // This is a simplified implementation
@@ -645,7 +686,8 @@ class MediaThumbnailGeneratorImpl implements MediaThumbnailGenerator {
       const texture = device.createTexture({
         size: [320, 240], // Thumbnail size
         format: 'rgba8unorm',
-        usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
+        usage:
+          GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
       })
 
       // In practice, this would decode the video frame and copy to texture
@@ -711,7 +753,10 @@ class MediaTimelineIntegrationImpl implements MediaTimelineIntegration {
     }
   }
 
-  updateMediaTrack(trackId: string, updates: Partial<MediaTimelineTrack>): Result<MediaTimelineTrack> {
+  updateMediaTrack(
+    trackId: string,
+    updates: Partial<MediaTimelineTrack>
+  ): Result<MediaTimelineTrack> {
     try {
       const track = this.tracks.get(trackId)
       if (!track) {
@@ -790,7 +835,10 @@ class MediaProcessingPipelineImpl implements MediaProcessingPipeline {
     this.webgpuContext = webgpuContext
   }
 
-  async processVideoFrame(inputTexture: GPUTexture, time: Time): Promise<Result<GPUTexture>> {
+  async processVideoFrame(
+    inputTexture: GPUTexture,
+    time: Time
+  ): Promise<Result<GPUTexture>> {
     try {
       const device = this.webgpuContext.getDevice()!
       if (!device) {
@@ -807,7 +855,8 @@ class MediaProcessingPipelineImpl implements MediaProcessingPipeline {
       const outputTexture = device.createTexture({
         size: [inputTexture.width, inputTexture.height],
         format: inputTexture.format,
-        usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING,
+        usage:
+          GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING,
       })
 
       // In practice, this would apply video processing effects
@@ -842,7 +891,10 @@ class MediaProcessingPipelineImpl implements MediaProcessingPipeline {
     }
   }
 
-  async applyEffects(inputTexture: GPUTexture, effects: any[]): Promise<Result<GPUTexture>> {
+  async applyEffects(
+    inputTexture: GPUTexture,
+    effects: any[]
+  ): Promise<Result<GPUTexture>> {
     try {
       // In practice, this would apply visual effects to the texture
       return { success: true, data: inputTexture }
@@ -1012,7 +1064,8 @@ class AudioAnalyzerImpl implements AudioAnalyzer {
 
   async initialize(audioBuffer: AudioBuffer): Promise<Result<boolean>> {
     try {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      this.audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)()
 
       // Create analyser node
       this.analyser = this.audioContext.createAnalyser()
