@@ -1,4 +1,4 @@
-name: CI
+name: CAWS Quality Gates
 
 on:
   push:
@@ -7,29 +7,207 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  test:
+  # CAWS Naming Guard - Block shadow file patterns
+  naming_guard:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Block shadow file patterns
+        run: |
+          BAD=$(git diff --name-only origin/${{ github.base_ref }}... | \
+            grep -E '/(copy|final|enhanced|v2)[.-]|/(new-)|(^|/)_.+\.| - copy\.' || true)
+          if [ -n "$BAD" ]; then
+            echo "❌ Disallowed filename pattern detected:"
+            echo "$BAD"
+            echo ""
+            echo "💡 Use in-place refactor or codemod instead of creating shadow files."
+            exit 1
+          fi
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
+  # CAWS Scope Guard - Ensure changes are within scope.in
+  scope_guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure changes are within scope.in
+        run: |
+          if [ -f ".caws/working-spec.yaml" ]; then
+            pipx install yq
+            yq -o=json '.caws/working-spec.yaml' > .caws/ws.json
+            jq -r '.scope.in[]' .caws/ws.json | sed 's|^|^|; s|$|/|' > .caws/paths.txt
+            CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...)
+            OUT=""
+            for f in $CHANGED; do
+              if ! grep -q -E -f .caws/paths.txt <<< "$f"; then OUT="$OUT\n$f"; fi
+            done
+            if [ -n "$OUT" ]; then
+              echo -e "❌ Files outside scope.in:\n$OUT"
+              echo "If intentional, add a Spec Delta to .caws/working-spec.yaml and include affected paths."
+              exit 1
+            fi
+          fi
 
-    - name: Install dependencies
-      run: npm ci
+  # CAWS Budget Guard - Enforce max files/LOC from change_budget
+  budget_guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce max files/LOC from change_budget
+        run: |
+          if [ -f ".caws/working-spec.yaml" ]; then
+            pipx install yq
+            yq -o=json '.caws/working-spec.yaml' > .caws/ws.json
+            MAXF=$(jq -r '.change_budget.max_files' .caws/ws.json)
+            MAXL=$(jq -r '.change_budget.max_loc' .caws/ws.json)
+            FILES=$(git diff --name-only origin/${{ github.base_ref }}... | wc -l)
+            LOC=$(git diff --unified=0 origin/${{ github.base_ref }}... | grep -E '^\+|^-' | wc -l)
+            echo "Files:$FILES LOC:$LOC (budget Files:$MAXF LOC:$MAXL)"
+            [ "$FILES" -le "$MAXF" ] && [ "$LOC" -le "$MAXL" ] || (echo "❌ Budget exceeded"; exit 1)
+          fi
 
-    - name: Run type checking
-      run: npm run typecheck
+  # Setup job - Parse working spec and determine risk tier
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      risk: ${{ steps.risk.outputs.tier }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - name: Parse Working Spec
+        id: risk
+        run: |
+          if [ -f ".caws/working-spec.yaml" ]; then
+            pipx install yq
+            yq -o=json '.caws/working-spec.yaml' > .caws/working-spec.json
+            echo "tier=$(jq -r .risk_tier .caws/working-spec.json)" >> $GITHUB_OUTPUT
+          else
+            echo "tier=3" >> $GITHUB_OUTPUT
+          fi
+      - name: Validate Spec
+        run: node .caws/validate.js .caws/working-spec.yaml
 
-    - name: Run linting
-      run: npm run lint
+  # Static Analysis
+  static:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run typecheck && npm run lint
 
-    - name: Run tests
-      run: npm run test:run
+  # Unit Tests with Coverage
+  unit:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run test:coverage
+      - name: Enforce Branch Coverage
+        run: |
+          if [ -f ".caws/working-spec.yaml" ]; then
+            TIER=${{ needs.setup.outputs.risk }}
+            # TODO: Add actual coverage enforcement logic
+            echo "Coverage enforcement for tier $TIER not yet implemented"
+          fi
 
-    - name: Build project
-      run: npm run build
+  # Build Verification
+  build:
+    needs: [static, unit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run build
+
+  # Basic Integration Tests (placeholder for now)
+  integration:
+    needs: [setup, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run build
+      # TODO: Add actual integration tests
+
+  # Security Scanning (placeholder for now)
+  security:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Security scanning not yet implemented"
+      # TODO: Add SAST and secret scanning
+
+  # Performance Budgeting (placeholder for now)
+  perf:
+    needs: [integration]
+    if: needs.setup.outputs.risk != '3'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Performance budgeting not yet implemented"
+      # TODO: Add performance budget validation
+
+  # CAWS Provenance and Trust Score (placeholder for now)
+  provenance_trust:
+    needs: [naming_guard, scope_guard, budget_guard, static, unit, build, integration, security, perf]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - name: Generate SBOM
+        run: |
+          if command -v npx &> /dev/null; then
+            npx @cyclonedx/cyclonedx-npm --output-file .agent/sbom.json || echo "SBOM generation failed"
+          else
+            echo "SBOM generation not available"
+          fi
+      - name: Create Basic Attestation
+        run: |
+          mkdir -p .agent
+          cat > .agent/attestation.json << 'EOF'
+          {
+            "build": "$(git rev-parse HEAD)",
+            "timestamp": "$(date -Iseconds)",
+            "ci": true,
+            "tests_passed": true
+          }
+          EOF
+      - name: Generate Basic Provenance
+        run: |
+          mkdir -p .agent
+          cat > .agent/provenance.json << 'EOF'
+          {
+            "agent": "caws-ci",
+            "model": "github-actions",
+            "commit": "$(git rev-parse HEAD)",
+            "artifacts": [],
+            "results": {
+              "tests_passed": true,
+              "coverage_branch": 0.0,
+              "mutation_score": 0.0
+            },
+            "approvals": [],
+            "sbom": ".agent/sbom.json",
+            "attestation": ".agent/attestation.json"
+          }
+          EOF
+      - name: Basic Trust Score
+        run: |
+          if [ -f ".caws/working-spec.yaml" ]; then
+            TIER=${{ needs.setup.outputs.risk }}
+            echo "Trust score calculation for tier $TIER not yet implemented"
+          fi
