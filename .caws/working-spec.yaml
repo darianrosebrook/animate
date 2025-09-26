@@ -1,103 +1,56 @@
-id: ANIM-001
-title: "Core scene graph and timeline system with deterministic evaluation"
-risk_tier: 1  # Critical system component requiring highest quality standards
+id: RENDERING-001
+title: "Implement basic 2D rendering system with WebGPU/WGSL pipeline"
+risk_tier: 2
 mode: feature
 change_budget:
-  max_files: 40  # Limit file changes to maintain focus
-  max_loc: 1500  # Limit code additions for this feature
+  max_files: 25
+  max_loc: 1200
 blast_radius:
-  modules: ["core", "timeline", "scene-graph", "evaluator", "render"]  # Systems this will impact
-  data_migration: true  # Requires database schema changes
-operational_rollback_slo: "5m"  # Must be able to rollback within 5 minutes
+  modules: ["renderer", "core", "scene-graph"]
+  data_migration: false
+operational_rollback_slo: "15m"
 threats:
-  - "Non-deterministic rendering across different GPU vendors"  # Same scene should look identical everywhere
-  - "Timeline performance degradation with complex nested compositions"  # Must maintain 60fps playback
-  - "Memory leaks in scene graph node lifecycle"  # Must clean up resources properly
-  - "Race conditions in real-time evaluation"  # Multi-threaded evaluation must be safe
+  - "WebGPU compatibility issues across different browsers and GPU drivers"
+  - "Performance regression on low-end GPUs"
+  - "Memory leaks in GPU resource management"
+  - "Cross-platform rendering inconsistencies"
 scope:
-  in: [
-    "scene graph data structures",  # Tree structure for organizing visual elements
-    "timeline evaluation engine",  # System for computing animation values over time
-    "keyframe interpolation",  # Calculating smooth transitions between animation points
-    "deterministic rendering pipeline",  # Ensures identical output across all platforms
-    "node lifecycle management"  # Creating, updating, and destroying scene elements
-  ]
-  out: [
-    "audio processing",  # Will be handled in separate feature
-    "collaboration features",  # Requires CRDT implementation
-    "plugin system",  # Extensibility layer for third-party effects
-    "3D transforms",  # 3D support planned for later phase
-    "advanced effects"  # Complex shaders and filters
-  ]
+  in: ["src/core/renderer/", "src/core/scene-graph/", "tests/"]
+  out: ["src/ui/", "src/effects/", "src/plugins/", "apps/contracts/"]
 invariants:
-  - "Same input parameters always produce identical output frames"  # Deterministic rendering guarantee
-  - "Scene graph maintains acyclic dependency structure"  # No circular references that could cause infinite loops
-  - "Timeline evaluation respects temporal ordering"  # Earlier times evaluated before later times
-  - "Memory usage scales linearly with scene complexity"  # Performance must not degrade exponentially
-  - "All keyframes interpolate deterministically"  # Same easing curve always produces same result
+  - "Basic shapes render correctly with transforms (rectangles, circles)"
+  - "Text displays with proper layout and typography"
+  - "Images render with correct alpha blending"
+  - "Scene graph changes reflect immediately in render"
+  - "60fps rendering maintained for simple scenes"
+  - "Memory usage stable during rendering operations"
 acceptance:
-  - id: A1  # Basic performance test
-    given: "scene with 100 nodes and 1000 keyframes"
-    when: "scrubbing timeline at 60fps"
-    then: "smooth playback with consistent frame timing"
-  - id: A2  # Deterministic rendering test
-    given: "complex nested composition with effects"
-    when: "evaluating single frame"
-    then: "deterministic result matching golden frame reference"
-  - id: A3  # Error handling test
-    given: "scene graph with circular dependencies"
-    when: "attempting to evaluate"
-    then: "clear error with dependency cycle description"
-  - id: A4  # Cross-platform consistency test
-    given: "keyframe with bezier easing curves"
-    when: "sampling at arbitrary time values"
-    then: "consistent interpolation results across platforms"
-  - id: A5  # Memory management test
-    given: "scene with memory-intensive assets"
-    when: "evaluating over time"
-    then: "bounded memory usage with proper cleanup"
+  - id: A1
+    given: "WebGPU-compatible browser with basic scene graph"
+    when:  "initialize renderer and render basic shapes"
+    then:  "shapes render correctly with position, size, and color"
+  - id: A2
+    given: "scene with text nodes and transform hierarchy"
+    when:  "render frame with text and nested transforms"
+    then:  "text displays with proper layout; transforms applied correctly"
+  - id: A3
+    given: "scene with image nodes and alpha blending"
+    when:  "render frame with overlapping transparent images"
+    then:  "images composite correctly with alpha blending"
+  - id: A4
+    given: "scene graph with property changes during playback"
+    when:  "update node properties and re-render"
+    then:  "visual changes reflect immediately without frame drops"
 non_functional:
-  a11y: [
-    "keyboard navigation for timeline",  # Full keyboard accessibility
-    "screen reader support for node properties",  # WCAG compliance
-    "high contrast mode compatibility"  # Visual accessibility
-  ]
-  perf: {
-    api_p95_ms: 16,  # 95th percentile response time under 16ms for 60fps
-    lcp_ms: 100  # Largest contentful paint under 100ms for perceived performance
-  }
-  security: [
-    "sandboxed expression evaluation",  # Prevent malicious code execution
-    "safe node property access",  # Prevent memory corruption
-    "memory bounds checking"  # Prevent buffer overflows
-  ]
+  a11y: ["renderer supports reduced motion preferences", "visual output accessible to screen readers"]
+  perf: { render_thread_ms: 16, memory_mb: 256, gpu_memory_mb: 512 }
+  security: ["shader inputs validated", "GPU memory bounds checked", "no resource leaks"]
 contracts:
-  - type: openapi  # REST API specification
-    path: "apps/contracts/scene-graph-api.yaml"
-  - type: openapi  # REST API specification
-    path: "apps/contracts/timeline-api.yaml"
+  - type: openapi
+    path: "apps/contracts/scene-graph-api.yaml#/rendering"
 observability:
-  logs: [
-    "scene_graph.evaluation_duration",  # Time spent evaluating scene graph
-    "timeline.scrub_performance",  # Timeline scrubbing performance
-    "memory.node_allocations"  # Memory usage tracking
-  ]
-  metrics: [
-    "frame_evaluation_time_ms",  # Individual frame render time
-    "scene_complexity_score",  # Measure of scene complexity
-    "keyframe_interpolation_rate"  # Animation smoothness metric
-  ]
-  traces: [
-    "evaluate_frame",  # End-to-end frame evaluation
-    "interpolate_keyframe",  # Keyframe calculation
-    "resolve_dependencies"  # Dependency graph resolution
-  ]
-migrations:
-  - "create scene_graph_nodes table with dependency relationships"  # New database schema for nodes
-  - "create keyframes table with interpolation type and easing data"  # Animation data storage
-  - "create timeline_tracks table with time-based ordering"  # Timeline organization
-rollback: [
-  "feature flag SCENE_GRAPH_ENABLED",  # Toggle to disable new system
-  "database rollback scripts",  # Reverse database changes
-  "compatibility layer for legacy timeline"  # Fallback to old system
-]
+  logs: ["renderer.initialization", "renderer.frame_render", "renderer.gpu_memory_usage"]
+  metrics: ["render_time_ms", "frame_rate", "memory_usage_mb", "gpu_memory_usage_mb"]
+  traces: ["render_frame span with scene_id, node_count, render_time"]
+migrations: []
+rollback: ["feature flag RENDERING_V1=false", "fallback to software rendering", "shader cache invalidation"]

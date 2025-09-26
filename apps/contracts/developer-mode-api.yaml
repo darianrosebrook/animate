@@ -1,0 +1,469 @@
+openapi: 3.0.3
+info:
+  title: Animator Developer Mode API
+  description: |
+    API for the built-in code editor and sandbox environment in Animator.
+    Provides a safe, interactive way to write and execute code that manipulates
+    the Animator scene graph, timeline, and rendering systems.
+  version: 1.0.0
+
+servers:
+  - url: /api/v1/developer-mode
+    description: Developer Mode API endpoint
+
+security:
+  - bearerAuth: []
+
+paths:
+  /execute:
+    post:
+      summary: Execute code in the sandbox environment
+      description: |
+        Executes JavaScript code in a secure sandbox with access to the Animator API.
+        The code runs in an isolated environment with controlled access to application features.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeExecutionRequest'
+      responses:
+        '200':
+          description: Successful execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeExecutionResponse'
+        '400':
+          description: Invalid request or syntax error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /snippets:
+    get:
+      summary: Get saved code snippets
+      description: Retrieve all saved code snippets for the current user
+      responses:
+        '200':
+          description: List of saved snippets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CodeSnippet'
+    post:
+      summary: Save a new code snippet
+      description: Save a code snippet with metadata for later use
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveSnippetRequest'
+      responses:
+        '201':
+          description: Snippet saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeSnippet'
+        '400':
+          description: Invalid snippet data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /snippets/{snippetId}:
+    get:
+      summary: Get a specific code snippet
+      parameters:
+        - name: snippetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Snippet details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeSnippet'
+        '404':
+          description: Snippet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update a code snippet
+      parameters:
+        - name: snippetId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSnippetRequest'
+      responses:
+        '200':
+          description: Snippet updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeSnippet'
+        '404':
+          description: Snippet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a code snippet
+      parameters:
+        - name: snippetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Snippet deleted
+        '404':
+          description: Snippet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /environment:
+    get:
+      summary: Get sandbox environment information
+      description: |
+        Returns information about the current sandbox environment,
+        including available APIs, memory limits, and execution constraints.
+      responses:
+        '200':
+          description: Environment information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SandboxEnvironment'
+
+  /validate:
+    post:
+      summary: Validate code without execution
+      description: |
+        Validates JavaScript code syntax and checks for potential issues
+        without actually executing the code.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeValidationRequest'
+      responses:
+        '200':
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeValidationResponse'
+
+components:
+  schemas:
+    CodeExecutionRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          description: JavaScript code to execute
+          example: |
+            // Create a simple animation
+            const scene = api.sceneGraph.getCurrentScene();
+            const node = api.sceneGraph.createNode('rectangle');
+            api.sceneGraph.setProperties(node.id, {
+              width: 100,
+              height: 100,
+              fillColor: { r: 1, g: 0, b: 0, a: 1 }
+            });
+            api.sceneGraph.setTransform(node.id, {
+              position: { x: 400, y: 300, z: 0 }
+            });
+        options:
+          $ref: '#/components/schemas/ExecutionOptions'
+
+    ExecutionOptions:
+      type: object
+      properties:
+        timeout:
+          type: number
+          description: Maximum execution time in milliseconds
+          default: 5000
+          minimum: 100
+          maximum: 30000
+        memoryLimit:
+          type: number
+          description: Maximum memory usage in MB
+          default: 50
+          minimum: 10
+          maximum: 200
+        async:
+          type: boolean
+          description: Allow async operations
+          default: true
+        captureConsole:
+          type: boolean
+          description: Capture console.log output
+          default: true
+
+    CodeExecutionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether execution was successful
+        result:
+          description: The return value of the executed code
+        output:
+          type: string
+          description: Console output from the execution
+        executionTime:
+          type: number
+          description: Time taken to execute in milliseconds
+        memoryUsed:
+          type: number
+          description: Memory used during execution in MB
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExecutionError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExecutionWarning'
+
+    ExecutionError:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [syntax, runtime, timeout, memory, permission]
+        message:
+          type: string
+        line:
+          type: number
+        column:
+          type: number
+        stack:
+          type: string
+
+    ExecutionWarning:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [performance, deprecated, unsafe]
+        message:
+          type: string
+        line:
+          type: number
+        suggestion:
+          type: string
+
+    CodeSnippet:
+      type: object
+      required:
+        - id
+        - name
+        - code
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        code:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        usageCount:
+          type: number
+
+    SaveSnippetRequest:
+      type: object
+      required:
+        - name
+        - code
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        code:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    UpdateSnippetRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        code:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    SandboxEnvironment:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Sandbox environment version
+        availableAPIs:
+          type: array
+          items:
+            type: string
+          description: List of available API modules
+        memoryLimit:
+          type: number
+          description: Memory limit in MB
+        timeout:
+          type: number
+          description: Execution timeout in milliseconds
+        rateLimit:
+          type: object
+          properties:
+            requestsPerMinute:
+              type: number
+            burstLimit:
+              type: number
+        permissions:
+          type: array
+          items:
+            type: string
+          description: Granted permissions for this session
+
+    CodeValidationRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+        options:
+          $ref: '#/components/schemas/ValidationOptions'
+
+    ValidationOptions:
+      type: object
+      properties:
+        strict:
+          type: boolean
+          description: Enable strict mode validation
+          default: false
+        checkPerformance:
+          type: boolean
+          description: Check for performance issues
+          default: true
+        checkSecurity:
+          type: boolean
+          description: Check for security issues
+          default: true
+
+    CodeValidationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationWarning'
+        suggestions:
+          type: array
+          items:
+            type: string
+
+    ValidationError:
+      type: object
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+        line:
+          type: number
+        column:
+          type: number
+
+    ValidationWarning:
+      type: object
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+        line:
+          type: number
+        suggestion:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+        details:
+          type: object

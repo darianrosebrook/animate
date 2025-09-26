@@ -1,0 +1,29 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["agent","model","model_hash","tool_allowlist","commit","artifacts","results","approvals","sbom","attestation"],
+  "properties":{
+    "agent":{"type":"string"},
+    "model":{"type":"string"},
+    "model_hash":{"type":"string"},
+    "tool_allowlist":{"type":"array","items":{"type":"string"}},
+    "prompts":{"type":"array","items":{"type":"string"}},
+    "commit":{"type":"string"},
+    "artifacts":{"type":"array","items":{"type":"string"}},
+    "results":{
+      "type":"object",
+      "properties":{
+        "coverage_branch":{"type":"number"},
+        "mutation_score":{"type":"number"},
+        "tests_passed":{"type":"integer"},
+        "contracts":{"type":"object","properties":{"consumer":{"type":"boolean"},"provider":{"type":"boolean"}}},
+        "a11y":{"type":"string"},
+        "perf":{"type":"object"}
+      },
+      "additionalProperties": true
+    },
+    "approvals":{"type":"array","items":{"type":"string"}},
+    "sbom":{"type":"string"},
+    "attestation":{"type":"string"}
+  }
+}

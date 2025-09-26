@@ -1,0 +1,1148 @@
+openapi: 3.0.3
+info:
+  title: Animator Platform API
+  description: |
+    Comprehensive API for the Animator motion graphics platform.
+
+    ## Design Philosophy
+    This API is designed around four core principles:
+    1. **Deterministic Rendering**: Identical inputs produce identical outputs across all platforms
+    2. **Real-time Collaboration**: Multiplayer editing as a first-class feature
+    3. **Composability**: Building complex behaviors from simple, reusable primitives
+    4. **Performance-First**: 60fps interactions as a fundamental requirement
+
+    ## Key Concepts
+    - **Scene Graph**: Hierarchical node structure with time-based evaluation
+    - **Timeline**: Time-based animation system with keyframes and curves
+    - **Collaboration**: Real-time multiplayer editing with conflict resolution
+    - **Rendering**: GPU-accelerated compositing with deterministic output
+
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: Development server
+
+paths:
+  # Document Management
+  /documents:
+    post:
+      summary: Create a new motion graphics document
+      operationId: createDocument
+      tags: [documents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDocumentRequest'
+      responses:
+        '201':
+          description: Document created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      summary: List all documents
+      operationId: listDocuments
+      tags: [documents]
+      responses:
+        '200':
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentSummary'
+
+  /documents/{documentId}:
+    get:
+      summary: Get document details
+      operationId: getDocument
+      tags: [documents]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Document details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update document
+      operationId: updateDocument
+      tags: [documents]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentRequest'
+      responses:
+        '200':
+          description: Document updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+
+    delete:
+      summary: Delete document
+      operationId: deleteDocument
+      tags: [documents]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Document deleted successfully
+        '404':
+          description: Document not found
+
+  # Scene Graph Operations
+  /documents/{documentId}/scenes/{sceneId}/nodes:
+    post:
+      summary: Add node to scene
+      operationId: addNode
+      tags: [scene-graph]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNodeRequest'
+      responses:
+        '201':
+          description: Node created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeResponse'
+        '400':
+          description: Invalid request
+
+    get:
+      summary: Get all nodes in scene
+      operationId: getSceneNodes
+      tags: [scene-graph]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of scene nodes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NodeResponse'
+
+  /documents/{documentId}/scenes/{sceneId}/nodes/{nodeId}:
+    get:
+      summary: Get specific node
+      operationId: getNode
+      tags: [scene-graph]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Node details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeResponse'
+        '404':
+          description: Node not found
+
+    put:
+      summary: Update node properties
+      operationId: updateNode
+      tags: [scene-graph]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNodeRequest'
+      responses:
+        '200':
+          description: Node updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeResponse'
+
+    delete:
+      summary: Remove node from scene
+      operationId: removeNode
+      tags: [scene-graph]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Node removed successfully
+        '404':
+          description: Node not found
+
+  # Animation & Timeline Operations
+  /documents/{documentId}/timelines/{timelineId}/keyframes:
+    post:
+      summary: Add keyframe to timeline
+      operationId: addKeyframe
+      tags: [animation]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: timelineId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateKeyframeRequest'
+      responses:
+        '201':
+          description: Keyframe created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyframeResponse'
+
+  /documents/{documentId}/timelines/{timelineId}/scrub:
+    post:
+      summary: Scrub timeline to specific time
+      operationId: scrubTimeline
+      tags: [animation]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: timelineId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScrubRequest'
+      responses:
+        '200':
+          description: Timeline scrubbed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScrubResponse'
+
+  # Rendering Operations
+  /documents/{documentId}/render:
+    post:
+      summary: Render composition
+      operationId: renderComposition
+      tags: [rendering]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenderRequest'
+      responses:
+        '200':
+          description: Render completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenderResponse'
+        '400':
+          description: Invalid render request
+        '404':
+          description: Document not found
+
+  # Collaboration Operations
+  /documents/{documentId}/collaboration/sessions:
+    post:
+      summary: Start collaboration session
+      operationId: startCollaborationSession
+      tags: [collaboration]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartCollaborationRequest'
+      responses:
+        '201':
+          description: Collaboration session started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollaborationSessionResponse'
+
+  /documents/{documentId}/collaboration/sessions/{sessionId}/participants:
+    post:
+      summary: Join collaboration session
+      operationId: joinCollaborationSession
+      tags: [collaboration]
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinSessionRequest'
+      responses:
+        '200':
+          description: Joined session successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinSessionResponse'
+
+  # Plugin Operations
+  /plugins:
+    post:
+      summary: Install plugin
+      operationId: installPlugin
+      tags: [plugins]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstallPluginRequest'
+      responses:
+        '201':
+          description: Plugin installed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginResponse'
+        '400':
+          description: Invalid plugin
+        '409':
+          description: Plugin already installed
+
+    get:
+      summary: List available plugins
+      operationId: listPlugins
+      tags: [plugins]
+      responses:
+        '200':
+          description: List of plugins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PluginSummary'
+
+  /plugins/{pluginId}/execute:
+    post:
+      summary: Execute plugin function
+      operationId: executePlugin
+      tags: [plugins]
+      parameters:
+        - name: pluginId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecutePluginRequest'
+      responses:
+        '200':
+          description: Plugin executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutePluginResponse'
+        '400':
+          description: Invalid execution request
+        '404':
+          description: Plugin not found
+
+components:
+  schemas:
+    # Document Management
+    CreateDocumentRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        template:
+          type: string
+          enum: [blank, title_sequence, explainer, social_media, presentation]
+          default: blank
+
+    UpdateDocumentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+
+    DocumentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        scenes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SceneSummary'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        version:
+          type: integer
+
+    DocumentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        sceneCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # Scene Graph
+    CreateNodeRequest:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [rectangle, ellipse, text, image, video, audio, effect, group, camera]
+        name:
+          type: string
+          maxLength: 100
+        transform:
+          $ref: '#/components/schemas/Transform3D'
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PropertyValue'
+        parentId:
+          type: string
+          format: uuid
+
+    UpdateNodeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        transform:
+          $ref: '#/components/schemas/Transform3D'
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PropertyValue'
+
+    NodeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum: [rectangle, ellipse, text, image, video, audio, effect, group, camera]
+        transform:
+          $ref: '#/components/schemas/Transform3D'
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PropertyValue'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeResponse'
+        parentId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+
+    SceneSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        nodeCount:
+          type: integer
+        duration:
+          type: integer
+        frameRate:
+          type: number
+
+    # Transform System
+    Transform3D:
+      type: object
+      properties:
+        position:
+          $ref: '#/components/schemas/Point3D'
+        rotation:
+          $ref: '#/components/schemas/Point3D'
+        scale:
+          $ref: '#/components/schemas/Point3D'
+        anchorPoint:
+          $ref: '#/components/schemas/Point2D'
+        opacity:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 1
+
+    Point2D:
+      type: object
+      properties:
+        x:
+          type: number
+          minimum: -10000
+          maximum: 10000
+        y:
+          type: number
+          minimum: -10000
+          maximum: 10000
+
+    Point3D:
+      type: object
+      properties:
+        x:
+          type: number
+          minimum: -10000
+          maximum: 10000
+        y:
+          type: number
+          minimum: -10000
+          maximum: 10000
+        z:
+          type: number
+          minimum: -10000
+          maximum: 10000
+
+    # Property System
+    PropertyValue:
+      oneOf:
+        - type: number
+        - type: string
+        - type: boolean
+        - $ref: '#/components/schemas/Point2D'
+        - $ref: '#/components/schemas/Point3D'
+        - $ref: '#/components/schemas/Color'
+        - $ref: '#/components/schemas/AnimationCurve'
+        - type: array
+        - type: object
+
+    Color:
+      type: object
+      properties:
+        r:
+          type: number
+          minimum: 0
+          maximum: 1
+        g:
+          type: number
+          minimum: 0
+          maximum: 1
+        b:
+          type: number
+          minimum: 0
+          maximum: 1
+        a:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 1
+
+    AnimationCurve:
+      type: object
+      properties:
+        keyframes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyframe'
+        interpolation:
+          type: string
+          enum: [linear, bezier, stepped, smooth]
+          default: linear
+
+    Keyframe:
+      type: object
+      required:
+        - time
+        - value
+      properties:
+        time:
+          type: integer
+          minimum: 0
+          maximum: 3600000
+        value:
+          description: Keyframe value (type depends on property)
+        easing:
+          type: string
+          enum: [linear, easeIn, easeOut, easeInOut, bezier, bounce, elastic]
+          default: linear
+        easingParams:
+          type: object
+          description: Parameters for easing function
+
+    # Animation & Timeline
+    CreateKeyframeRequest:
+      type: object
+      required:
+        - time
+        - value
+        - targetPath
+      properties:
+        time:
+          type: integer
+          minimum: 0
+          maximum: 3600000
+        value:
+          description: Keyframe value
+        targetPath:
+          type: string
+          description: Property path to animate (e.g., "nodes.shape_1.transform.position.x")
+        easing:
+          type: string
+          enum: [linear, easeIn, easeOut, easeInOut, bezier, bounce, elastic]
+          default: linear
+
+    KeyframeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        time:
+          type: integer
+        value:
+          description: Keyframe value
+        targetPath:
+          type: string
+        easing:
+          type: string
+
+    ScrubRequest:
+      type: object
+      required:
+        - time
+      properties:
+        time:
+          type: integer
+          minimum: 0
+          maximum: 3600000
+        options:
+          type: object
+          properties:
+            smooth:
+              type: boolean
+              default: true
+            cache:
+              type: boolean
+              default: true
+
+    ScrubResponse:
+      type: object
+      properties:
+        previousTime:
+          type: integer
+        currentTime:
+          type: integer
+        sceneState:
+          type: object
+          description: Current state of all nodes at this time
+        performance:
+          type: object
+          properties:
+            scrubTimeMs:
+              type: number
+            evaluationTimeMs:
+              type: number
+
+    # Rendering
+    RenderRequest:
+      type: object
+      required:
+        - sceneId
+        - timeRange
+        - outputSettings
+      properties:
+        sceneId:
+          type: string
+          format: uuid
+        timeRange:
+          $ref: '#/components/schemas/TimeRange'
+        outputSettings:
+          $ref: '#/components/schemas/RenderSettings'
+        options:
+          type: object
+          properties:
+            quality:
+              type: string
+              enum: [draft, preview, final]
+              default: preview
+            includeAudio:
+              type: boolean
+              default: true
+
+    RenderResponse:
+      type: object
+      properties:
+        renderId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+        progress:
+          type: number
+          minimum: 0
+          maximum: 1
+        outputUrl:
+          type: string
+          format: uri
+        metrics:
+          type: object
+          properties:
+            renderTimeMs:
+              type: number
+            frameCount:
+              type: integer
+            outputSizeBytes:
+              type: integer
+
+    TimeRange:
+      type: object
+      properties:
+        start:
+          type: integer
+          minimum: 0
+        end:
+          type: integer
+          minimum: 1
+        frameRate:
+          type: number
+          minimum: 1
+          maximum: 120
+          default: 60
+
+    RenderSettings:
+      type: object
+      properties:
+        resolution:
+          $ref: '#/components/schemas/Size2D'
+        format:
+          type: string
+          enum: [png, jpeg, webp, mp4, prores, mov]
+          default: mp4
+        quality:
+          type: number
+          minimum: 0
+          maximum: 100
+          default: 85
+
+    Size2D:
+      type: object
+      properties:
+        width:
+          type: integer
+          minimum: 1
+          maximum: 8192
+        height:
+          type: integer
+          minimum: 1
+          maximum: 8192
+
+    # Collaboration
+    StartCollaborationRequest:
+      type: object
+      required:
+        - participants
+      properties:
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParticipantInfo'
+          minItems: 1
+        permissions:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    JoinSessionRequest:
+      type: object
+      required:
+        - userId
+        - name
+      properties:
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 50
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+
+    CollaborationSessionResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        documentId:
+          type: string
+          format: uuid
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+        permissions:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+
+    JoinSessionResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        participant:
+          $ref: '#/components/schemas/Participant'
+        documentState:
+          type: object
+          description: Current state of the document
+
+    Participant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+        cursor:
+          $ref: '#/components/schemas/Point2D'
+        selection:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        joinedAt:
+          type: string
+          format: date-time
+
+    ParticipantInfo:
+      type: object
+      required:
+        - userId
+        - name
+      properties:
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+
+    # Plugin System
+    InstallPluginRequest:
+      type: object
+      required:
+        - source
+      properties:
+        source:
+          type: string
+          format: uri
+        version:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+
+    PluginResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        author:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        installedAt:
+          type: string
+          format: date-time
+
+    PluginSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        author:
+          type: string
+        description:
+          type: string
+        isInstalled:
+          type: boolean
+
+    ExecutePluginRequest:
+      type: object
+      required:
+        - functionName
+        - parameters
+      properties:
+        functionName:
+          type: string
+        parameters:
+          type: object
+        context:
+          type: object
+          properties:
+            selection:
+              type: array
+              items:
+                type: string
+            currentTime:
+              type: integer
+
+    ExecutePluginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        result:
+          description: Plugin execution result
+        errors:
+          type: array
+          items:
+            type: string
+
+    # Common Types
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - error
+        - message
