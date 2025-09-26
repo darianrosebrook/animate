@@ -9,7 +9,12 @@ import { TrackType, InterpolationMode } from '../src/timeline/timeline-types'
 
 describe('Timeline Debug Tests', () => {
   it('should debug timeline evaluation', () => {
-    const timeline = new Timeline('debug-timeline', 'Debug Timeline', 10.0, 30.0)
+    const timeline = new Timeline(
+      'debug-timeline',
+      'Debug Timeline',
+      10.0,
+      30.0
+    )
 
     const trackResult = timeline.addTrack({
       name: 'Position Track',
@@ -25,8 +30,16 @@ describe('Timeline Debug Tests', () => {
     console.log('Track propertyPath:', trackResult.data?.propertyPath)
 
     // Add keyframes
-    timeline.addKeyframe(trackId, { time: 0, value: { x: 0, y: 0 }, interpolation: InterpolationMode.Linear })
-    timeline.addKeyframe(trackId, { time: 2, value: { x: 100, y: 50 }, interpolation: InterpolationMode.Linear })
+    timeline.addKeyframe(trackId, {
+      time: 0,
+      value: { x: 0, y: 0 },
+      interpolation: InterpolationMode.Linear,
+    })
+    timeline.addKeyframe(trackId, {
+      time: 2,
+      value: { x: 100, y: 50 },
+      interpolation: InterpolationMode.Linear,
+    })
 
     console.log('Track keyframes:', timeline.tracks[0].keyframes)
 

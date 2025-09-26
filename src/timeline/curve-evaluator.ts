@@ -61,7 +61,10 @@ export class AnimationCurve implements IAnimationCurve {
     const dt = afterKeyframe.time - beforeKeyframe.time
     if (dt === 0) return { in: 0, out: 0 }
 
-    const dv = this.getValueDifference(beforeKeyframe.value, afterKeyframe.value)
+    const dv = this.getValueDifference(
+      beforeKeyframe.value,
+      afterKeyframe.value
+    )
     const tangent = dv / dt
 
     return { in: tangent, out: tangent }
@@ -73,11 +76,11 @@ export class AnimationCurve implements IAnimationCurve {
   }
 
   removeKeyframe(keyframeId: string): void {
-    this.keyframes = this.keyframes.filter(k => k.id !== keyframeId)
+    this.keyframes = this.keyframes.filter((k) => k.id !== keyframeId)
   }
 
   updateKeyframe(keyframeId: string, updates: Partial<Keyframe>): void {
-    const keyframe = this.keyframes.find(k => k.id === keyframeId)
+    const keyframe = this.keyframes.find((k) => k.id === keyframeId)
     if (keyframe) {
       Object.assign(keyframe, updates)
       this.sortKeyframes()
@@ -88,7 +91,9 @@ export class AnimationCurve implements IAnimationCurve {
     this.keyframes.sort((a, b) => a.time - b.time)
   }
 
-  private findSegment(time: Time): { beforeKeyframe: Keyframe; afterKeyframe: Keyframe } | null {
+  private findSegment(
+    time: Time
+  ): { beforeKeyframe: Keyframe; afterKeyframe: Keyframe } | null {
     // Find keyframes that bracket the time
     let beforeKeyframe: Keyframe | null = null
     let afterKeyframe: Keyframe | null = null
@@ -131,7 +136,13 @@ export class AnimationCurve implements IAnimationCurve {
         return this.linearInterpolation(startValue, endValue, progress)
 
       case InterpolationMode.Bezier:
-        return this.bezierInterpolation(startValue, endValue, progress, startEasing, endEasing)
+        return this.bezierInterpolation(
+          startValue,
+          endValue,
+          progress,
+          startEasing,
+          endEasing
+        )
 
       case InterpolationMode.Stepped:
         return startValue
@@ -144,12 +155,21 @@ export class AnimationCurve implements IAnimationCurve {
     }
   }
 
-  private linearInterpolation(startValue: any, endValue: any, progress: number): any {
+  private linearInterpolation(
+    startValue: any,
+    endValue: any,
+    progress: number
+  ): any {
     if (typeof startValue === 'number' && typeof endValue === 'number') {
       return startValue + (endValue - startValue) * progress
     }
 
-    if (startValue && endValue && typeof startValue === 'object' && typeof endValue === 'object') {
+    if (
+      startValue &&
+      endValue &&
+      typeof startValue === 'object' &&
+      typeof endValue === 'object'
+    ) {
       // Handle point interpolation
       if ('x' in startValue && 'y' in endValue) {
         return {
@@ -164,7 +184,11 @@ export class AnimationCurve implements IAnimationCurve {
           r: this.linearInterpolation(startValue.r, endValue.r, progress),
           g: this.linearInterpolation(startValue.g, endValue.g, progress),
           b: this.linearInterpolation(startValue.b, endValue.b, progress),
-          a: this.linearInterpolation(startValue.a ?? 1, endValue.a ?? 1, progress),
+          a: this.linearInterpolation(
+            startValue.a ?? 1,
+            endValue.a ?? 1,
+            progress
+          ),
         }
       }
     }
@@ -181,7 +205,11 @@ export class AnimationCurve implements IAnimationCurve {
   ): any {
     if (startEasing && endEasing) {
       // Use custom bezier easing
-      const easedProgress = this.evaluateBezierCurve(progress, startEasing, endEasing)
+      const easedProgress = this.evaluateBezierCurve(
+        progress,
+        startEasing,
+        endEasing
+      )
       return this.linearInterpolation(startValue, endValue, easedProgress)
     }
 
@@ -190,13 +218,21 @@ export class AnimationCurve implements IAnimationCurve {
     return this.linearInterpolation(startValue, endValue, smoothProgress)
   }
 
-  private smoothInterpolation(startValue: any, endValue: any, progress: number): any {
+  private smoothInterpolation(
+    startValue: any,
+    endValue: any,
+    progress: number
+  ): any {
     // Catmull-Rom spline interpolation for smooth curves
     const smoothProgress = progress * progress * (3 - 2 * progress)
     return this.linearInterpolation(startValue, endValue, smoothProgress)
   }
 
-  private evaluateBezierCurve(progress: number, startEasing: BezierCurve, endEasing: BezierCurve): number {
+  private evaluateBezierCurve(
+    progress: number,
+    startEasing: BezierCurve,
+    endEasing: BezierCurve
+  ): number {
     // Simplified bezier evaluation - in production, implement proper bezier curve evaluation
     const p1 = { x: startEasing.p1x, y: startEasing.p1y }
     const p2 = { x: startEasing.p2x, y: startEasing.p2y }
@@ -207,7 +243,12 @@ export class AnimationCurve implements IAnimationCurve {
     const t = progress
     const u = 1 - t
 
-    return u * u * u * 0 + 3 * u * u * t * p1.y + 3 * u * t * t * p4.y + t * t * t * 1
+    return (
+      u * u * u * 0 +
+      3 * u * u * t * p1.y +
+      3 * u * t * t * p4.y +
+      t * t * t * 1
+    )
   }
 
   private getValueDifference(startValue: any, endValue: any): number {
@@ -215,11 +256,16 @@ export class AnimationCurve implements IAnimationCurve {
       return endValue - startValue
     }
 
-    if (startValue && endValue && typeof startValue === 'object' && typeof endValue === 'object') {
+    if (
+      startValue &&
+      endValue &&
+      typeof startValue === 'object' &&
+      typeof endValue === 'object'
+    ) {
       if ('x' in startValue && 'y' in endValue) {
         return Math.sqrt(
           Math.pow(endValue.x - startValue.x, 2) +
-          Math.pow(endValue.y - startValue.y, 2)
+            Math.pow(endValue.y - startValue.y, 2)
         )
       }
     }

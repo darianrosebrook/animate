@@ -1,13 +1,29 @@
 import { useState, useEffect, useRef } from 'react'
+import { Play, Settings, Info } from 'lucide-react'
 import './App.css'
-import { SceneGraph, createRectangleNode, createCircleNode, createTransformNode } from '@/core/scene-graph'
+import {
+  SceneGraph,
+  createRectangleNode,
+  createCircleNode,
+  createTransformNode,
+} from '@/core/scene-graph'
 import { Renderer } from '@/core/renderer'
+import {
+  useKeyboardShortcuts,
+  useKeyboardShortcutListener,
+} from '@/ui/hooks/use-keyboard-shortcuts'
+import { KeyboardShortcutsHelp } from '@/ui/components/KeyboardShortcutsHelp'
+import { KeyboardShortcutsSettings } from '@/ui/components/KeyboardShortcutsSettings'
+import './components/KeyboardShortcutsHelp.css'
+import './components/KeyboardShortcutsSettings.css'
 
 function App() {
   const [count, setCount] = useState(0)
   const [webgpuSupported, setWebgpuSupported] = useState<boolean | null>(null)
   const [sceneGraph] = useState(() => new SceneGraph())
   const [renderer, setRenderer] = useState<Renderer | null>(null)
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
+  const [showShortcutsSettings, setShowShortcutsSettings] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // Initialize WebGPU support check
@@ -22,11 +38,11 @@ function App() {
     if (!canvasRef.current || !webgpuSupported) return
 
     const initRenderer = async () => {
-      const newRenderer = new Renderer()
-      const result = await newRenderer.initialize(canvasRef.current!)
+      const rendererInstance = new Renderer()
+      const result = await rendererInstance.initialize(canvasRef.current!)
 
       if (result.success) {
-        setRenderer(newRenderer)
+        setRenderer(rendererInstance)
 
         // Create a simple scene
         const redRect = createRectangleNode(
@@ -36,10 +52,10 @@ function App() {
           100,
           { x: 100, y: 100 }
         )
-        redRect.properties = {
+        const redRectWithColor = redRect.withProperties({
           ...redRect.properties,
           fillColor: { r: 255, g: 0, b: 0, a: 1 },
-        }
+        })
 
         const blueRect = createRectangleNode(
           'blue-rect',
@@ -48,10 +64,10 @@ function App() {
           50,
           { x: 300, y: 200 }
         )
-        blueRect.properties = {
+        const blueRectWithColor = blueRect.withProperties({
           ...blueRect.properties,
           fillColor: { r: 0, g: 0, b: 255, a: 1 },
-        }
+        })
 
         const greenCircle = createCircleNode(
           'green-circle',
@@ -59,14 +75,14 @@ function App() {
           75,
           { x: 500, y: 150 }
         )
-        greenCircle.properties = {
+        const greenCircleWithColor = greenCircle.withProperties({
           ...greenCircle.properties,
           fillColor: { r: 0, g: 255, b: 0, a: 1 },
-        }
+        })
 
-        sceneGraph.addNode(redRect)
-        sceneGraph.addNode(blueRect)
-        sceneGraph.addNode(greenCircle)
+        sceneGraph.addNode(redRectWithColor)
+        sceneGraph.addNode(blueRectWithColor)
+        sceneGraph.addNode(greenCircleWithColor)
 
         // Render initial frame
         const context = {
@@ -77,7 +93,7 @@ function App() {
           globalProperties: {},
         }
 
-        await newRenderer.renderFrame(sceneGraph, 0.0, context)
+        await renderer.renderFrame(sceneGraph, 0.0, context)
       } else {
         console.error('Failed to initialize renderer:', result.error)
       }
@@ -86,9 +102,41 @@ function App() {
     initRenderer()
 
     return () => {
-      newRenderer?.destroy()
+      renderer?.destroy()
     }
   }, [webgpuSupported, sceneGraph])
+
+  // Setup keyboard shortcuts
+  const { setContext } = useKeyboardShortcuts()
+
+  useEffect(() => {
+    setContext('viewport')
+  }, [setContext])
+
+  // Handle keyboard shortcuts
+  useKeyboardShortcutListener((shortcut) => {
+    switch (shortcut.key) {
+      case '?':
+        if (shortcut.shift) {
+          setShowShortcutsHelp(true)
+        }
+        break
+      case 'F12':
+        // Toggle developer tools (handled by browser)
+        break
+      case ',':
+        if (shortcut.meta) {
+          setShowShortcutsSettings(true)
+        }
+        break
+      case 'Escape':
+        setShowShortcutsHelp(false)
+        setShowShortcutsSettings(false)
+        break
+      default:
+        console.log('Keyboard shortcut:', shortcut.description)
+    }
+  })
 
   const handleRenderFrame = async () => {
     if (!renderer || !canvasRef.current) return
@@ -110,9 +158,7 @@ function App() {
       <div>
         <h1>Animator</h1>
 
-        {webgpuSupported === null && (
-          <p>Checking WebGPU support...</p>
-        )}
+        {webgpuSupported === null && <p>Checking WebGPU support...</p>}
 
         {webgpuSupported === false && (
           <div className="warning">
@@ -136,12 +182,19 @@ function App() {
             </div>
 
             <div className="card">
-              <button onClick={handleRenderFrame}>
-                Render Frame ({count})
-              </button>
-              <p>
-                Scene contains: 3 shapes (2 rectangles, 1 circle)
-              </p>
+              <div className="button-group">
+                <button onClick={handleRenderFrame} className="btn-primary">
+                  <Play size={16} />
+                  Render Frame ({count})
+                </button>
+                <button className="btn-secondary" title="Settings">
+                  <Settings size={16} />
+                </button>
+                <button className="btn-info" title="Help">
+                  <Info size={16} />
+                </button>
+              </div>
+              <p>Scene contains: 3 shapes (2 rectangles, 1 circle)</p>
               <p>
                 Edit <code>src/ui/App.tsx</code> and save to test HMR
               </p>
@@ -157,6 +210,16 @@ function App() {
           .
         </p>
       </div>
+
+      <KeyboardShortcutsHelp
+        isOpen={showShortcutsHelp}
+        onClose={() => setShowShortcutsHelp(false)}
+      />
+
+      <KeyboardShortcutsSettings
+        isOpen={showShortcutsSettings}
+        onClose={() => setShowShortcutsSettings(false)}
+      />
     </>
   )
 }

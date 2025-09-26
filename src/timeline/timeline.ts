@@ -88,7 +88,7 @@ export class Timeline implements ITimeline {
 
   removeTrack(trackId: string): Result<boolean> {
     try {
-      const index = this.tracks.findIndex(t => t.id === trackId)
+      const index = this.tracks.findIndex((t) => t.id === trackId)
       if (index === -1) {
         return {
           success: false,
@@ -120,9 +120,12 @@ export class Timeline implements ITimeline {
     }
   }
 
-  updateTrack(trackId: string, updates: Partial<TimelineTrack>): Result<TimelineTrack> {
+  updateTrack(
+    trackId: string,
+    updates: Partial<TimelineTrack>
+  ): Result<TimelineTrack> {
     try {
-      const track = this.tracks.find(t => t.id === trackId)
+      const track = this.tracks.find((t) => t.id === trackId)
       if (!track) {
         return {
           success: false,
@@ -150,7 +153,10 @@ export class Timeline implements ITimeline {
   }
 
   // Keyframe management
-  addKeyframe(trackId: string, keyframe: Omit<Keyframe, 'id'>): Result<Keyframe> {
+  addKeyframe(
+    trackId: string,
+    keyframe: Omit<Keyframe, 'id'>
+  ): Result<Keyframe> {
     try {
       const track = this.getTrackById(trackId)
       if (!track) {
@@ -205,7 +211,7 @@ export class Timeline implements ITimeline {
         }
       }
 
-      const index = track.keyframes.findIndex(k => k.id === keyframeId)
+      const index = track.keyframes.findIndex((k) => k.id === keyframeId)
       if (index === -1) {
         return {
           success: false,
@@ -237,7 +243,11 @@ export class Timeline implements ITimeline {
     }
   }
 
-  updateKeyframe(trackId: string, keyframeId: string, updates: Partial<Keyframe>): Result<Keyframe> {
+  updateKeyframe(
+    trackId: string,
+    keyframeId: string,
+    updates: Partial<Keyframe>
+  ): Result<Keyframe> {
     try {
       const track = this.getTrackById(trackId)
       if (!track) {
@@ -250,7 +260,7 @@ export class Timeline implements ITimeline {
         }
       }
 
-      const keyframe = track.keyframes.find(k => k.id === keyframeId)
+      const keyframe = track.keyframes.find((k) => k.id === keyframeId)
       if (!keyframe) {
         return {
           success: false,
@@ -315,7 +325,7 @@ export class Timeline implements ITimeline {
 
   removeMarker(markerId: string): Result<boolean> {
     try {
-      const index = this.markers.findIndex(m => m.id === markerId)
+      const index = this.markers.findIndex((m) => m.id === markerId)
       if (index === -1) {
         return {
           success: false,
@@ -434,7 +444,7 @@ export class Timeline implements ITimeline {
   }
 
   getTrackById(trackId: string): TimelineTrack | null {
-    return this.tracks.find(t => t.id === trackId) || null
+    return this.tracks.find((t) => t.id === trackId) || null
   }
 
   getKeyframeAtTime(trackId: string, time: Time): Keyframe | null {
@@ -443,7 +453,7 @@ export class Timeline implements ITimeline {
 
     // Find the keyframe at or before the given time
     const keyframes = track.keyframes
-      .filter(k => k.time <= time)
+      .filter((k) => k.time <= time)
       .sort((a, b) => b.time - a.time)
 
     return keyframes[0] || null
@@ -477,11 +487,11 @@ export class Timeline implements ITimeline {
     if (keyframes.length === 0) return undefined
 
     // Find relevant keyframes
-    const currentKeyframe = keyframes.find(k => k.time === time)
+    const currentKeyframe = keyframes.find((k) => k.time === time)
     if (currentKeyframe) return currentKeyframe.value
 
-    const beforeKeyframe = keyframes.filter(k => k.time < time).pop()
-    const afterKeyframe = keyframes.find(k => k.time > time)
+    const beforeKeyframe = keyframes.filter((k) => k.time < time).pop()
+    const afterKeyframe = keyframes.find((k) => k.time > time)
 
     if (!beforeKeyframe) return keyframes[0].value
     if (!afterKeyframe) return beforeKeyframe.value
@@ -491,10 +501,20 @@ export class Timeline implements ITimeline {
     if (dt === 0) return beforeKeyframe.value
 
     const progress = (time - beforeKeyframe.time) / dt
-    return this.interpolateValues(beforeKeyframe.value, afterKeyframe.value, progress, beforeKeyframe.interpolation)
+    return this.interpolateValues(
+      beforeKeyframe.value,
+      afterKeyframe.value,
+      progress,
+      beforeKeyframe.interpolation
+    )
   }
 
-  private interpolateValues(startValue: any, endValue: any, progress: number, interpolation: InterpolationMode): any {
+  private interpolateValues(
+    startValue: any,
+    endValue: any,
+    progress: number,
+    interpolation: InterpolationMode
+  ): any {
     if (typeof startValue === 'number' && typeof endValue === 'number') {
       switch (interpolation) {
         case InterpolationMode.Linear:
@@ -515,22 +535,57 @@ export class Timeline implements ITimeline {
     }
 
     // Handle object interpolation
-    if (startValue && endValue && typeof startValue === 'object' && typeof endValue === 'object') {
+    if (
+      startValue &&
+      endValue &&
+      typeof startValue === 'object' &&
+      typeof endValue === 'object'
+    ) {
       // Handle point interpolation
       if ('x' in startValue && 'y' in endValue) {
         return {
-          x: this.interpolateValues(startValue.x, endValue.x, progress, interpolation),
-          y: this.interpolateValues(startValue.y, endValue.y, progress, interpolation),
+          x: this.interpolateValues(
+            startValue.x,
+            endValue.x,
+            progress,
+            interpolation
+          ),
+          y: this.interpolateValues(
+            startValue.y,
+            endValue.y,
+            progress,
+            interpolation
+          ),
         }
       }
 
       // Handle color interpolation
       if ('r' in startValue && 'g' in endValue && 'b' in endValue) {
         return {
-          r: this.interpolateValues(startValue.r, endValue.r, progress, interpolation),
-          g: this.interpolateValues(startValue.g, endValue.g, progress, interpolation),
-          b: this.interpolateValues(startValue.b, endValue.b, progress, interpolation),
-          a: this.interpolateValues(startValue.a ?? 1, endValue.a ?? 1, progress, interpolation),
+          r: this.interpolateValues(
+            startValue.r,
+            endValue.r,
+            progress,
+            interpolation
+          ),
+          g: this.interpolateValues(
+            startValue.g,
+            endValue.g,
+            progress,
+            interpolation
+          ),
+          b: this.interpolateValues(
+            startValue.b,
+            endValue.b,
+            progress,
+            interpolation
+          ),
+          a: this.interpolateValues(
+            startValue.a ?? 1,
+            endValue.a ?? 1,
+            progress,
+            interpolation
+          ),
         }
       }
     }
@@ -553,10 +608,18 @@ export class Timeline implements ITimeline {
   }
 
   clone(): Timeline {
-    const cloned = new Timeline(this.id, this.name, this.duration, this.frameRate)
+    const cloned = new Timeline(
+      this.id,
+      this.name,
+      this.duration,
+      this.frameRate
+    )
     cloned.currentTime = this.currentTime
     cloned.playbackState = this.playbackState
-    cloned.tracks = this.tracks.map(track => ({ ...track, keyframes: [...track.keyframes] }))
+    cloned.tracks = this.tracks.map((track) => ({
+      ...track,
+      keyframes: [...track.keyframes],
+    }))
     cloned.markers = [...this.markers]
     cloned.selection = { ...this.selection }
     cloned.playbackConfig = { ...this.playbackConfig }

@@ -129,7 +129,9 @@ export class TimelineController implements ITimelineController {
       const result = this.timeline.setCurrentTime(time)
       if (!result.success) return result
 
-      const scrubResult = this.timeline.setPlaybackState(PlaybackState.Scrubbing)
+      const scrubResult = this.timeline.setPlaybackState(
+        PlaybackState.Scrubbing
+      )
       return scrubResult
     } catch (error) {
       return {
@@ -216,10 +218,15 @@ export class TimelineController implements ITimelineController {
       for (const keyframeId of selectedKeyframeIds) {
         // Find the keyframe across all tracks
         for (const track of this.timeline.tracks) {
-          const keyframe = track.keyframes.find(k => k.id === keyframeId)
+          const keyframe = track.keyframes.find((k) => k.id === keyframeId)
           if (keyframe) {
-            const newTime = Math.max(0, Math.min(keyframe.time + deltaTime, this.timeline.duration))
-            this.timeline.updateKeyframe(track.id, keyframeId, { time: newTime })
+            const newTime = Math.max(
+              0,
+              Math.min(keyframe.time + deltaTime, this.timeline.duration)
+            )
+            this.timeline.updateKeyframe(track.id, keyframeId, {
+              time: newTime,
+            })
           }
         }
       }
@@ -245,10 +252,12 @@ export class TimelineController implements ITimelineController {
       for (const keyframeId of selectedKeyframeIds) {
         // Find the keyframe across all tracks
         for (const track of this.timeline.tracks) {
-          const keyframe = track.keyframes.find(k => k.id === keyframeId)
+          const keyframe = track.keyframes.find((k) => k.id === keyframeId)
           if (keyframe) {
             const newTime = originTime + (keyframe.time - originTime) * factor
-            this.timeline.updateKeyframe(track.id, keyframeId, { time: newTime })
+            this.timeline.updateKeyframe(track.id, keyframeId, {
+              time: newTime,
+            })
           }
         }
       }
@@ -273,7 +282,7 @@ export class TimelineController implements ITimelineController {
       for (const keyframeId of selectedKeyframeIds) {
         // Find and remove the keyframe from its track
         for (const track of this.timeline.tracks) {
-          if (track.keyframes.find(k => k.id === keyframeId)) {
+          if (track.keyframes.find((k) => k.id === keyframeId)) {
             this.timeline.removeKeyframe(track.id, keyframeId)
             break
           }
@@ -302,7 +311,7 @@ export class TimelineController implements ITimelineController {
       for (const keyframeId of selectedKeyframeIds) {
         // Find the keyframe across all tracks
         for (const track of this.timeline.tracks) {
-          const keyframe = track.keyframes.find(k => k.id === keyframeId)
+          const keyframe = track.keyframes.find((k) => k.id === keyframeId)
           if (keyframe) {
             // Create a duplicate keyframe slightly offset in time
             const duplicateKeyframe = {
@@ -312,7 +321,10 @@ export class TimelineController implements ITimelineController {
               easing: keyframe.easing,
             }
 
-            const result = this.timeline.addKeyframe(track.id, duplicateKeyframe)
+            const result = this.timeline.addKeyframe(
+              track.id,
+              duplicateKeyframe
+            )
             if (result.success) {
               duplicatedIds.push(result.data.id)
             }
@@ -399,7 +411,9 @@ export class TimelineController implements ITimelineController {
       const deltaTime = (now - this.lastFrameTime) / 1000
       this.lastFrameTime = now
 
-      const newTime = this.timeline.currentTime + deltaTime * this.timeline.playbackConfig.speed
+      const newTime =
+        this.timeline.currentTime +
+        deltaTime * this.timeline.playbackConfig.speed
 
       if (newTime >= this.timeline.duration) {
         if (this.timeline.playbackConfig.loop) {
@@ -441,6 +455,8 @@ export class TimelineController implements ITimelineController {
   // Cleanup
   destroy(): void {
     this.stopPlaybackLoop()
-    this.timeline.removeEventListener(this.onTimelineEvent as TimelineEventListener)
+    this.timeline.removeEventListener(
+      this.onTimelineEvent as TimelineEventListener
+    )
   }
 }

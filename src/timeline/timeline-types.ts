@@ -147,11 +147,18 @@ export interface Timeline {
   // Core methods
   addTrack(track: Omit<TimelineTrack, 'id'>): Result<TimelineTrack>
   removeTrack(trackId: string): Result<boolean>
-  updateTrack(trackId: string, updates: Partial<TimelineTrack>): Result<TimelineTrack>
+  updateTrack(
+    trackId: string,
+    updates: Partial<TimelineTrack>
+  ): Result<TimelineTrack>
 
   addKeyframe(trackId: string, keyframe: Omit<Keyframe, 'id'>): Result<Keyframe>
   removeKeyframe(trackId: string, keyframeId: string): Result<boolean>
-  updateKeyframe(trackId: string, keyframeId: string, updates: Partial<Keyframe>): Result<Keyframe>
+  updateKeyframe(
+    trackId: string,
+    keyframeId: string,
+    updates: Partial<Keyframe>
+  ): Result<Keyframe>
 
   addMarker(marker: Omit<TimelineMarker, 'id'>): Result<TimelineMarker>
   removeMarker(markerId: string): Result<boolean>
@@ -211,7 +218,14 @@ export interface CurveEvaluator {
  * Timeline event types
  */
 export interface TimelineEvent {
-  type: 'track_added' | 'track_removed' | 'keyframe_added' | 'keyframe_removed' | 'keyframe_updated' | 'time_changed' | 'playback_state_changed'
+  type:
+    | 'track_added'
+    | 'track_removed'
+    | 'keyframe_added'
+    | 'keyframe_removed'
+    | 'keyframe_updated'
+    | 'time_changed'
+    | 'playback_state_changed'
   timelineId: string
   data: any
   timestamp: number
@@ -260,9 +274,17 @@ export interface TimelineCache {
  * Timeline renderer interface for UI integration
  */
 export interface TimelineRenderer {
-  renderTimeline(timeline: Timeline, viewport: { width: number; height: number }): void
+  renderTimeline(
+    timeline: Timeline,
+    viewport: { width: number; height: number }
+  ): void
   renderTrack(track: TimelineTrack, yOffset: number): void
-  renderKeyframe(keyframe: Keyframe, track: TimelineTrack, x: number, y: number): void
+  renderKeyframe(
+    keyframe: Keyframe,
+    track: TimelineTrack,
+    x: number,
+    y: number
+  ): void
   renderCurve(curve: AnimationCurve, track: TimelineTrack): void
   renderPlayhead(time: Time, x: number): void
   renderSelection(selection: TimelineSelection): void

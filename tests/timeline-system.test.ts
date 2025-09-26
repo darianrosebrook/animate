@@ -96,8 +96,16 @@ describe('Timeline System - Comprehensive Tests', () => {
       const trackId = trackResult.data!.id
 
       // Add keyframes
-      timeline.addKeyframe(trackId, { time: 0, value: 0, interpolation: InterpolationMode.Linear })
-      timeline.addKeyframe(trackId, { time: 2, value: 200, interpolation: InterpolationMode.Linear })
+      timeline.addKeyframe(trackId, {
+        time: 0,
+        value: 0,
+        interpolation: InterpolationMode.Linear,
+      })
+      timeline.addKeyframe(trackId, {
+        time: 2,
+        value: 200,
+        interpolation: InterpolationMode.Linear,
+      })
 
       // Test evaluation at different times
       const eval0 = timeline.evaluate(0)
@@ -234,7 +242,7 @@ describe('Timeline System - Comprehensive Tests', () => {
       expect(moveResult.success).toBe(true)
 
       const track = timeline.getTrackById(trackId)
-      const movedKeyframe = track?.keyframes.find(k => k.id === keyframeId)
+      const movedKeyframe = track?.keyframes.find((k) => k.id === keyframeId)
       expect(movedKeyframe?.time).toBe(1.5)
     })
 
@@ -268,7 +276,12 @@ describe('Timeline System - Comprehensive Tests', () => {
     it('should evaluate linear interpolation correctly', () => {
       const keyframes: Keyframe[] = [
         { id: '1', time: 0, value: 0, interpolation: InterpolationMode.Linear },
-        { id: '2', time: 2, value: 100, interpolation: InterpolationMode.Linear },
+        {
+          id: '2',
+          time: 2,
+          value: 100,
+          interpolation: InterpolationMode.Linear,
+        },
       ]
 
       const curve = new AnimationCurve(keyframes)
@@ -280,8 +293,18 @@ describe('Timeline System - Comprehensive Tests', () => {
 
     it('should handle stepped interpolation', () => {
       const keyframes: Keyframe[] = [
-        { id: '1', time: 0, value: 0, interpolation: InterpolationMode.Stepped },
-        { id: '2', time: 2, value: 100, interpolation: InterpolationMode.Stepped },
+        {
+          id: '1',
+          time: 0,
+          value: 0,
+          interpolation: InterpolationMode.Stepped,
+        },
+        {
+          id: '2',
+          time: 2,
+          value: 100,
+          interpolation: InterpolationMode.Stepped,
+        },
       ]
 
       const curve = new AnimationCurve(keyframes)
@@ -295,7 +318,12 @@ describe('Timeline System - Comprehensive Tests', () => {
     it('should handle smooth interpolation', () => {
       const keyframes: Keyframe[] = [
         { id: '1', time: 0, value: 0, interpolation: InterpolationMode.Smooth },
-        { id: '2', time: 2, value: 100, interpolation: InterpolationMode.Smooth },
+        {
+          id: '2',
+          time: 2,
+          value: 100,
+          interpolation: InterpolationMode.Smooth,
+        },
       ]
 
       const curve = new AnimationCurve(keyframes)
@@ -307,8 +335,18 @@ describe('Timeline System - Comprehensive Tests', () => {
 
     it('should handle object value interpolation', () => {
       const keyframes: Keyframe[] = [
-        { id: '1', time: 0, value: { x: 0, y: 0 }, interpolation: InterpolationMode.Linear },
-        { id: '2', time: 2, value: { x: 100, y: 50 }, interpolation: InterpolationMode.Linear },
+        {
+          id: '1',
+          time: 0,
+          value: { x: 0, y: 0 },
+          interpolation: InterpolationMode.Linear,
+        },
+        {
+          id: '2',
+          time: 2,
+          value: { x: 100, y: 50 },
+          interpolation: InterpolationMode.Linear,
+        },
       ]
 
       const curve = new AnimationCurve(keyframes)
@@ -320,8 +358,18 @@ describe('Timeline System - Comprehensive Tests', () => {
 
     it('should handle color interpolation', () => {
       const keyframes: Keyframe[] = [
-        { id: '1', time: 0, value: { r: 255, g: 0, b: 0, a: 1 }, interpolation: InterpolationMode.Linear },
-        { id: '2', time: 2, value: { r: 0, g: 255, b: 0, a: 0.5 }, interpolation: InterpolationMode.Linear },
+        {
+          id: '1',
+          time: 0,
+          value: { r: 255, g: 0, b: 0, a: 1 },
+          interpolation: InterpolationMode.Linear,
+        },
+        {
+          id: '2',
+          time: 2,
+          value: { r: 0, g: 255, b: 0, a: 0.5 },
+          interpolation: InterpolationMode.Linear,
+        },
       ]
 
       const curve = new AnimationCurve(keyframes)
@@ -477,7 +525,9 @@ describe('Timeline System - Comprehensive Tests', () => {
       expect(cloned.id).toBe(timeline.id)
       expect(cloned.name).toBe(timeline.name)
       expect(cloned.tracks).toHaveLength(timeline.tracks.length)
-      expect(cloned.tracks[0].keyframes).toHaveLength(timeline.tracks[0].keyframes.length)
+      expect(cloned.tracks[0].keyframes).toHaveLength(
+        timeline.tracks[0].keyframes.length
+      )
 
       // Verify they are separate objects
       expect(cloned).not.toBe(timeline)
@@ -540,9 +590,13 @@ describe('Timeline System - Comprehensive Tests', () => {
       expect(invalidTrackResult.success).toBe(false)
       expect(invalidTrackResult.error?.code).toBe('TRACK_NOT_FOUND')
 
-      const invalidKeyframeResult = timeline.updateKeyframe('nonexistent', 'nonexistent', {
-        time: 2.0,
-      })
+      const invalidKeyframeResult = timeline.updateKeyframe(
+        'nonexistent',
+        'nonexistent',
+        {
+          time: 2.0,
+        }
+      )
       expect(invalidKeyframeResult.success).toBe(false)
       expect(invalidKeyframeResult.error?.code).toBe('TRACK_NOT_FOUND')
     })

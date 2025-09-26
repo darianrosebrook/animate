@@ -21,6 +21,12 @@ import {
 } from './shaders'
 import { TextRenderer } from './text-renderer'
 import { ImageRenderer, ImageProperties, BlendMode } from './image-renderer'
+import { SVGPathRenderer, PathProperties } from './path-renderer'
+import {
+  BatchRenderer,
+  BatchRenderable,
+  PerformanceMetrics,
+} from './batch-renderer'
 import { TransformUtils, Transform2D } from './transforms'
 
 /**
@@ -31,10 +37,16 @@ export class Renderer {
   private shaderManager: ShaderManager
   private textRenderer: TextRenderer | null = null
   private imageRenderer: ImageRenderer | null = null
+  private pathRenderer: SVGPathRenderer | null = null
+  private batchRenderer: BatchRenderer | null = null
   private renderPipelines: Map<string, GPURenderPipeline> = new Map()
   private vertexBuffers: Map<string, GPUBuffer> = new Map()
   private indexBuffers: Map<string, GPUBuffer> = new Map()
   private uniformBuffers: Map<string, GPUBuffer> = new Map()
+
+  // Performance settings
+  private useBatching = true
+  private performanceMode = true
 
   constructor() {
     this.webgpuContext = new WebGPUContext()
@@ -69,6 +81,22 @@ export class Renderer {
     if (!imageResult.success) {
       console.warn('Image renderer initialization failed:', imageResult.error)
       this.imageRenderer = null
+    }
+
+    // Initialize path renderer
+    this.pathRenderer = new SVGPathRenderer(this.webgpuContext)
+    const pathResult = await this.pathRenderer.initialize()
+    if (!pathResult.success) {
+      console.warn('Path renderer initialization failed:', pathResult.error)
+      this.pathRenderer = null
+    }
+
+    // Initialize batch renderer for high-performance rendering
+    this.batchRenderer = new BatchRenderer(this.webgpuContext)
+    const batchResult = await this.batchRenderer.initialize()
+    if (!batchResult.success) {
+      console.warn('Batch renderer initialization failed:', batchResult.error)
+      this.batchRenderer = null
     }
 
     // Create basic render pipelines
@@ -247,12 +275,22 @@ export class Renderer {
 
       const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
 
-      // Render each node
-      for (const node of evaluatedNodes) {
-        const renderResult = this.renderNode(node, renderPass, time, context)
-        if (!renderResult.success) {
-          console.warn(`Failed to render node ${node.id}:`, renderResult.error)
-        }
+      let performanceMetrics: PerformanceMetrics | null = null
+
+      // Use high-performance batch rendering if enabled
+      if (this.useBatching && this.batchRenderer && this.performanceMode) {
+        performanceMetrics = await this.renderWithBatching(
+          evaluatedNodes,
+          renderPass
+        )
+      } else {
+        // Use traditional rendering
+        await this.renderTraditional(
+          evaluatedNodes,
+          renderPass,
+          time,
+          context as EvaluationContext
+        )
       }
 
       renderPass.end()
@@ -282,6 +320,145 @@ export class Renderer {
         },
       }
     }
+  }
+
+  /**
+   * Render using high-performance batching system
+   */
+  private async renderWithBatching(
+    nodes: any[],
+    renderPass: GPURenderPassEncoder
+  ): Promise<PerformanceMetrics | null> {
+    if (!this.batchRenderer) return null
+
+    try {
+      // Clear previous frame's renderables
+      this.batchRenderer.clearRenderables()
+
+      // Convert scene nodes to batch renderables
+      for (const node of nodes) {
+        const batchRenderable = this.nodeToBatchRenderable(node)
+        if (batchRenderable) {
+          this.batchRenderer.addRenderable(batchRenderable)
+        }
+      }
+
+      // Optimize renderables into batches
+      this.batchRenderer.optimizeRenderables()
+
+      // Render all batches
+      const metricsResult = this.batchRenderer.renderBatches(renderPass)
+      if (!metricsResult.success) {
+        console.warn('Batch rendering failed:', metricsResult.error)
+        return null
+      }
+
+      return metricsResult.data
+    } catch (error) {
+      console.warn('Batch rendering error:', error)
+      return null
+    }
+  }
+
+  /**
+   * Render using traditional per-node rendering
+   */
+  private async renderTraditional(
+    nodes: any[],
+    renderPass: GPURenderPassEncoder,
+    time: Time,
+    context: EvaluationContext
+  ): Promise<void> {
+    for (const node of nodes) {
+      const renderResult = this.renderNode(node, renderPass, time, context)
+      if (!renderResult.success) {
+        console.warn(`Failed to render node ${node.id}:`, renderResult.error)
+      }
+    }
+  }
+
+  /**
+   * Convert scene node to batch renderable
+   */
+  private nodeToBatchRenderable(node: any): BatchRenderable | null {
+    // Create transform matrix for the node
+    const transform2D: Transform2D = {
+      position: node.position || { x: 0, y: 0 },
+      scale: node.scale || { width: 1, height: 1 },
+      rotation: node.rotation || 0,
+      anchor: node.anchor || { x: 0, y: 0 },
+      skewX: node.skewX || 0,
+      skewY: node.skewY || 0,
+    }
+
+    const transformMatrix = TransformUtils.fromTransform(transform2D)
+
+    // Calculate bounds
+    const bounds = this.calculateNodeBounds(node)
+
+    return {
+      id: node.id,
+      type: node.type === 'shape' ? node.shapeType || 'rectangle' : node.type,
+      transform: transformMatrix,
+      properties: node.properties || {},
+      bounds,
+    }
+  }
+
+  /**
+   * Calculate bounding box for a node
+   */
+  private calculateNodeBounds(node: any): {
+    minX: number
+    minY: number
+    maxX: number
+    maxY: number
+  } {
+    // Simplified bounds calculation - in production, calculate based on actual geometry
+    const size = node.size || { width: 100, height: 100 }
+    const position = node.position || { x: 0, y: 0 }
+
+    return {
+      minX: position.x,
+      minY: position.y,
+      maxX: position.x + size.width,
+      maxY: position.y + size.height,
+    }
+  }
+
+  /**
+   * Get performance metrics
+   */
+  getPerformanceMetrics(): PerformanceMetrics[] {
+    return this.batchRenderer?.getPerformanceMetrics() || []
+  }
+
+  /**
+   * Check if performance is within budget
+   */
+  isPerformanceWithinBudget(): boolean {
+    return this.batchRenderer?.isPerformanceWithinBudget() ?? true
+  }
+
+  /**
+   * Get optimization recommendations
+   */
+  getOptimizationRecommendations(): string[] {
+    return this.batchRenderer?.getOptimizationRecommendations() || []
+  }
+
+  /**
+   * Enable or disable performance optimizations
+   */
+  setPerformanceMode(enabled: boolean): void {
+    this.performanceMode = enabled
+  }
+
+  /**
+   * Enable or disable batching
+   */
+  setBatchingEnabled(enabled: boolean): void {
+    this.useBatching = enabled
   }
 
   /**
@@ -341,6 +518,37 @@ export class Renderer {
         )
         if (!imageResult.success) {
           return imageResult
+        }
+        return { success: true, data: true }
+      }
+
+      // Handle path nodes
+      if (
+        node.type === 'shape' &&
+        node.shapeType === 'path' &&
+        this.pathRenderer &&
+        node.pathData
+      ) {
+        const pathProperties: PathProperties = {
+          pathData: node.pathData,
+          fillColor: node.fillColor || { r: 255, g: 255, b: 255, a: 1 },
+          strokeColor: node.strokeColor || { r: 0, g: 0, b: 0, a: 1 },
+          strokeWidth: node.strokeWidth || 1,
+          fillRule: node.fillRule || 'nonzero',
+          strokeLineCap: node.strokeLineCap || 'butt',
+          strokeLineJoin: node.strokeLineJoin || 'miter',
+          strokeMiterLimit: node.strokeMiterLimit || 4,
+          position: node.position || { x: 0, y: 0 },
+          scale: node.scale || { x: 1, y: 1 },
+          rotation: node.rotation || 0,
+        }
+
+        const pathResult = this.pathRenderer.renderPath(
+          pathProperties,
+          renderPass
+        )
+        if (!pathResult.success) {
+          return pathResult
         }
         return { success: true, data: true }
       }
@@ -408,6 +616,9 @@ export class Renderer {
             pipeline: this.renderPipelines.get('circle') || null,
             vertexBuffer: this.vertexBuffers.get('circle') || null,
           }
+        } else if (node.shapeType === 'path') {
+          // Path rendering is handled separately in renderNode
+          return { pipeline: null, vertexBuffer: null }
         }
         break
       case 'text':
@@ -415,6 +626,9 @@ export class Renderer {
         return { pipeline: null, vertexBuffer: null }
       case 'media':
         // Image/media rendering is handled separately in renderNode
+        return { pipeline: null, vertexBuffer: null }
+      case 'path':
+        // Path rendering is handled separately in renderNode
         return { pipeline: null, vertexBuffer: null }
     }
 
@@ -566,6 +780,12 @@ export class Renderer {
     }
     if (this.imageRenderer) {
       this.imageRenderer.destroy()
+    }
+    if (this.pathRenderer) {
+      this.pathRenderer.destroy()
+    }
+    if (this.batchRenderer) {
+      this.batchRenderer.destroy()
     }
     this.shaderManager.destroy()
     this.webgpuContext.destroy()

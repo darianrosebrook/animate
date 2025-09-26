@@ -59,3 +59,57 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Button styles with icons */
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: #007acc;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #005c99;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.btn-info {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-info:hover {
+  background: #138496;
+  transform: translateY(-1px);
+}

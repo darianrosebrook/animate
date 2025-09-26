@@ -194,7 +194,9 @@ export interface KeyboardShortcut {
   userDefined?: boolean // Whether this shortcut was defined by the user
 }
 
-export type KeyboardShortcutAction = (event: KeyboardEvent) => void | Promise<void>
+export type KeyboardShortcutAction = (
+  event: KeyboardEvent
+) => void | Promise<void>
 
 export enum ShortcutCategory {
   General = 'general',
@@ -795,6 +797,9 @@ export const DEFAULT_KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [
     category: ShortcutCategory.Help,
   },
 ]
+
+// Effects system types
+export * from './effects'
 
 // Utility types
 export type Result<T, E = AnimatorError> =
