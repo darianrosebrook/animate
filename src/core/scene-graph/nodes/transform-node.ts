@@ -59,11 +59,36 @@ export class TransformNode implements SceneNode {
   evaluate(time: Time, context: EvaluationContext): Result<Transform> {
     try {
       // Get transform properties with defaults
-      const position = this.getPropertyValue<Point3D>('position', { x: 0, y: 0, z: 0 }, time, context)
-      const rotation = this.getPropertyValue<Point3D>('rotation', { x: 0, y: 0, z: 0 }, time, context)
-      const scale = this.getPropertyValue<Point3D>('scale', { x: 1, y: 1, z: 1 }, time, context)
-      const anchorPoint = this.getPropertyValue<Point2D>('anchorPoint', { x: 0, y: 0 }, time, context)
-      const opacity = this.getPropertyValue<number>('opacity', 1.0, time, context)
+      const position = this.getPropertyValue<Point3D>(
+        'position',
+        { x: 0, y: 0, z: 0 },
+        time,
+        context
+      )
+      const rotation = this.getPropertyValue<Point3D>(
+        'rotation',
+        { x: 0, y: 0, z: 0 },
+        time,
+        context
+      )
+      const scale = this.getPropertyValue<Point3D>(
+        'scale',
+        { x: 1, y: 1, z: 1 },
+        time,
+        context
+      )
+      const anchorPoint = this.getPropertyValue<Point2D>(
+        'anchorPoint',
+        { x: 0, y: 0 },
+        time,
+        context
+      )
+      const opacity = this.getPropertyValue<number>(
+        'opacity',
+        1.0,
+        time,
+        context
+      )
 
       const transform: Transform = {
         position,
@@ -138,8 +163,13 @@ export class TransformNode implements SceneNode {
     }
 
     // Linear interpolation
-    const t = (time - startKeyframe.time) / (endKeyframe.time - startKeyframe.time)
-    const interpolatedValue = this.interpolateValues(startKeyframe.value, endKeyframe.value, t)
+    const t =
+      (time - startKeyframe.time) / (endKeyframe.time - startKeyframe.time)
+    const interpolatedValue = this.interpolateValues(
+      startKeyframe.value,
+      endKeyframe.value,
+      t
+    )
 
     return interpolatedValue
   }
@@ -149,7 +179,12 @@ export class TransformNode implements SceneNode {
    */
   private interpolateValues(startValue: any, endValue: any, t: number): any {
     // Handle Point3D interpolation
-    if (typeof startValue === 'object' && 'x' in startValue && 'y' in startValue && 'z' in startValue) {
+    if (
+      typeof startValue === 'object' &&
+      'x' in startValue &&
+      'y' in startValue &&
+      'z' in startValue
+    ) {
       return {
         x: startValue.x + t * (endValue.x - startValue.x),
         y: startValue.y + t * (endValue.y - startValue.y),
@@ -158,7 +193,11 @@ export class TransformNode implements SceneNode {
     }
 
     // Handle Point2D interpolation
-    if (typeof startValue === 'object' && 'x' in startValue && 'y' in startValue) {
+    if (
+      typeof startValue === 'object' &&
+      'x' in startValue &&
+      'y' in startValue
+    ) {
       return {
         x: startValue.x + t * (endValue.x - startValue.x),
         y: startValue.y + t * (endValue.y - startValue.y),
@@ -166,7 +205,12 @@ export class TransformNode implements SceneNode {
     }
 
     // Handle Color interpolation
-    if (typeof startValue === 'object' && 'r' in startValue && 'g' in startValue && 'b' in startValue) {
+    if (
+      typeof startValue === 'object' &&
+      'r' in startValue &&
+      'g' in startValue &&
+      'b' in startValue
+    ) {
       return {
         r: startValue.r + t * (endValue.r - startValue.r),
         g: startValue.g + t * (endValue.g - startValue.g),

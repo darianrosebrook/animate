@@ -75,15 +75,60 @@ export class ShapeNode implements SceneNode {
   evaluate(time: Time, context: EvaluationContext): Result<ShapeProperties> {
     try {
       // Get shape properties with defaults
-      const shapeType = this.getPropertyValue<ShapeType>('shapeType', ShapeType.Rectangle, time, context)
-      const size = this.getPropertyValue<Size2D>('size', { width: 100, height: 100 }, time, context)
-      const position = this.getPropertyValue<Point2D>('position', { x: 0, y: 0 }, time, context)
-      const fillColor = this.getPropertyValue<Color>('fillColor', { r: 255, g: 255, b: 255, a: 1 }, time, context)
-      const strokeColor = this.getPropertyValue<Color>('strokeColor', { r: 0, g: 0, b: 0, a: 1 }, time, context)
-      const strokeWidth = this.getPropertyValue<number>('strokeWidth', 1, time, context)
-      const cornerRadius = this.getPropertyValue<number>('cornerRadius', 0, time, context)
-      const pathData = this.getPropertyValue<string>('pathData', '', time, context)
-      const vertices = this.getPropertyValue<Point2D[]>('vertices', [], time, context)
+      const shapeType = this.getPropertyValue<ShapeType>(
+        'shapeType',
+        ShapeType.Rectangle,
+        time,
+        context
+      )
+      const size = this.getPropertyValue<Size2D>(
+        'size',
+        { width: 100, height: 100 },
+        time,
+        context
+      )
+      const position = this.getPropertyValue<Point2D>(
+        'position',
+        { x: 0, y: 0 },
+        time,
+        context
+      )
+      const fillColor = this.getPropertyValue<Color>(
+        'fillColor',
+        { r: 255, g: 255, b: 255, a: 1 },
+        time,
+        context
+      )
+      const strokeColor = this.getPropertyValue<Color>(
+        'strokeColor',
+        { r: 0, g: 0, b: 0, a: 1 },
+        time,
+        context
+      )
+      const strokeWidth = this.getPropertyValue<number>(
+        'strokeWidth',
+        1,
+        time,
+        context
+      )
+      const cornerRadius = this.getPropertyValue<number>(
+        'cornerRadius',
+        0,
+        time,
+        context
+      )
+      const pathData = this.getPropertyValue<string>(
+        'pathData',
+        '',
+        time,
+        context
+      )
+      const vertices = this.getPropertyValue<Point2D[]>(
+        'vertices',
+        [],
+        time,
+        context
+      )
 
       const shapeProperties: ShapeProperties = {
         shapeType,
@@ -162,8 +207,13 @@ export class ShapeNode implements SceneNode {
     }
 
     // Linear interpolation
-    const t = (time - startKeyframe.time) / (endKeyframe.time - startKeyframe.time)
-    const interpolatedValue = this.interpolateValues(startKeyframe.value, endKeyframe.value, t)
+    const t =
+      (time - startKeyframe.time) / (endKeyframe.time - startKeyframe.time)
+    const interpolatedValue = this.interpolateValues(
+      startKeyframe.value,
+      endKeyframe.value,
+      t
+    )
 
     return interpolatedValue
   }
@@ -173,7 +223,11 @@ export class ShapeNode implements SceneNode {
    */
   private interpolateValues(startValue: any, endValue: any, t: number): any {
     // Handle Point2D interpolation
-    if (typeof startValue === 'object' && 'x' in startValue && 'y' in startValue) {
+    if (
+      typeof startValue === 'object' &&
+      'x' in startValue &&
+      'y' in startValue
+    ) {
       return {
         x: startValue.x + t * (endValue.x - startValue.x),
         y: startValue.y + t * (endValue.y - startValue.y),
@@ -181,7 +235,11 @@ export class ShapeNode implements SceneNode {
     }
 
     // Handle Size2D interpolation
-    if (typeof startValue === 'object' && 'width' in startValue && 'height' in startValue) {
+    if (
+      typeof startValue === 'object' &&
+      'width' in startValue &&
+      'height' in startValue
+    ) {
       return {
         width: startValue.width + t * (endValue.width - startValue.width),
         height: startValue.height + t * (endValue.height - startValue.height),
@@ -189,7 +247,12 @@ export class ShapeNode implements SceneNode {
     }
 
     // Handle Color interpolation
-    if (typeof startValue === 'object' && 'r' in startValue && 'g' in startValue && 'b' in startValue) {
+    if (
+      typeof startValue === 'object' &&
+      'r' in startValue &&
+      'g' in startValue &&
+      'b' in startValue
+    ) {
       return {
         r: startValue.r + t * (endValue.r - startValue.r),
         g: startValue.g + t * (endValue.g - startValue.g),
@@ -353,4 +416,3 @@ export function createPathNode(
 
   return new ShapeNode(id, name, properties)
 }
-

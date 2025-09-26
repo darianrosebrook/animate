@@ -105,13 +105,13 @@ export class SceneGraph {
       if (node.parent) {
         const updatedParent = {
           ...node.parent,
-          children: node.parent.children.filter(child => child.id !== nodeId),
+          children: node.parent.children.filter((child) => child.id !== nodeId),
         }
         this.nodeMap.set(node.parent.id, updatedParent)
         this.dirtyNodes.add(node.parent.id)
       } else {
         // Remove from root nodes
-        this.rootNodes = this.rootNodes.filter(root => root.id !== nodeId)
+        this.rootNodes = this.rootNodes.filter((root) => root.id !== nodeId)
       }
 
       // Remove from node map and mark as dirty
@@ -154,7 +154,10 @@ export class SceneGraph {
   /**
    * Update node properties
    */
-  updateNodeProperties(nodeId: string, properties: PropertyMap): Result<SceneNode> {
+  updateNodeProperties(
+    nodeId: string,
+    properties: PropertyMap
+  ): Result<SceneNode> {
     const nodeResult = this.getNode(nodeId)
     if (!nodeResult.success) {
       return nodeResult
@@ -184,7 +187,12 @@ export class SceneGraph {
 
       // Evaluate all root nodes
       for (const rootNode of this.rootNodes) {
-        const result = this.evaluateNode(rootNode, time, context, evaluatedNodes)
+        const result = this.evaluateNode(
+          rootNode,
+          time,
+          context,
+          evaluatedNodes
+        )
         if (!result.success) {
           return result
         }
@@ -258,7 +266,12 @@ export class SceneGraph {
     // Evaluate children first (for dependency resolution)
     const childResults: any[] = []
     for (const child of node.children) {
-      const childResult = this.evaluateNode(child, time, context, evaluatedNodes)
+      const childResult = this.evaluateNode(
+        child,
+        time,
+        context,
+        evaluatedNodes
+      )
       if (!childResult.success) {
         return childResult
       }
@@ -332,7 +345,13 @@ export class SceneGraph {
       return value
     }
 
-    if (value && typeof value === 'object' && 'r' in value && 'g' in value && 'b' in value) {
+    if (
+      value &&
+      typeof value === 'object' &&
+      'r' in value &&
+      'g' in value &&
+      'b' in value
+    ) {
       // This is a Color
       return value
     }
@@ -366,8 +385,10 @@ export class SceneGraph {
     }
 
     // Linear interpolation
-    const t = (time - startKeyframe.time) / (endKeyframe.time - startKeyframe.time)
-    const interpolatedValue = startKeyframe.value + t * (endKeyframe.value - startKeyframe.value)
+    const t =
+      (time - startKeyframe.time) / (endKeyframe.time - startKeyframe.time)
+    const interpolatedValue =
+      startKeyframe.value + t * (endKeyframe.value - startKeyframe.value)
 
     return interpolatedValue
   }

@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { SceneGraph } from './scene-graph'
 import { createTransformNode } from './nodes/transform-node'
-import { createRectangleNode, createCircleNode, createPathNode, ShapeType } from './nodes/shape-node'
+import {
+  createRectangleNode,
+  createCircleNode,
+  createPathNode,
+  ShapeType,
+} from './nodes/shape-node'
 import { NodeType, InterpolationMode } from '@/types'
 
 describe('SceneGraph', () => {
