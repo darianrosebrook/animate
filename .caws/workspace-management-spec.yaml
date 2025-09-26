@@ -1,0 +1,66 @@
+id: WORKSPACE-001
+title: "Workspace Management - Hierarchical Project Organization System"
+risk_tier: 2
+mode: feature
+change_budget:
+  max_files: 50
+  max_loc: 2500
+blast_radius:
+  modules: ["workspace-system", "collaboration", "metadata", "search", "permissions"]
+  data_migration: false
+operational_rollback_slo: "30m"
+threats:
+  - "Performance degradation with large workspaces (>1000 files)"
+  - "Complex permission model leading to user confusion"
+  - "Data consistency issues during concurrent operations"
+  - "Search relevance degradation at scale"
+scope:
+  in: ["workspace management", "project organization", "file hierarchy", "metadata system", "collaboration permissions", "search and discovery", "CRUD operations", "bulk file operations"]
+  out: ["real-time file locking", "advanced version control", "offline-first sync", "binary diffing"]
+invariants:
+  - "Hierarchical integrity: Files must belong to projects, projects must belong to workspaces"
+  - "Metadata consistency: All metadata follows strict typing and validation rules"
+  - "Permission inheritance: Child entities inherit parent permissions unless explicitly overridden"
+  - "Deterministic IDs: All entities have stable, globally unique identifiers"
+  - "Audit trail: All operations are logged with user, timestamp, and context"
+  - "Conflict resolution: Concurrent edits resolved via operational transformation"
+  - "Version safety: Operations maintain referential integrity across versions"
+  - "Performance bounds: Navigation and search operations complete within specified time limits"
+acceptance:
+  - id: A1
+    given: "user creates workspace 'Brand Projects'"
+    when:  "creates project 'Holiday Campaign' within workspace"
+    then:  "creates file 'hero.anim' within project and navigates using breadcrumbs"
+  - id: A2
+    given: "workspace with 1000+ files and multiple collaborators"
+    when:  "user searches for 'holiday'"
+    then:  "returns relevant results in < 200ms with proper faceted filtering"
+  - id: A3
+    given: "user with editor role in workspace"
+    when:  "attempts to edit file with viewer-only permissions"
+    then:  "access denied with clear error message and permission inheritance works correctly"
+  - id: A4
+    given: "large workspace with complex hierarchy"
+    when:  "user performs bulk operations (move 50 files between projects)"
+    then:  "operations complete successfully with proper metadata updates and audit logging"
+  - id: A5
+    given: "collaborative editing scenario with multiple users"
+    when:  "users edit same file simultaneously"
+    then:  "conflicts resolved automatically via operational transformation"
+non_functional:
+  a11y: ["keyboard navigation for all workspace operations", "screen reader support for hierarchy navigation", "high contrast mode for metadata views", "reduced motion preferences respected in animations"]
+  perf: { search_response_ms: 200, navigation_ms: 100, file_operations_ms: 500, metadata_updates_ms: 50, large_workspace_load_s: 2 }
+  security: ["input sanitization prevents injection attacks", "rate limiting on search and API endpoints", "audit logging for all operations", "encryption of sensitive metadata", "SSO integration for enterprise users"]
+contracts:
+  - type: openapi
+    path: "src/api/workspace-api.yaml"
+  - type: openapi
+    path: "src/api/project-api.yaml"
+  - type: openapi
+    path: "src/api/file-api.yaml"
+observability:
+  logs: ["workspace.create", "workspace.delete", "project.move", "file.update", "search.query", "permission.check", "collaboration.activity"]
+  metrics: ["workspace.count", "project.count", "file.count", "search.response_time", "navigation.depth", "collaboration.active_users", "metadata.update_rate"]
+  traces: ["workspace.operation", "project.hierarchy", "file.content", "search.execution", "permission.evaluation"]
+migrations: []
+rollback: ["feature flag workspace_management=false", "graceful degradation to flat file system", "metadata cleanup scripts", "permission reset to defaults"]
