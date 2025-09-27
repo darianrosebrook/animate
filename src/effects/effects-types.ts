@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError, Time, Point2D, Size2D, Color } from '@/types'
+import { Result, Time, Size2D } from '@/types'
 
 /**
  * Effect categories for organization

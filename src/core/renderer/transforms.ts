@@ -167,11 +167,13 @@ export class TransformUtils {
       matrix[0] * point.x + matrix[4] * point.y + matrix[8] * 0 + matrix[12] * 1
     const y =
       matrix[1] * point.x + matrix[5] * point.y + matrix[9] * 0 + matrix[13] * 1
-    const z =
+    const _z =
       matrix[2] * point.x +
       matrix[6] * point.y +
       matrix[10] * 0 +
       matrix[14] * 1
+    // TODO: add z to the point
+    console.log('z', _z)
     const w =
       matrix[3] * point.x +
       matrix[7] * point.y +

@@ -4,9 +4,8 @@
  * @author @darianrosebrook
  */
 
-import type { Time, FrameRate, Size2D, Color, Result } from './animator-api'
-
-import type { SceneNode, SceneState } from './animator-api'
+import type { Time, FrameRate, Size2D, Color, Result, SceneNode, SceneState } from './animator-api'
+import type { WebGPUContext } from '@/core/renderer/webgpu-context'
 
 /**
  * GPU-accelerated rendering interface
@@ -786,6 +785,7 @@ export class Renderer implements RenderingAPI {
 
   constructor() {
     this._webgpuContext = new WebGPUContext()
+    // WebGPU context is initialized for future use
   }
 
   async renderFrame(

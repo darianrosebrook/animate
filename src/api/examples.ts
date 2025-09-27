@@ -4,7 +4,13 @@
  * @author @darianrosebrook
  */
 
-import { Keyframe, RenderQuality, ColorSpace, TrackType, PluginSourceType } from '@/types'
+import {
+  Keyframe,
+  RenderQuality,
+  ColorSpace,
+  TrackType,
+  PluginSourceType,
+} from '@/types'
 import {
   TemplateCategory,
   InterpolationMode,
@@ -13,11 +19,184 @@ import {
 } from '@/types'
 
 // Import the API functions
-import { Animator } from './animator-api'
 
 // Mock API functions for examples
 function getAnimatorAPI() {
-  return new Animator()
+  return {
+    createDocument: async (config: any) => ({
+      id: 'doc_123',
+      name: config.name,
+      description: config.description,
+      version: '1.0.0',
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      author: 'user_123',
+      scenes: [
+        {
+          id: 'scene_1',
+          name: 'Scene 1',
+          duration: 5,
+          frameRate: 30,
+          rootNode: 'root_1',
+          nodes: [],
+          camera: {
+            position: { x: 0, y: 0, z: 0 },
+            target: { x: 0, y: 0, z: 0 },
+          },
+          settings: { backgroundColor: { r: 0, g: 0, b: 0, a: 1 } },
+        },
+      ],
+      settings: {
+        timeline: { duration: 5, frameRate: 30 },
+        rendering: { quality: 'high' as any },
+        audio: { sampleRate: 44100 },
+      },
+      metadata: {
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+        version: '1.0.0',
+      },
+    }),
+    sceneGraph: {
+      createNode: async (type: any, _parentId?: string) => ({
+        id: 'node_123',
+        type,
+      }),
+      updateNode: async (nodeId: string, updates: any) => ({
+        id: nodeId,
+        ...updates,
+      }),
+      setProperty: async (_nodeId: string, _key: string, _value: any) => {},
+      setProperties: async (_nodeId: string, _properties: any) => {},
+      setParent: async (_nodeId: string, _parentId: string) => {},
+    },
+    timeline: {
+      createTimeline: async (
+        name: string,
+        duration: number,
+        frameRate: number
+      ) => ({
+        id: 'timeline_123',
+        name,
+        duration,
+        frameRate,
+        tracks: [
+          {
+            id: 'track_1',
+            name: 'Scale Track',
+            type: 'property' as any,
+            keyframes: [],
+            targetPath: 'transform.scale',
+            solo: false,
+            color: '#ff6b35',
+            height: 40,
+            properties: {
+              volume: 1,
+              blendMode: 'normal' as any,
+              opacity: 1,
+              visible: true,
+            },
+          },
+        ],
+        markers: [],
+        playbackState: {
+          isPlaying: false,
+          currentTime: 0,
+          playbackSpeed: 1,
+          loop: false,
+        },
+        settings: {
+          snapToGrid: true,
+          gridSize: 1 / frameRate,
+          autoScroll: true,
+          showWaveforms: true,
+          showKeyframes: true,
+          zoom: 1,
+          verticalScroll: 0,
+          horizontalScroll: 0,
+        },
+        metadata: {
+          createdAt: new Date(),
+          modifiedAt: new Date(),
+          version: '1.0.0',
+        },
+      }),
+      addKeyframe: async (_trackId: string, _keyframe: any) => {
+        console.log('Mock addKeyframe called')
+      },
+      createTrack: async (_name: string, _type: any, _targetPath?: string) => ({
+        id: 'track_123',
+        name: _name,
+        type: _type,
+        keyframes: [],
+        targetPath: _targetPath,
+        solo: false,
+        color: '#ff6b35',
+        height: 40,
+        properties: {
+          volume: 1,
+          blendMode: 'normal' as any,
+          opacity: 1,
+          visible: true,
+        },
+      }),
+    },
+    rendering: {
+      renderSequence: async (
+        _sceneId: string,
+        _startTime: number,
+        _endTime: number,
+        _options: any
+      ) => ({
+        success: true,
+        data: {
+          frames: [],
+          duration: 5,
+          frameRate: 30,
+        },
+      }),
+      renderFrame: async (_sceneId: string, _time: number, _options?: any) => ({
+        success: true,
+        data: {
+          frame: new ImageData(1920, 1080),
+          timestamp: 0,
+          duration: 5,
+        },
+      }),
+    },
+    collaboration: {
+      createSession: async (_documentId: string, _options: any) => ({
+        id: 'session_123',
+        documentId: 'doc_123',
+        hostId: 'user_1',
+        participants: [],
+        maxParticipants: 10,
+        status: 'active' as any,
+        createdAt: new Date(),
+        settings: {} as any,
+      }),
+      subscribeToChanges: async (_sessionId: string, _callback: any) => ({
+        success: true,
+        data: () => {},
+      }),
+    },
+    plugins: {
+      installPlugin: async (_pluginId: string, _source: any) => ({
+        id: 'plugin_123',
+        name: 'Test Plugin',
+        version: '1.0.0',
+        description: 'Test plugin',
+        author: 'Test Author',
+        source: {} as any,
+        enabled: true,
+        installedAt: new Date(),
+        manifest: {} as any,
+      }),
+      executePlugin: async (_pluginId: string, _context: any) => ({
+        result: 'Plugin executed successfully',
+      }),
+    },
+  }
 }
 
 /**
@@ -34,26 +213,31 @@ export async function createTitleSequenceExample(): Promise<void> {
       createdAt: new Date(),
       modifiedAt: new Date(),
       author: 'user_123',
-      scenes: [{ 
-        id: 'scene_1',
-        name: 'Scene 1', 
-        duration: 5, 
-        frameRate: 30,
-        rootNode: 'root_1',
-        nodes: [],
-        camera: { position: { x: 0, y: 0, z: 0 }, target: { x: 0, y: 0, z: 0 } },
-        settings: { backgroundColor: { r: 0, g: 0, b: 0, a: 1 } }
-      }],
+      scenes: [
+        {
+          id: 'scene_1',
+          name: 'Scene 1',
+          duration: 5,
+          frameRate: 30,
+          rootNode: 'root_1',
+          nodes: [],
+          camera: {
+            position: { x: 0, y: 0, z: 0 },
+            target: { x: 0, y: 0, z: 0 },
+          },
+          settings: { backgroundColor: { r: 0, g: 0, b: 0, a: 1 } },
+        },
+      ],
       settings: {
         timeline: { duration: 5, frameRate: 30 },
         rendering: { quality: 'high' as any },
-        audio: { sampleRate: 44100 }
+        audio: { sampleRate: 44100 },
       },
       metadata: {
         createdAt: new Date(),
         modifiedAt: new Date(),
-        version: '1.0.0'
-      }
+        version: '1.0.0',
+      },
     }),
     sceneGraph: {
       createNode: async (type: any, _parentId?: string) => ({
@@ -65,6 +249,8 @@ export async function createTitleSequenceExample(): Promise<void> {
         ...updates,
       }),
       setProperty: async (_nodeId: string, _key: string, _value: any) => {},
+      setProperties: async (_nodeId: string, _properties: any) => {},
+      setParent: async (_nodeId: string, _parentId: string) => {},
     },
     timeline: {
       createTimeline: async (
@@ -231,7 +417,8 @@ export async function collaborationExample(): Promise<void> {
       category: TemplateCategory.TitleSequence,
       sceneTemplate: {
         name: 'Main Scene',
-        description: 'Primary scene template',
+        duration: 5,
+        frameRate: 30,
         nodes: [],
       },
     })
@@ -250,10 +437,10 @@ export async function collaborationExample(): Promise<void> {
     // Subscribe to document changes
     const unsubscribe = await api.collaboration.subscribeToChanges(
       session.id,
-      (changes) => {
+      (changes: any) => {
         console.log('Document changes received:', changes.length)
 
-        changes.forEach((change) => {
+        changes.forEach((change: any) => {
           console.log(`- ${change.authorId} ${change.type} at ${change.path}`)
         })
       }
@@ -279,7 +466,9 @@ export async function collaborationExample(): Promise<void> {
     })
 
     // Simulate Carol adding a comment
-    console.log('Carol added a comment: "Love the color palette! Consider making it a bit brighter for better contrast."')
+    console.log(
+      'Carol added a comment: "Love the color palette! Consider making it a bit brighter for better contrast."'
+    )
 
     // Clean up subscription
     unsubscribe()
@@ -302,7 +491,8 @@ export async function advancedRenderingExample(): Promise<void> {
       category: TemplateCategory.Explainer,
       sceneTemplate: {
         name: 'Main Scene',
-        description: 'Primary scene template',
+        duration: 5,
+        frameRate: 30,
         nodes: [],
       },
     })

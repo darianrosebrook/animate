@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError, Point2D, Size2D, Color } from '@/types'
+import { Result, Point2D, Size2D, Color } from '@/types'
 import { WebGPUContext } from './webgpu-context'
 
 /**
@@ -90,8 +90,8 @@ export interface TextProperties {
 export class FontAtlas {
   private texture: GPUTexture | null = null
   private textureSize: number = 1024
-  private currentX = 0
-  private currentY = 0
+  private _currentX = 0
+  private _currentY = 0
   private lineHeight = 0
   private glyphs: Map<number, GlyphInfo> = new Map()
 
@@ -170,7 +170,7 @@ export class FontAtlas {
     const charWidth = 16
     const charHeight = 24
     const charsPerRow = Math.floor(this.textureSize / charWidth)
-    const rows = Math.ceil((127 - 32) / charsPerRow)
+    const _rows = Math.ceil((127 - 32) / charsPerRow)
 
     // Create bitmap data for simple ASCII characters
     const bitmapData = new Uint8Array(this.textureSize * this.textureSize * 4)
