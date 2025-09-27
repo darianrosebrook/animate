@@ -3,12 +3,11 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError, Time } from '@/types'
+import { Result, Time } from '@/types'
 import {
   TimelineController as ITimelineController,
   Timeline,
   PlaybackState,
-  TimelineSelection,
   TimelineHistory,
   TimelineEventListener,
 } from './timeline-types'

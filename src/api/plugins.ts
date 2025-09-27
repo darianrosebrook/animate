@@ -4,9 +4,13 @@
  * @author @darianrosebrook
  */
 
-import type { Result } from './animator-api'
-
-import type { SceneNode } from './scene-graph'
+import type {
+  Result,
+  PluginMetadata,
+  // SceneNode
+  CompressionLevel,
+  Point2D,
+} from '@/types'
 
 /**
  * Plugin system interface for extensibility
@@ -905,8 +909,8 @@ export enum SubmissionStatus {
  */
 export class PluginManager implements PluginAPI {
   async installPlugin(
-    pluginId: string,
-    source: PluginSource
+    _pluginId: string,
+    _source: PluginSource
   ): Promise<
     Result<Plugin, 'PLUGIN_INSTALL_FAILED' | 'PLUGIN_ALREADY_INSTALLED'>
   > {
@@ -915,47 +919,47 @@ export class PluginManager implements PluginAPI {
   }
 
   async uninstallPlugin(
-    pluginId: string
+    _pluginId: string
   ): Promise<Result<void, 'PLUGIN_NOT_FOUND' | 'PLUGIN_IN_USE'>> {
     // Implementation would safely remove plugin and dependencies
     throw new Error('Plugin implementation pending')
   }
 
   async updatePlugin(
-    pluginId: string,
-    updates: Partial<Plugin>
+    _pluginId: string,
+    _updates: Partial<Plugin>
   ): Promise<Result<Plugin, 'PLUGIN_NOT_FOUND' | 'PLUGIN_UPDATE_FAILED'>> {
     // Implementation would update plugin with proper dependency management
     throw new Error('Plugin implementation pending')
   }
 
   async enablePlugin(
-    pluginId: string
+    _pluginId: string
   ): Promise<Result<void, 'PLUGIN_NOT_FOUND' | 'PLUGIN_ENABLE_FAILED'>> {
     // Implementation would activate plugin and register contributions
     throw new Error('Plugin implementation pending')
   }
 
   async disablePlugin(
-    pluginId: string
+    _pluginId: string
   ): Promise<Result<void, 'PLUGIN_NOT_FOUND' | 'PLUGIN_DISABLE_FAILED'>> {
     // Implementation would deactivate plugin and unregister contributions
     throw new Error('Plugin implementation pending')
   }
 
-  async listPlugins(filters?: PluginFilters): Promise<Plugin[]> {
+  async listPlugins(_filters?: PluginFilters): Promise<Plugin[]> {
     // Implementation would return filtered list of plugins
     throw new Error('Plugin implementation pending')
   }
 
   async getPlugin(
-    pluginId: string
+    _pluginId: string
   ): Promise<Result<Plugin, 'PLUGIN_NOT_FOUND'>> {
     // Implementation would retrieve plugin details
     throw new Error('Plugin implementation pending')
   }
 
-  async searchPlugins(query: PluginQuery): Promise<Plugin[]> {
+  async searchPlugins(_query: PluginQuery): Promise<Plugin[]> {
     // Implementation would search plugin registry
     throw new Error('Plugin implementation pending')
   }
@@ -966,56 +970,56 @@ export class PluginManager implements PluginAPI {
   }
 
   async executePlugin(
-    pluginId: string,
-    functionName: string,
-    parameters: any[],
-    context?: PluginContext
+    _pluginId: string,
+    _functionName: string,
+    _parameters: any[],
+    _context?: PluginContext
   ): Promise<Result<any, 'PLUGIN_NOT_FOUND' | 'PLUGIN_EXECUTION_FAILED'>> {
     // Implementation would execute plugin function with context
     throw new Error('Plugin implementation pending')
   }
 
   async executePluginCommand(
-    pluginId: string,
-    command: PluginCommand,
-    context?: PluginContext
+    _pluginId: string,
+    _command: PluginCommand,
+    _context?: PluginContext
   ): Promise<Result<any, 'PLUGIN_NOT_FOUND' | 'COMMAND_NOT_FOUND'>> {
     // Implementation would execute plugin command
     throw new Error('Plugin implementation pending')
   }
 
   async createPlugin(
-    manifest: PluginManifest
+    _manifest: PluginManifest
   ): Promise<Result<Plugin, 'INVALID_MANIFEST' | 'PLUGIN_CREATION_FAILED'>> {
     // Implementation would create new plugin from manifest
     throw new Error('Plugin implementation pending')
   }
 
   async validatePlugin(
-    pluginId: string
+    _pluginId: string
   ): Promise<Result<ValidationResult, 'PLUGIN_NOT_FOUND'>> {
     // Implementation would validate plugin structure and dependencies
     throw new Error('Plugin implementation pending')
   }
 
   async testPlugin(
-    pluginId: string,
-    testSuite?: PluginTestSuite
+    _pluginId: string,
+    _testSuite?: PluginTestSuite
   ): Promise<Result<PluginTestResult, 'PLUGIN_NOT_FOUND' | 'TEST_FAILED'>> {
     // Implementation would run plugin test suite
     throw new Error('Plugin implementation pending')
   }
 
   async getPluginSettings(
-    pluginId: string
+    _pluginId: string
   ): Promise<Result<PluginSettings, 'PLUGIN_NOT_FOUND'>> {
     // Implementation would retrieve plugin settings
     throw new Error('Plugin implementation pending')
   }
 
   async updatePluginSettings(
-    pluginId: string,
-    settings: Partial<PluginSettings>
+    _pluginId: string,
+    _settings: Partial<PluginSettings>
   ): Promise<
     Result<PluginSettings, 'PLUGIN_NOT_FOUND' | 'SETTINGS_UPDATE_FAILED'>
   > {
@@ -1024,39 +1028,39 @@ export class PluginManager implements PluginAPI {
   }
 
   async subscribeToPluginEvents(
-    pluginId: string,
-    callback: (event: PluginEvent) => void
+    _pluginId: string,
+    _callback: (event: PluginEvent) => void
   ): Promise<Result<UnsubscribeFn, 'PLUGIN_NOT_FOUND'>> {
     // Implementation would set up plugin event subscription
     throw new Error('Plugin implementation pending')
   }
 
   async subscribeToPluginRegistryEvents(
-    callback: (event: PluginRegistryEvent) => void
+    _callback: (event: PluginRegistryEvent) => void
   ): Promise<UnsubscribeFn> {
     // Implementation would set up registry event subscription
     throw new Error('Plugin implementation pending')
   }
 
   async publishPlugin(
-    pluginId: string,
-    marketplace: PluginMarketplace
+    _pluginId: string,
+    _marketplace: PluginMarketplace
   ): Promise<Result<PublishedPlugin, 'PLUGIN_NOT_FOUND' | 'PUBLISH_FAILED'>> {
     // Implementation would publish plugin to marketplace
     throw new Error('Plugin implementation pending')
   }
 
   async getMarketplacePlugins(
-    marketplace: PluginMarketplace,
-    filters?: MarketplaceFilters
+    _marketplace: PluginMarketplace,
+    _filters?: MarketplaceFilters
   ): Promise<PluginListing[]> {
     // Implementation would fetch marketplace plugins
     throw new Error('Plugin implementation pending')
   }
 
   async installFromMarketplace(
-    marketplace: PluginMarketplace,
-    pluginListingId: string
+    _marketplace: PluginMarketplace,
+    _pluginListingId: string
   ): Promise<Result<Plugin, 'MARKETPLACE_ERROR' | 'PLUGIN_INSTALL_FAILED'>> {
     // Implementation would install plugin from marketplace
     throw new Error('Plugin implementation pending')

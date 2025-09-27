@@ -8,6 +8,7 @@ import {
   KeyboardShortcutMap,
   ShortcutCategory,
   DEFAULT_KEYBOARD_SHORTCUTS,
+  KeyboardShortcutAction,
 } from '@/types'
 
 /**
@@ -481,7 +482,7 @@ export class KeyboardShortcutsManager {
 
     // Generate an ID if not provided
     if (!shortcut.id) {
-      shortcut.id = `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      shortcut.id = `custom-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
     }
 
     shortcut.userDefined = true

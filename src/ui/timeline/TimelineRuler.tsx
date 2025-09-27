@@ -22,7 +22,7 @@ export function TimelineRuler({
   const generateMarkers = () => {
     const markers = []
     const totalFrames = duration * frameRate
-    const pixelsPerSecond = (containerWidth * zoom) / duration
+    const _pixelsPerSecond = (containerWidth * zoom) / duration
 
     // Major markers (every second)
     for (let second = 0; second <= duration; second++) {

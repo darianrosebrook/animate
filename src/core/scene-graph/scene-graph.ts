@@ -10,7 +10,6 @@ import {
   Time,
   EvaluationContext,
   Result,
-  AnimatorError,
 } from '@/types'
 
 /**
@@ -320,7 +319,7 @@ export class SceneGraph {
   private evaluateProperty(
     value: PropertyValue,
     time: Time,
-    context: any
+    _context: any
   ): any {
     // Handle different property value types
     if (typeof value === 'number') {
@@ -503,7 +502,6 @@ export class SceneGraph {
     const u = 1.0 - t
     const tt = t * t
     const uu = u * u
-    const uuu = uu * u
     const ttt = tt * t
 
     // Cubic Bezier: B(t) = (1-t)^3*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3

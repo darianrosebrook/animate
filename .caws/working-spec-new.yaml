@@ -1,0 +1,41 @@
+id: MOTION-XXXX
+title: "Brief description of the feature/change"
+risk_tier: 2
+mode: feature
+change_budget:
+  max_files: 25
+  max_loc: 1200
+blast_radius:
+  modules: ["list", "affected", "modules"]
+  data_migration: false
+operational_rollback_slo: "15m"
+threats:
+  - "List potential risks or failure modes"
+scope:
+  in: ["files", "that", "will", "change"]
+  out: ["files", "that", "will", "not", "change"]
+invariants:
+  - "Important system invariants that must be maintained"
+  - "Behavioral guarantees that tests must verify"
+acceptance:
+  - id: A1
+    given: "context or preconditions"
+    when:  "action or trigger"
+    then:  "expected outcome or behavior"
+  - id: A2
+    given: "different context"
+    when:  "different action"
+    then:  "different expected outcome"
+non_functional:
+  a11y: ["accessibility requirements", "keyboard navigation", "screen reader support"]
+  perf: { render_thread_ms: 8, memory_mb: 256, gpu_memory_mb: 512 }
+  security: ["security requirements", "input validation", "resource limits"]
+contracts:
+  - type: openapi
+    path: "apps/contracts/api.yaml#/path/to/endpoint"
+observability:
+  logs: ["structured logs", "for monitoring", "and debugging"]
+  metrics: ["key metrics", "for performance", "tracking"]
+  traces: ["distributed traces", "for request", "correlation"]
+migrations: []
+rollback: ["rollback procedures", "feature flags", "data migration reversal"]

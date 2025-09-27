@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError } from '@/types'
+import { Result } from '@/types'
 import { TimelineHistory as ITimelineHistory } from './timeline-types'
 import { Timeline } from './timeline'
 

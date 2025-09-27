@@ -6,7 +6,7 @@
 
 import type { Time, Result } from './animator-api'
 
-import type { SceneNode } from './scene-graph'
+import type { SceneNode } from '@/types'
 
 /**
  * Real-time collaboration interface
@@ -14,13 +14,13 @@ import type { SceneNode } from './scene-graph'
 export interface CollaborationAPI {
   // Session management
   createSession(
-    documentId: string,
+    _documentId: string,
     participants: ParticipantInfo[]
   ): Promise<
     Result<CollaborationSession, 'DOCUMENT_NOT_FOUND' | 'INVALID_PARTICIPANTS'>
   >
   joinSession(
-    sessionId: string,
+    _sessionId: string,
     participant: ParticipantInfo
   ): Promise<
     Result<
@@ -41,24 +41,24 @@ export interface CollaborationAPI {
 
   // Presence and cursors
   updatePresence(
-    sessionId: string,
+    _sessionId: string,
     presence: Presence
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'NOT_PARTICIPANT'>>
   getParticipants(
     sessionId: string
   ): Promise<Result<Participant[], 'SESSION_NOT_FOUND'>>
   getPresence(
-    sessionId: string,
+    _sessionId: string,
     userId: string
   ): Promise<Result<Presence, 'SESSION_NOT_FOUND' | 'USER_NOT_FOUND'>>
 
   // Document synchronization
   subscribeToChanges(
-    sessionId: string,
+    _sessionId: string,
     callback: (changes: DocumentChange[]) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>>
   applyChanges(
-    sessionId: string,
+    _sessionId: string,
     changes: DocumentChange[]
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'CONFLICT_RESOLUTION_FAILED'>>
   getDocumentSnapshot(
@@ -79,21 +79,21 @@ export interface CollaborationAPI {
 
   // Permissions and access control
   setPermissions(
-    sessionId: string,
+    _sessionId: string,
     permissions: SessionPermissions
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'NOT_HOST'>>
   getPermissions(
     sessionId: string
   ): Promise<Result<SessionPermissions, 'SESSION_NOT_FOUND'>>
   grantPermission(
-    sessionId: string,
+    _sessionId: string,
     userId: string,
     permission: string
   ): Promise<
     Result<void, 'SESSION_NOT_FOUND' | 'NOT_HOST' | 'INVALID_PERMISSION'>
   >
   revokePermission(
-    sessionId: string,
+    _sessionId: string,
     userId: string,
     permission: string
   ): Promise<
@@ -102,7 +102,7 @@ export interface CollaborationAPI {
 
   // Comments and annotations
   addComment(
-    sessionId: string,
+    _sessionId: string,
     comment: Comment
   ): Promise<Result<Comment, 'SESSION_NOT_FOUND' | 'INVALID_COMMENT'>>
   updateComment(
@@ -113,7 +113,7 @@ export interface CollaborationAPI {
     commentId: string
   ): Promise<Result<void, 'COMMENT_NOT_FOUND' | 'NOT_AUTHOR'>>
   getComments(
-    sessionId: string,
+    _sessionId: string,
     filters?: CommentFilters
   ): Promise<Result<Comment[], 'SESSION_NOT_FOUND'>>
   resolveComment(
@@ -123,25 +123,25 @@ export interface CollaborationAPI {
 
   // Activity and history
   getActivityFeed(
-    sessionId: string,
+    _sessionId: string,
     options?: ActivityFeedOptions
   ): Promise<Result<ActivityItem[], 'SESSION_NOT_FOUND'>>
   getDocumentHistory(
-    sessionId: string,
+    _sessionId: string,
     options?: HistoryOptions
   ): Promise<Result<DocumentHistory, 'SESSION_NOT_FOUND'>>
 
   // Events and subscriptions
   subscribeToSessionEvents(
-    sessionId: string,
+    _sessionId: string,
     callback: (event: SessionEvent) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>>
   subscribeToPresenceChanges(
-    sessionId: string,
+    _sessionId: string,
     callback: (changes: PresenceChange[]) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>>
   subscribeToCommentChanges(
-    sessionId: string,
+    _sessionId: string,
     callback: (changes: CommentChange[]) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>>
 }
@@ -559,27 +559,27 @@ export enum CommentChangeType {
 export interface AdvancedCollaborationAPI {
   // Branching and merging
   createBranch(
-    sessionId: string,
+    _sessionId: string,
     name: string,
     baseVersion?: number
   ): Promise<Result<HistoryBranch, 'SESSION_NOT_FOUND' | 'BRANCH_EXISTS'>>
   switchBranch(
-    sessionId: string,
+    _sessionId: string,
     branchId: string
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'BRANCH_NOT_FOUND'>>
   mergeBranch(
-    sessionId: string,
+    _sessionId: string,
     sourceBranchId: string,
     targetBranchId: string
   ): Promise<Result<MergeResult, 'SESSION_NOT_FOUND' | 'MERGE_CONFLICT'>>
 
   // Review workflows
   createReview(
-    sessionId: string,
+    _sessionId: string,
     review: Review
   ): Promise<Result<Review, 'SESSION_NOT_FOUND' | 'INVALID_REVIEW'>>
   submitForReview(
-    sessionId: string,
+    _sessionId: string,
     reviewId: string
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'NOT_AUTHORIZED'>>
   approveReview(
@@ -593,17 +593,17 @@ export interface AdvancedCollaborationAPI {
 
   // Real-time communication
   sendMessage(
-    sessionId: string,
+    _sessionId: string,
     message: ChatMessage
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'NOT_PARTICIPANT'>>
   getMessages(
-    sessionId: string,
+    _sessionId: string,
     options?: MessageOptions
   ): Promise<Result<ChatMessage[], 'SESSION_NOT_FOUND'>>
 
   // Notification system
   subscribeToNotifications(
-    sessionId: string,
+    _sessionId: string,
     callback: (notification: Notification) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>>
   markNotificationRead(
@@ -612,11 +612,11 @@ export interface AdvancedCollaborationAPI {
 
   // Integration with external systems
   syncWithGit(
-    documentId: string,
+    _documentId: string,
     gitOptions: GitSyncOptions
   ): Promise<Result<GitSyncResult, 'GIT_ERROR'>>
   exportToVersionControl(
-    sessionId: string,
+    _sessionId: string,
     format: VersionControlFormat
   ): Promise<Result<Blob, 'SESSION_NOT_FOUND' | 'UNSUPPORTED_FORMAT'>>
 }
@@ -778,7 +778,7 @@ export enum VersionControlFormat {
  */
 export class CollaborationManager implements CollaborationAPI {
   async createSession(
-    documentId: string,
+    _documentId: string,
     participants: ParticipantInfo[]
   ): Promise<
     Result<CollaborationSession, 'DOCUMENT_NOT_FOUND' | 'INVALID_PARTICIPANTS'>
@@ -788,7 +788,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async joinSession(
-    sessionId: string,
+    _sessionId: string,
     participant: ParticipantInfo
   ): Promise<
     Result<
@@ -827,7 +827,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async updatePresence(
-    sessionId: string,
+    _sessionId: string,
     presence: Presence
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'NOT_PARTICIPANT'>> {
     // Implementation would update user presence
@@ -842,7 +842,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async getPresence(
-    sessionId: string,
+    _sessionId: string,
     userId: string
   ): Promise<Result<Presence, 'SESSION_NOT_FOUND' | 'USER_NOT_FOUND'>> {
     // Implementation would return specific user presence
@@ -850,7 +850,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async subscribeToChanges(
-    sessionId: string,
+    _sessionId: string,
     callback: (changes: DocumentChange[]) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>> {
     // Implementation would set up change subscription
@@ -858,7 +858,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async applyChanges(
-    sessionId: string,
+    _sessionId: string,
     changes: DocumentChange[]
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'CONFLICT_RESOLUTION_FAILED'>> {
     // Implementation would apply changes with conflict detection
@@ -895,7 +895,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async setPermissions(
-    sessionId: string,
+    _sessionId: string,
     permissions: SessionPermissions
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'NOT_HOST'>> {
     // Implementation would update session permissions
@@ -910,7 +910,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async grantPermission(
-    sessionId: string,
+    _sessionId: string,
     userId: string,
     permission: string
   ): Promise<
@@ -921,7 +921,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async revokePermission(
-    sessionId: string,
+    _sessionId: string,
     userId: string,
     permission: string
   ): Promise<
@@ -932,7 +932,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async addComment(
-    sessionId: string,
+    _sessionId: string,
     comment: Comment
   ): Promise<Result<Comment, 'SESSION_NOT_FOUND' | 'INVALID_COMMENT'>> {
     // Implementation would add comment to session
@@ -955,7 +955,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async getComments(
-    sessionId: string,
+    _sessionId: string,
     filters?: CommentFilters
   ): Promise<Result<Comment[], 'SESSION_NOT_FOUND'>> {
     // Implementation would retrieve comments with filters
@@ -971,7 +971,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async getActivityFeed(
-    sessionId: string,
+    _sessionId: string,
     options?: ActivityFeedOptions
   ): Promise<Result<ActivityItem[], 'SESSION_NOT_FOUND'>> {
     // Implementation would retrieve activity feed
@@ -979,7 +979,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async getDocumentHistory(
-    sessionId: string,
+    _sessionId: string,
     options?: HistoryOptions
   ): Promise<Result<DocumentHistory, 'SESSION_NOT_FOUND'>> {
     // Implementation would retrieve document history
@@ -987,7 +987,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async subscribeToSessionEvents(
-    sessionId: string,
+    _sessionId: string,
     callback: (event: SessionEvent) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>> {
     // Implementation would set up session event subscription
@@ -995,7 +995,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async subscribeToPresenceChanges(
-    sessionId: string,
+    _sessionId: string,
     callback: (changes: PresenceChange[]) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>> {
     // Implementation would set up presence change subscription
@@ -1003,7 +1003,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async subscribeToCommentChanges(
-    sessionId: string,
+    _sessionId: string,
     callback: (changes: CommentChange[]) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>> {
     // Implementation would set up comment change subscription

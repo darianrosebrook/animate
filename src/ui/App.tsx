@@ -5,7 +5,6 @@ import {
   SceneGraph,
   createRectangleNode,
   createCircleNode,
-  createTransformNode,
 } from '@/core/scene-graph'
 import { Renderer } from '@/core/renderer'
 import {
@@ -21,7 +20,7 @@ import './components/KeyboardShortcutsHelp.css'
 import './components/KeyboardShortcutsSettings.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [_count, _setCount] = useState(0)
   const [webgpuSupported, setWebgpuSupported] = useState<boolean | null>(null)
   const [sceneGraph] = useState(() => new SceneGraph())
   const [renderer, setRenderer] = useState<Renderer | null>(null)
@@ -132,7 +131,7 @@ function App() {
           canvas: canvasConfig,
         }
 
-        await renderer.renderFrame(sceneGraph, 0.0, context)
+        await renderer?.renderFrame(sceneGraph, 0.0, context)
       } else {
         console.error('Failed to initialize renderer:', result.error)
       }
@@ -219,7 +218,7 @@ function App() {
       const nodeResult = sceneGraph.getNode(track.targetNodeId)
       if (!nodeResult.success) return
 
-      const node = nodeResult.data
+      const _node = nodeResult.data
 
       // Evaluate keyframes for this track
       const evaluatedValue = evaluateTrackAtTime(

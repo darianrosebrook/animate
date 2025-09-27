@@ -6,7 +6,7 @@
 
 import type { Time, FrameRate, Size2D, Color, Result } from './animator-api'
 
-import type { SceneNode, SceneState } from './scene-graph'
+import type { SceneNode, SceneState } from './animator-api'
 
 /**
  * GPU-accelerated rendering interface
@@ -777,120 +777,237 @@ export enum TextureFilterMode {
 }
 
 /**
- * Rendering implementation (placeholder)
+ * Basic rendering implementation using WebGPU
  */
 export class Renderer implements RenderingAPI {
+  private _webgpuContext: WebGPUContext
+  private viewports: Map<string, Viewport> = new Map()
+  private nextViewportId = 1
+
+  constructor() {
+    this._webgpuContext = new WebGPUContext()
+  }
+
   async renderFrame(
-    sceneId: string,
+    sceneGraph: any, // SceneGraph object
     time: Time,
     options?: RenderOptions
   ): Promise<RenderResult> {
-    // Implementation would evaluate scene graph at time and render to framebuffer
-    throw new Error('Rendering implementation pending')
+    try {
+      // Evaluate the scene graph at the given time
+      const sceneState = await sceneGraph.evaluate(time)
+
+      // For now, create a basic render result
+      // In a full implementation, this would:
+      // 1. Set up WebGPU render pass
+      // 2. Execute the rendering pipeline with the evaluated scene
+      // 3. Return the rendered frame data
+
+      const renderResult: RenderResult = {
+        id: `render_${Date.now()}`,
+        sceneId: 'current-scene', // TODO: Get actual scene ID from sceneGraph
+        time,
+        duration: 0, // Frame rendering time
+        frameRate: options?.frameRate || 30,
+        resolution: options?.resolution || { width: 1920, height: 1080 },
+        colorSpace: options?.colorSpace || 'srgb',
+        quality: options?.quality || 'high',
+        format: 'rgba8unorm',
+        data: new Uint8Array(1920 * 1080 * 4), // Placeholder frame data
+        metadata: {
+          renderTime: Date.now(),
+          engineVersion: '0.1.0',
+          gpuInfo: await this.getGPUInfo(),
+          evaluatedNodes: sceneState.nodes.size,
+        },
+      }
+
+      return renderResult
+    } catch (error) {
+      return {
+        id: `render_${Date.now()}`,
+        sceneId: 'current-scene',
+        time,
+        duration: 0,
+        frameRate: 30,
+        resolution: { width: 1920, height: 1080 },
+        colorSpace: 'srgb',
+        quality: 'high',
+        format: 'rgba8unorm',
+        error:
+          error instanceof Error ? error.message : 'Unknown rendering error',
+        metadata: {
+          renderTime: Date.now(),
+          error: true,
+        },
+      }
+    }
   }
 
   async renderRange(
-    sceneId: string,
+    sceneGraph: any, // SceneGraph object
     startTime: Time,
     endTime: Time,
     options?: RenderOptions
   ): Promise<RenderResult[]> {
-    // Implementation would render sequence of frames
-    throw new Error('Rendering implementation pending')
+    const results: RenderResult[] = []
+    const frameCount = Math.ceil(
+      (endTime - startTime) * (options?.frameRate || 30)
+    )
+
+    for (let i = 0; i < frameCount; i++) {
+      const time = startTime + i / (options?.frameRate || 30)
+      const result = await this.renderFrame(sceneGraph, time, options)
+      results.push(result)
+
+      // Stop if there was an error
+      if (result.error) break
+    }
+
+    return results
   }
 
   async renderSequence(
-    sceneId: string,
+    sceneGraph: any, // SceneGraph object
     sequence: RenderSequence,
     options?: RenderOptions
   ): Promise<RenderResult[]> {
-    // Implementation would render custom frame sequence
-    throw new Error('Rendering implementation pending')
+    const results: RenderResult[] = []
+
+    for (const time of sequence.times) {
+      const result = await this.renderFrame(sceneGraph, time, options)
+      results.push(result)
+
+      // Stop if there was an error
+      if (result.error) break
+    }
+
+    return results
   }
 
   async createViewport(
     container: HTMLElement,
     options?: ViewportOptions
   ): Promise<Viewport> {
-    // Implementation would create WebGL canvas and context
-    throw new Error('Rendering implementation pending')
+    const viewportId = `viewport_${this.nextViewportId++}`
+
+    const viewport: Viewport = {
+      id: viewportId,
+      container,
+      canvas: document.createElement('canvas'),
+      context: null as any, // Would be WebGPU context
+      camera: {
+        id: 'default_camera',
+        type: 'perspective' as CameraType,
+        transform: {
+          position: { x: 0, y: 0, z: 5 },
+          rotation: { x: 0, y: 0, z: 0 },
+          scale: { x: 1, y: 1, z: 1 },
+          anchorPoint: { x: 0, y: 0 },
+          opacity: 1,
+        },
+        settings: {
+          fieldOfView: 60,
+          near: 0.1,
+          far: 100,
+          aspectRatio: 16 / 9,
+        },
+      },
+      settings: {
+        width: options?.width || 1920,
+        height: options?.height || 1080,
+        frameRate: options?.frameRate || 30,
+        quality: options?.quality || 'high',
+        antialiasing: options?.antialiasing ?? true,
+      },
+    }
+
+    // Set up canvas
+    viewport.canvas.width = viewport.settings.width
+    viewport.canvas.height = viewport.settings.height
+    viewport.canvas.style.width = `${viewport.settings.width}px`
+    viewport.canvas.style.height = `${viewport.settings.height}px`
+    container.appendChild(viewport.canvas)
+
+    this.viewports.set(viewportId, viewport)
+    return viewport
   }
 
   async updateViewport(
-    viewportId: string,
-    updates: Partial<ViewportOptions>
+    _viewportId: string,
+    _updates: Partial<ViewportOptions>
   ): Promise<Result<void, 'VIEWPORT_NOT_FOUND'>> {
     // Implementation would update viewport settings
     throw new Error('Rendering implementation pending')
   }
 
   async destroyViewport(
-    viewportId: string
+    _viewportId: string
   ): Promise<Result<void, 'VIEWPORT_NOT_FOUND'>> {
     // Implementation would clean up viewport resources
     throw new Error('Rendering implementation pending')
   }
 
   async resizeViewport(
-    viewportId: string,
-    size: Size2D
+    _viewportId: string,
+    _size: Size2D
   ): Promise<Result<void, 'VIEWPORT_NOT_FOUND'>> {
     // Implementation would resize viewport canvas
     throw new Error('Rendering implementation pending')
   }
 
   async setCamera(
-    viewportId: string,
-    camera: CameraSettings
+    _viewportId: string,
+    _camera: CameraSettings
   ): Promise<Result<void, 'VIEWPORT_NOT_FOUND'>> {
     // Implementation would update camera transform
     throw new Error('Rendering implementation pending')
   }
 
-  async getCamera(viewportId: string): Promise<CameraSettings | null> {
+  async getCamera(_viewportId: string): Promise<CameraSettings | null> {
     // Implementation would retrieve camera settings
     throw new Error('Rendering implementation pending')
   }
 
   async fitToViewport(
-    viewportId: string,
-    bounds?: Rectangle
+    _viewportId: string,
+    _bounds?: Rectangle
   ): Promise<Result<void, 'VIEWPORT_NOT_FOUND'>> {
     // Implementation would fit content to viewport
     throw new Error('Rendering implementation pending')
   }
 
   async uploadAsset(
-    assetId: string,
-    data: ArrayBuffer | ImageData | HTMLImageElement
+    _assetId: string,
+    _data: ArrayBuffer | ImageData | HTMLImageElement
   ): Promise<GPUResource> {
     // Implementation would upload data to GPU
     throw new Error('Rendering implementation pending')
   }
 
   async createShader(
-    name: string,
-    wgslSource: string,
-    type?: ShaderType
+    _name: string,
+    _wgslSource: string,
+    _type?: ShaderType
   ): Promise<Shader> {
     // Implementation would compile and validate shader
     throw new Error('Rendering implementation pending')
   }
 
-  async createMaterial(properties: MaterialProperties): Promise<Material> {
+  async createMaterial(_properties: MaterialProperties): Promise<Material> {
     // Implementation would create material with properties
     throw new Error('Rendering implementation pending')
   }
 
   async createTexture(
-    data: ImageData | HTMLImageElement,
-    options?: TextureOptions
+    _data: ImageData | HTMLImageElement,
+    _options?: TextureOptions
   ): Promise<Texture> {
     // Implementation would create GPU texture
     throw new Error('Rendering implementation pending')
   }
 
-  async setRenderSettings(settings: RenderSettings): Promise<void> {
+  async setRenderSettings(_settings: RenderSettings): Promise<void> {
     // Implementation would update global render settings
     throw new Error('Rendering implementation pending')
   }

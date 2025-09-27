@@ -20,6 +20,7 @@ This directory contains the comprehensive technical documentation for the **Anim
 - **[🤝 Collaboration Strategy](collaboration-strategy.md)** - Comprehensive multi-player editing and real-time collaboration framework
 - **[🤝 Collaboration Plan](collaboration.plan.md)** - CAWS-compliant feature plan for real-time multi-player editing
 - **[🧪 Collaboration Tests](collaboration.test-plan.md)** - Comprehensive testing strategy for collaboration system
+- **[📁 CAWS Structure](caws-structure.md)** - Complete file structure and organization guide for the CAWS framework
 - **[🎯 Original Vision](v.0.plan.md)** - Product vision, competitive analysis, and strategic positioning
 
 ### **Project Overview**
@@ -34,7 +35,9 @@ This directory contains the comprehensive technical documentation for the **Anim
 - **[🏗️ Milestone 1: Core Infrastructure](../implementation/milestones/milestone-1-core-infrastructure/README.md)** - Development environment and build system
 - **[🏗️ Milestone 2: Scene Graph](../implementation/milestones/milestone-2-scene-graph/README.md)** - Core data model implementation
 - **[🏗️ Milestone 3: Basic Rendering](../implementation/milestones/milestone-3-basic-rendering/README.md)** - WebGPU rendering pipeline
-- **[🏗️ Milestone 4: Timeline System](../implementation/milestones/milestone-4-timeline-system/README.md)** - Animation interface (planned)
+- **[🏗️ Milestone 4: Timeline System](../implementation/milestones/milestone-4-timeline-system/README.md)** - Animation interface ✅
+- **[🏗️ Milestone 5: Effects System](../implementation/milestones/milestone-5-effects-system/README.md)** - GPU-accelerated visual effects 🚧
+- **[🏗️ Milestone 6: Media Pipeline](../implementation/milestones/milestone-6-media-pipeline/README.md)** - Video and image handling ⏳
 
 ## 🎯 Current Focus: Risk Tier 1 Implementation
 
@@ -166,19 +169,30 @@ Time Scrub  Scene State  Topological Order   Property Animation   Render Ready
 - **Scene Integration**: Scene graph to GPU rendering pipeline
 - **UI Demo**: Interactive React app with real-time rendering
 
-### 🚧 **Next Milestone: Timeline System**
-- Keyframe animation system implementation
-- Interactive timeline interface
-- Visual animation curve editing
-- Playback controls and scrubbing
+#### **Milestone 4: Timeline System** ✅ COMPLETE
+- **Keyframe Animation**: Keyframe-based animation system with advanced interpolation
+- **Timeline UI**: Interactive timeline interface with scrubber and controls
+- **Curve Editor**: Visual animation curve editing with bezier handles
+- **Playback System**: Real-time playback with speed controls and loop functionality
+- **Dope Sheet**: Efficient keyframe management view
+
+### 🚧 **Next Milestone: Effects System**
+- GPU-accelerated effects system with real-time performance
+- Effect composition pipeline with layer blending
+- Timeline integration for effect animation
+- Professional effects library (glow, blur, color grading)
 
 ### 📅 **Future Milestones**
+- **Milestone 6: Media Pipeline** - Video and image import/playback with GPU acceleration
+- **Milestone 7: Export System** - Professional video rendering and format support
+- **Milestone 8: Collaboration** - Real-time multi-player editing with CRDTs
+- **Milestone 9: Library Management** - Enterprise-grade asset library system
 - **Audio synchronization system**
 - **Plugin architecture**
 - **Advanced 3D support**
 - **Motion token system**
-- **Library management system**
-- **Real-time collaboration features**
+- **Workspace management**
+- **Developer mode**
 
 ---
 

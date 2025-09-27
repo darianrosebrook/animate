@@ -8,6 +8,7 @@ import {
   ShapeType,
 } from './nodes/shape-node'
 import { NodeType, InterpolationMode } from '@/types'
+import { describe, it, expect, beforeEach } from 'vitest'
 
 describe('SceneGraph', () => {
   let sceneGraph: SceneGraph

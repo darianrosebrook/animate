@@ -4,38 +4,130 @@
  * @author @darianrosebrook
  */
 
+import { Keyframe, RenderQuality, ColorSpace, TrackType, PluginSourceType } from '@/types'
 import {
-  AnimatorAPI,
-  getAnimatorAPI,
-  initializeAnimatorAPI,
-  NodeType,
+  TemplateCategory,
   InterpolationMode,
-  RenderQuality,
-  ColorSpace,
-  TrackType,
+  NodeType,
   FRAME_RATE_PRESETS,
-  DEFAULTS,
-  Utils,
-  type Keyframe,
-  type Time,
-  type BaseNode,
-  type Document,
-  type Scene,
-  type Timeline,
-} from './animator-api'
+} from '@/types'
+
+// Import the API functions
+import { Animator } from './animator-api'
+
+// Mock API functions for examples
+function getAnimatorAPI() {
+  return new Animator()
+}
 
 /**
  * Example 1: Creating a basic animated title sequence
  */
 export async function createTitleSequenceExample(): Promise<void> {
-  // Initialize the API
-  const api = initializeAnimatorAPI()
+  // Mock API object for examples
+  const api = {
+    createDocument: async (config: any) => ({
+      id: 'doc_123',
+      name: config.name,
+      description: config.description,
+      version: '1.0.0',
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      author: 'user_123',
+      scenes: [{ 
+        id: 'scene_1',
+        name: 'Scene 1', 
+        duration: 5, 
+        frameRate: 30,
+        rootNode: 'root_1',
+        nodes: [],
+        camera: { position: { x: 0, y: 0, z: 0 }, target: { x: 0, y: 0, z: 0 } },
+        settings: { backgroundColor: { r: 0, g: 0, b: 0, a: 1 } }
+      }],
+      settings: {
+        timeline: { duration: 5, frameRate: 30 },
+        rendering: { quality: 'high' as any },
+        audio: { sampleRate: 44100 }
+      },
+      metadata: {
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+        version: '1.0.0'
+      }
+    }),
+    sceneGraph: {
+      createNode: async (type: any, _parentId?: string) => ({
+        id: 'node_123',
+        type,
+      }),
+      updateNode: async (nodeId: string, updates: any) => ({
+        id: nodeId,
+        ...updates,
+      }),
+      setProperty: async (_nodeId: string, _key: string, _value: any) => {},
+    },
+    timeline: {
+      createTimeline: async (
+        name: string,
+        duration: number,
+        frameRate: number
+      ) => ({
+        id: 'timeline_123',
+        name,
+        duration,
+        frameRate,
+        tracks: [
+          {
+            id: 'track_1',
+            name: 'Scale Track',
+            type: 'property' as any,
+            keyframes: [],
+            targetPath: 'transform.scale',
+            solo: false,
+            color: '#ff6b35',
+            height: 40,
+            properties: {
+              volume: 1,
+              blendMode: 'normal' as any,
+              opacity: 1,
+              visible: true,
+            },
+          },
+        ],
+        markers: [],
+        playbackState: {
+          isPlaying: false,
+          currentTime: 0,
+          playbackSpeed: 1,
+          loop: false,
+        },
+        settings: {
+          snapToGrid: true,
+          gridSize: 1 / frameRate,
+          autoScroll: true,
+          showWaveforms: true,
+          showKeyframes: true,
+          zoom: 1,
+          verticalScroll: 0,
+          horizontalScroll: 0,
+        },
+        metadata: {
+          createdAt: new Date(),
+          modifiedAt: new Date(),
+          version: '1.0.0',
+        },
+      }),
+      addKeyframe: async (_trackId: string, _keyframe: any) => {
+        console.log('Mock addKeyframe called')
+      },
+    },
+  }
 
   try {
     // Create a new document
     const document = await api.createDocument({
       name: 'My Title Sequence',
-      category: 'title_sequence',
+      category: TemplateCategory.TitleSequence,
     })
 
     console.log(`Created document: ${document.name} (${document.id})`)
@@ -49,7 +141,7 @@ export async function createTitleSequenceExample(): Promise<void> {
     // Create text node for the title
     const titleNode = await api.sceneGraph.createNode(
       NodeType.Text,
-      scene.rootNode
+      scene.rootNode // parentId parameter (unused in this example)
     )
     await api.sceneGraph.updateNode(titleNode.id, {
       name: 'Main Title',
@@ -73,7 +165,7 @@ export async function createTitleSequenceExample(): Promise<void> {
     const timeline = await api.timeline.createTimeline(
       'Main Timeline',
       5000, // 5 seconds
-      FRAME_RATE_PRESETS.HDTV_60
+      FRAME_RATE_PRESETS['60']
     )
 
     // Add scale animation to title
@@ -135,29 +227,23 @@ export async function collaborationExample(): Promise<void> {
     // Create a document for team collaboration
     const document = await api.createDocument({
       name: 'Team Project',
+      description: 'Collaborative project for team development',
+      category: TemplateCategory.TitleSequence,
+      sceneTemplate: {
+        name: 'Main Scene',
+        description: 'Primary scene template',
+        nodes: [],
+      },
     })
 
     // Start a collaboration session
-    const session = await api.collaboration.createSession(document.id, [
-      {
-        userId: 'user_1',
-        name: 'Alice (Designer)',
-        color: '#FF6B6B',
-        permissions: ['edit', 'comment'],
-      },
-      {
-        userId: 'user_2',
-        name: 'Bob (Animator)',
-        color: '#4ECDC4',
-        permissions: ['edit', 'comment'],
-      },
-      {
-        userId: 'user_3',
-        name: 'Carol (Reviewer)',
-        color: '#45B7D1',
-        permissions: ['comment', 'export'],
-      },
-    ])
+    const session = await api.collaboration.createSession(document.id, {
+      maxParticipants: 10,
+      allowAnonymous: false,
+      requireApproval: false,
+      enableVoiceChat: true,
+      enableScreenShare: true,
+    })
 
     console.log(`Collaboration session started: ${session.id}`)
 
@@ -168,14 +254,14 @@ export async function collaborationExample(): Promise<void> {
         console.log('Document changes received:', changes.length)
 
         changes.forEach((change) => {
-          console.log(`- ${change.author} ${change.type} at ${change.path}`)
+          console.log(`- ${change.authorId} ${change.type} at ${change.path}`)
         })
       }
     )
 
     // Simulate Alice adding a new scene
     const aliceScene = await api.sceneGraph.createNode(
-      NodeType.Composition,
+      NodeType.Group,
       document.scenes[0].rootNode
     )
     await api.sceneGraph.updateNode(aliceScene.id, {
@@ -193,13 +279,7 @@ export async function collaborationExample(): Promise<void> {
     })
 
     // Simulate Carol adding a comment
-    const comment = {
-      type: 'comment',
-      content:
-        'Love the color palette! Consider making it a bit brighter for better contrast.',
-      time: 1000,
-      author: 'Carol',
-    }
+    console.log('Carol added a comment: "Love the color palette! Consider making it a bit brighter for better contrast."')
 
     // Clean up subscription
     unsubscribe()
@@ -216,11 +296,20 @@ export async function advancedRenderingExample(): Promise<void> {
 
   try {
     // Create a complex scene with multiple layers
-    const document = await api.createDocument()
+    const document = await api.createDocument({
+      name: 'Advanced Rendering Example',
+      description: 'Complex scene with multiple layers and effects',
+      category: TemplateCategory.Explainer,
+      sceneTemplate: {
+        name: 'Main Scene',
+        description: 'Primary scene template',
+        nodes: [],
+      },
+    })
     const scene = document.scenes[0]
 
     // Create background layer
-    const background = await api.sceneGraph.createNode(NodeType.Rectangle)
+    const background = await api.sceneGraph.createNode(NodeType.Shape)
     await api.sceneGraph.setProperties(background.id, {
       width: 1920,
       height: 1080,
@@ -228,14 +317,14 @@ export async function advancedRenderingExample(): Promise<void> {
     })
 
     // Create animated shapes
-    const circle1 = await api.sceneGraph.createNode(NodeType.Ellipse)
+    const circle1 = await api.sceneGraph.createNode(NodeType.Shape)
     await api.sceneGraph.setProperties(circle1.id, {
       width: 100,
       height: 100,
       fillColor: { r: 1, g: 0.3, b: 0.5, a: 1 },
     })
 
-    const circle2 = await api.sceneGraph.createNode(NodeType.Ellipse)
+    const circle2 = await api.sceneGraph.createNode(NodeType.Shape)
     await api.sceneGraph.setProperties(circle2.id, {
       width: 80,
       height: 80,
@@ -250,7 +339,7 @@ export async function advancedRenderingExample(): Promise<void> {
     const timeline = await api.timeline.createTimeline(
       'Advanced Animation',
       8000, // 8 seconds
-      FRAME_RATE_PRESETS.HDTV_60
+      FRAME_RATE_PRESETS['60']
     )
 
     // Animate circle positions with different easing
@@ -294,17 +383,17 @@ export async function advancedRenderingExample(): Promise<void> {
       {
         time: 2000,
         value: { x: 1400, y: 800 },
-        interpolation: InterpolationMode.Bounce,
+        interpolation: InterpolationMode.Bezier,
       },
       {
         time: 4000,
         value: { x: 500, y: 300 },
-        interpolation: InterpolationMode.Bounce,
+        interpolation: InterpolationMode.Bezier,
       },
       {
         time: 6000,
         value: { x: 1400, y: 800 },
-        interpolation: InterpolationMode.Bounce,
+        interpolation: InterpolationMode.Bezier,
       },
       {
         time: 8000,
@@ -322,10 +411,10 @@ export async function advancedRenderingExample(): Promise<void> {
     }
 
     // Render the animation
-    const renderResult = await api.rendering.renderRange(scene.id, 0, 8000, {
-      quality: RenderQuality.Final,
+    const renderResult = await api.rendering.renderSequence(scene.id, 0, 8000, {
+      quality: RenderQuality.Ultra,
       resolution: { width: 1920, height: 1080 },
-      frameRate: FRAME_RATE_PRESETS.HDTV_60,
+      frameRate: FRAME_RATE_PRESETS['60'],
       colorSpace: ColorSpace.sRGB,
       includeAudio: false,
       cache: true,
@@ -391,7 +480,7 @@ export async function pluginDevelopmentExample(): Promise<void> {
 
     // Install the plugin
     const plugin = await api.plugins.installPlugin(glowEffectPlugin.id, {
-      type: 'url',
+      type: PluginSourceType.URL,
       url: 'https://example.com/plugins/glow-effect.js',
     })
 
@@ -448,7 +537,7 @@ export async function audioReactiveExample(): Promise<void> {
     // Create visual elements that react to audio
     const spectrumBars: string[] = []
     for (let i = 0; i < 20; i++) {
-      const bar = await api.sceneGraph.createNode(NodeType.Rectangle)
+      const bar = await api.sceneGraph.createNode(NodeType.Shape)
       await api.sceneGraph.setProperties(bar.id, {
         width: 20,
         height: 100,
@@ -462,7 +551,7 @@ export async function audioReactiveExample(): Promise<void> {
     const timeline = await api.timeline.createTimeline(
       'Audio Reactive',
       60000, // 1 minute
-      FRAME_RATE_PRESETS.HDTV_60
+      FRAME_RATE_PRESETS['60']
     )
 
     // Create audio analysis track
@@ -544,9 +633,9 @@ export async function batchRenderingExample(): Promise<void> {
           sceneId,
           outputName: `${doc.name}_${sceneId}`,
           settings: {
-            quality: RenderQuality.Final,
+            quality: RenderQuality.Ultra,
             resolution: { width: 1920, height: 1080 },
-            frameRate: FRAME_RATE_PRESETS.HDTV_60,
+            frameRate: FRAME_RATE_PRESETS['60'],
             colorSpace: ColorSpace.Rec709,
             format: 'mp4',
           },
@@ -635,7 +724,7 @@ export async function viewportExample(): Promise<void> {
     const scene = document.scenes[0]
 
     // Create some animated content
-    const rect = await api.sceneGraph.createNode(NodeType.Rectangle)
+    const rect = await api.sceneGraph.createNode(NodeType.Shape)
     await api.sceneGraph.setProperties(rect.id, {
       width: 200,
       height: 150,
@@ -738,7 +827,7 @@ export async function performanceMonitoringExample(): Promise<void> {
     // Create a complex scene for performance testing
     const nodes = []
     for (let i = 0; i < 100; i++) {
-      const node = await api.sceneGraph.createNode(NodeType.Rectangle)
+      const node = await api.sceneGraph.createNode(NodeType.Shape)
       await api.sceneGraph.setProperties(node.id, {
         width: 50,
         height: 50,
@@ -761,7 +850,7 @@ export async function performanceMonitoringExample(): Promise<void> {
     const timeline = await api.timeline.createTimeline(
       'Performance Test',
       5000,
-      FRAME_RATE_PRESETS.HDTV_60
+      FRAME_RATE_PRESETS['60']
     )
 
     // Add movement animation to all nodes
@@ -801,7 +890,7 @@ export async function performanceMonitoringExample(): Promise<void> {
       await api.rendering.renderFrame(scene.id, time, {
         quality: RenderQuality.Preview,
         resolution: { width: 1920, height: 1080 },
-        frameRate: FRAME_RATE_PRESETS.HDTV_60,
+        frameRate: FRAME_RATE_PRESETS['60'],
         cache: true,
       })
 
@@ -1035,15 +1124,4 @@ export async function runAllExamples(): Promise<void> {
 }
 
 // Export individual examples for selective testing
-export {
-  createTitleSequenceExample,
-  collaborationExample,
-  advancedRenderingExample,
-  pluginDevelopmentExample,
-  audioReactiveExample,
-  batchRenderingExample,
-  viewportExample,
-  performanceMonitoringExample,
-  templateExample,
-  errorHandlingExample,
-}
+// All examples are already exported at the function level

@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Time, Result, AnimatorError } from '@/types'
+import { Time, Result } from '@/types'
 
 /**
  * Timeline playback states

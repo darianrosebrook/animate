@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError, Point2D, Size2D, Color } from '@/types'
+import { Result, Point2D, Size2D } from '@/types'
 import { WebGPUContext } from './webgpu-context'
 
 /**
@@ -511,8 +511,8 @@ export class ImageRenderer {
    */
   private calculateTransformMatrix(
     properties: ImageProperties,
-    width: number,
-    height: number
+    _width: number,
+    _height: number
   ): Float32Array {
     // Simple transformation matrix - in production, use the TransformUtils
     const matrix = new Float32Array(16)
@@ -555,7 +555,7 @@ export class ImageRenderer {
    */
   private createImageVertices(
     textureInfo: TextureInfo,
-    properties: ImageProperties,
+    _properties: ImageProperties,
     width: number,
     height: number
   ): Float32Array {

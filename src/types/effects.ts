@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, Time } from './index'
+import { Time } from './index'
 
 /**
  * Core effect types supported by the system

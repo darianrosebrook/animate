@@ -142,14 +142,14 @@ export interface EffectRenderer {
  */
 export interface EffectComposer {
   effects: EffectInstance[]
-  inputTexture: GPUTexture
-  outputTexture: GPUTexture
+  inputTexture: GPUTexture | null
+  outputTexture: GPUTexture | null
 
   addEffect(effect: EffectInstance): void
   removeEffect(effectId: string): void
   reorderEffects(effects: EffectInstance[]): void
-  setInputTexture(texture: GPUTexture): void
-  setOutputTexture(texture: GPUTexture): void
+  setInputTexture(texture: GPUTexture | null): void
+  setOutputTexture(texture: GPUTexture | null): void
   compose(time: Time): Result<boolean>
 }
 

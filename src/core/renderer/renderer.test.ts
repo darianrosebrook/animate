@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeAll, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { Renderer } from './renderer'
 import { WebGPUContext } from './webgpu-context'
 import { SceneGraph } from '../scene-graph'
-import { createRectangleNode, createCircleNode } from '../scene-graph'
+import { createRectangleNode } from '../scene-graph'
 
 // Mock WebGPU for testing (since we can't run WebGPU in Node.js)
 class MockWebGPUContext {

@@ -3,14 +3,13 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError, Time } from '@/types'
+import { Result, Time } from '@/types'
 import {
   Timeline as ITimeline,
   TimelineTrack,
   Keyframe,
   TimelineMarker,
   PlaybackState,
-  TrackType,
   InterpolationMode,
   TimelineSelection,
   PlaybackConfig,
@@ -58,11 +57,11 @@ export class Timeline implements ITimeline {
   addTrack(track: Omit<TimelineTrack, 'id'>): Result<TimelineTrack> {
     try {
       const newTrack: TimelineTrack = {
-        id: `track_${this.nextId++}`,
-        keyframes: [],
-        enabled: true,
-        locked: false,
         ...track,
+        id: `track_${this.nextId++}`,
+        keyframes: track.keyframes || [],
+        enabled: track.enabled ?? true,
+        locked: track.locked ?? false,
       }
 
       this.tracks.push(newTrack)

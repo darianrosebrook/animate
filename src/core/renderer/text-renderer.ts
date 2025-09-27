@@ -219,15 +219,15 @@ export class FontAtlas {
         const pattern = (charCode * 7 + px * 3 + py * 5) % 3 === 0
 
         if (pattern) {
-          bitmap[bitmapIndex] = 255     // R
+          bitmap[bitmapIndex] = 255 // R
           bitmap[bitmapIndex + 1] = 255 // G
           bitmap[bitmapIndex + 2] = 255 // B
           bitmap[bitmapIndex + 3] = 255 // A
         } else {
-          bitmap[bitmapIndex] = 0       // R
-          bitmap[bitmapIndex + 1] = 0   // G
-          bitmap[bitmapIndex + 2] = 0   // B
-          bitmap[bitmapIndex + 3] = 0   // A
+          bitmap[bitmapIndex] = 0 // R
+          bitmap[bitmapIndex + 1] = 0 // G
+          bitmap[bitmapIndex + 2] = 0 // B
+          bitmap[bitmapIndex + 3] = 0 // A
         }
       }
     }
@@ -744,7 +744,7 @@ export class TextRenderer {
       vertices[baseIndex + 4] = glyph.color.r / 255
       vertices[baseIndex + 5] = glyph.color.g / 255
       vertices[baseIndex + 6] = glyph.color.b / 255
-      vertices[baseIndex + 7] = glyph.color.a
+      vertices[baseIndex + 7] = glyph.color.a ?? 1
       const width = glyph.size?.width || 16
       const height = glyph.size?.height || 24
 
@@ -759,7 +759,7 @@ export class TextRenderer {
       vertices[baseIndex + 14] = glyph.color.r / 255
       vertices[baseIndex + 15] = glyph.color.g / 255
       vertices[baseIndex + 16] = glyph.color.b / 255
-      vertices[baseIndex + 17] = glyph.color.a
+      vertices[baseIndex + 17] = glyph.color.a ?? 1
       vertices[baseIndex + 18] = width
       vertices[baseIndex + 19] = height
 
@@ -771,7 +771,7 @@ export class TextRenderer {
       vertices[baseIndex + 24] = glyph.color.r / 255
       vertices[baseIndex + 25] = glyph.color.g / 255
       vertices[baseIndex + 26] = glyph.color.b / 255
-      vertices[baseIndex + 27] = glyph.color.a
+      vertices[baseIndex + 27] = glyph.color.a ?? 1
       vertices[baseIndex + 28] = width
       vertices[baseIndex + 29] = height
 
@@ -784,7 +784,7 @@ export class TextRenderer {
       vertices[baseIndex + 34] = glyph.color.r / 255
       vertices[baseIndex + 35] = glyph.color.g / 255
       vertices[baseIndex + 36] = glyph.color.b / 255
-      vertices[baseIndex + 37] = glyph.color.a
+      vertices[baseIndex + 37] = glyph.color.a ?? 1
       vertices[baseIndex + 38] = width
       vertices[baseIndex + 39] = height
 
@@ -796,7 +796,7 @@ export class TextRenderer {
       vertices[baseIndex + 44] = glyph.color.r / 255
       vertices[baseIndex + 45] = glyph.color.g / 255
       vertices[baseIndex + 46] = glyph.color.b / 255
-      vertices[baseIndex + 47] = glyph.color.a
+      vertices[baseIndex + 47] = glyph.color.a ?? 1
       vertices[baseIndex + 48] = width
       vertices[baseIndex + 49] = height
 
@@ -808,7 +808,7 @@ export class TextRenderer {
       vertices[baseIndex + 54] = glyph.color.r / 255
       vertices[baseIndex + 55] = glyph.color.g / 255
       vertices[baseIndex + 56] = glyph.color.b / 255
-      vertices[baseIndex + 57] = glyph.color.a
+      vertices[baseIndex + 57] = glyph.color.a ?? 1
       vertices[baseIndex + 58] = width
       vertices[baseIndex + 59] = height
     }

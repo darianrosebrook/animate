@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError, Time, Size2D } from '@/types'
+import { Result, Time, Size2D } from '@/types'
 import { WebGPUContext } from '../core/renderer/webgpu-context'
 import {
   EffectSystem as IEffectSystem,
@@ -13,9 +13,9 @@ import {
   EffectRenderer,
   EffectComposer,
   EffectLibrary,
-  EffectPerformanceMonitor,
-  EffectCache,
-  EffectValidator,
+  EffectPerformanceMonitor as IEffectPerformanceMonitor,
+  EffectCache as IEffectCache,
+  EffectValidator as IEffectValidator,
   BlendMode,
 } from './effects-types'
 import { EffectsLibrary } from './effects-library'

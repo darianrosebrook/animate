@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError, Point2D, Color } from '@/types'
+import { Result, Point2D, Color } from '@/types'
 import { WebGPUContext } from './webgpu-context'
 
 /**

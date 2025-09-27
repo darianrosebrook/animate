@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError } from '@/types'
+import { Result } from '@/types'
 import { WebGPUContext } from './webgpu-context'
 
 /**
@@ -309,7 +309,7 @@ export class MemoryPool {
    */
   destroy(): void {
     for (const pool of this.pools.values()) {
-      for (const entry of pool) {
+      for (const _entry of pool) {
         // WebGPU buffers are automatically cleaned up
       }
     }

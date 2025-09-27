@@ -30,6 +30,7 @@ export interface TimelineKeyframe {
     | 'ease-out'
     | 'ease-in-out'
     | 'bezier'
+  easing?: { x1: number; y1: number; x2: number; y2: number }
   selected: boolean
 }
 

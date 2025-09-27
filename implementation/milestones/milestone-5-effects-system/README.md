@@ -48,7 +48,7 @@ Implement a comprehensive GPU-accelerated visual effects system that builds on t
 
 3. **Color Correction**
    - Brightness, contrast, saturation
-   - Color balance and white point
+   - Color balance and temperature
    - LUT (Look-Up Table) support
 
 ### Phase 5.3: Advanced Effects
@@ -56,174 +56,156 @@ Implement a comprehensive GPU-accelerated visual effects system that builds on t
 
 **Tasks:**
 1. **Distortion Effects**
-   - Wave, ripple, and bulge distortions
-   - Lens distortion and chromatic aberration
+   - Wave, bulge, and ripple effects
    - Displacement mapping
+   - Lens distortion simulation
 
-2. **Particle Systems**
-   - GPU-based particle rendering
-   - Emitter and attractor systems
-   - Physics simulation integration
+2. **Particle Effects**
+   - GPU-based particle systems
+   - Physics simulation
+   - Emission and lifecycle controls
 
-3. **Advanced Compositing**
-   - Blend modes and layer composition
-   - Masking and alpha operations
-   - Multi-layer effect stacking
+3. **Transition Effects**
+   - Crossfade, wipe, and slide transitions
+   - Timeline-based effect timing
+   - Custom transition curves
 
-### Phase 5.4: Timeline Integration
-**Duration**: 4-6 days
+### Phase 5.4: Effects UI and Controls
+**Duration**: 3-4 days
 
 **Tasks:**
-1. **Effect Animation**
-   - Keyframe animation of effect parameters
-   - Timeline curve integration
-   - Effect timing and synchronization
+1. **Effect Panel**
+   - Effect browser and search
+   - Effect parameter controls
+   - Real-time preview integration
 
-2. **Effect Controls**
-   - Real-time parameter adjustment
-   - Effect preset system
-   - Effect library management
+2. **Effect Animation**
+   - Keyframe-based effect parameters
+   - Effect blending and transitions
+   - Performance monitoring
 
-3. **Performance Optimization**
-   - Effect caching and reuse
-   - GPU memory management
-   - Frame rate optimization
+3. **Effect Presets**
+   - Built-in effect presets
+   - Custom preset creation and sharing
+   - Preset categories and organization
 
 ## Success Criteria
 
 ### Functional Requirements
-- [ ] Visual effects render correctly with GPU acceleration
-- [ ] Effects can be animated over time using keyframes
-- [ ] Multiple effects can be composed together
-- [ ] Effect parameters support real-time adjustment
-- [ ] Professional effects library includes glow, blur, color correction
+- [ ] Visual effects render correctly in real-time preview
+- [ ] Effect parameters can be animated over time
+- [ ] Effects compose correctly with layer blending
+- [ ] Performance maintains 60fps with multiple effects
+- [ ] Effects work across different GPU architectures
 
 ### Performance Requirements
-- [ ] Effects maintain 60fps performance during playback
-- [ ] GPU memory usage optimized for complex effect stacks
-- [ ] Effect evaluation completes within frame budget (16ms)
-- [ ] Multi-pass effects render efficiently
-- [ ] Large effect libraries load quickly
+- [ ] Effect rendering completes within 16ms per frame
+- [ ] Memory usage scales linearly with effect complexity
+- [ ] GPU utilization optimized for real-time performance
+- [ ] Effect caching reduces redundant computations
 
 ### Quality Requirements
-- [ ] Visual effects produce professional-quality results
-- [ ] Effect blending maintains visual consistency
-- [ ] Color accuracy preserved through effect pipeline
-- [ ] Effects work correctly across different GPU architectures
-- [ ] Effect parameters provide intuitive user control
+- [ ] Visual effects match design specifications
+- [ ] Effect parameters provide intuitive control
+- [ ] Effect previews update immediately
+- [ ] Effects maintain deterministic output
 
 ## Technical Specifications
 
 ### Effect System Architecture
 ```typescript
 interface EffectNode {
-  id: string;
-  type: EffectType;
-  parameters: EffectParameters;
-  enabled: boolean;
-  blendMode: BlendMode;
-  mask?: MaskDefinition;
+  id: string
+  name: string
+  type: EffectType
+  parameters: EffectParameters
+  enabled: boolean
+  blendMode: BlendMode
+  opacity: number
+  keyframes?: Keyframe[]
 }
 
-interface EffectType {
-  name: string;
-  category: 'blur' | 'color' | 'distortion' | 'generative';
-  parameters: EffectParameterDefinition[];
-  shader: WGSLShaderModule;
-  passes: number;
-}
-
-interface EffectParameterDefinition {
-  name: string;
-  type: 'float' | 'int' | 'color' | 'point' | 'size';
-  defaultValue: any;
-  min?: number;
-  max?: number;
-  step?: number;
+interface EffectPipeline {
+  effects: EffectNode[]
+  compositionOrder: string[]
+  renderTargets: RenderTarget[]
+  performanceMetrics: PerformanceMetrics
 }
 ```
 
-### Shader Framework
+### GPU Shader Framework
 ```wgsl
-// Example glow effect shader
-struct GlowParams {
-  intensity: f32,
-  radius: f32,
-  color: vec4<f32>,
+// Effect shader interface
+struct EffectUniforms {
+  time: f32,
+  resolution: vec2<f32>,
+  parameters: array<f32, 32>,
+  inputTexture: texture_2d<f32>,
+  outputTexture: texture_storage_2d<rgba8unorm, write>
 }
 
-@group(0) @binding(0) var inputTexture: texture_2d<f32>;
-@group(0) @binding(1) var outputTexture: texture_storage_2d<rgba8unorm, write>;
-@group(1) @binding(0) var<uniform> params: GlowParams;
-
+// Glow effect implementation
 @compute @workgroup_size(8, 8)
-fn main(@builtin(global_invocation_id) id: vec3<u32>) {
-  // Gaussian blur implementation
-  // Glow effect computation
+fn glow_effect(@builtin(global_invocation_id) id: vec3<u32>) {
+  let coord = vec2<f32>(id.xy);
+  let uv = coord / uniforms.resolution;
+
+  // Sample input texture
+  let color = textureSampleLevel(inputTexture, linearSampler, uv, 0);
+
+  // Apply glow effect
+  let glow = calculate_glow(color, uniforms.parameters);
+
+  textureStore(outputTexture, coord, glow);
 }
 ```
-
-### Effect Composition Pipeline
-- **Multi-Pass Rendering**: Support for effects requiring multiple render passes
-- **Layer Blending**: 16 standard blend modes (normal, multiply, screen, etc.)
-- **Mask Support**: Alpha masks and shape-based masking
-- **Effect Caching**: Render result caching for improved performance
 
 ## Testing Strategy
 
 ### Unit Tests
 - Effect parameter validation and bounds checking
-- Shader compilation and parameter binding
-- Effect evaluation and caching logic
-- Blend mode calculations and accuracy
+- Shader compilation and GPU resource management
+- Effect composition and blending calculations
+- Performance regression detection
 
 ### Integration Tests
-- Effect composition with multiple layers
-- Timeline integration and keyframe animation
-- GPU memory management and cleanup
+- Complete effect rendering pipeline
+- Timeline-based effect animation
+- Multi-effect composition scenarios
 - Cross-GPU compatibility testing
 
 ### E2E Tests
-- Complete effect workflow from creation to rendering
-- Effect animation and timeline scrubbing
-- Effect library management and presets
-- Performance testing with complex effect stacks
-
-### Visual Regression Tests
-- Golden frame testing for effect accuracy
-- Cross-platform visual consistency
-- Performance regression detection
-- Memory usage monitoring
+- Effect application and parameter adjustment workflows
+- Real-time preview performance under load
+- Effect export quality validation
+- Memory leak detection over extended usage
 
 ## Risk Assessment
 
 ### Technical Risks
-- **GPU Shader Complexity**: Complex effects may impact performance
-  - **Mitigation**: Progressive shader complexity with fallback options
-
-- **Effect Composition**: Multiple effects may cause visual artifacts
-  - **Mitigation**: Defined composition order and blend mode standards
-
-- **Memory Management**: Large effect libraries may cause memory pressure
-  - **Mitigation**: Effect caching, lazy loading, and memory pooling
+- **GPU Compatibility**: Effects may behave differently across GPU vendors
+  - **Mitigation**: Comprehensive testing on multiple GPU architectures
+- **Performance Regression**: Complex effects may impact timeline performance
+  - **Mitigation**: Performance budgeting and adaptive quality
+- **Memory Management**: Effect resources may leak during complex compositions
+  - **Mitigation**: Resource pooling and automatic cleanup
 
 ### Timeline Risks
-- **Integration Complexity**: Effects need seamless timeline integration
-  - **Mitigation**: Clear effect interfaces and incremental integration
-
-- **Performance Impact**: Effects may reduce overall frame rate
-  - **Mitigation**: Performance monitoring and adaptive quality settings
+- **Effect Complexity**: Advanced effects may require more implementation time
+  - **Mitigation**: Start with core effects and expand incrementally
+- **Integration Complexity**: Effects need seamless timeline and rendering integration
+  - **Mitigation**: Clear interfaces and incremental integration testing
 
 ## Next Milestone Dependencies
-- Effects system builds on timeline for animation
-- Media pipeline will use effects for video processing
-- Plugin architecture will extend effect capabilities
-- Library management will include effect presets
+- Audio system needs effects for audio visualization
+- Media pipeline requires effects for video processing
+- Export system depends on effects for professional output
+- Plugin architecture builds on effects foundation
 
 ## Deliverables
-- [ ] GPU-accelerated effects system with professional effects library
-- [ ] Effect composition pipeline with multi-layer support
+- [ ] GPU-accelerated effects system with real-time performance
+- [ ] Professional effects library with glow, blur, and color correction
+- [ ] Effect composition pipeline with layer blending
 - [ ] Timeline integration for effect animation
-- [ ] Real-time effect preview and parameter adjustment
-- [ ] Performance-optimized effect rendering with monitoring
-- [ ] Comprehensive effect testing and validation suite
+- [ ] Real-time preview with performance monitoring
+- [ ] Comprehensive effect testing and validation

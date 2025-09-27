@@ -59,6 +59,12 @@ export function TimelineTrack({
   } | null>(null)
   const trackRef = useRef<HTMLDivElement>(null)
 
+  //TODO: Handle isDragging, dragKeyframe, dragOffset, onKeyframeMove
+  console.warn(
+    'Unused variables: isDragging, dragKeyframe, dragOffset, onKeyframeMove',
+    { isDragging, dragKeyframe, dragOffset, onKeyframeMove }
+  )
+
   // Handle keyframe click
   const handleKeyframeClick = useCallback(
     (event: React.MouseEvent, keyframe: TimelineKeyframe) => {
@@ -222,7 +228,7 @@ export function TimelineTrack({
     [track.id]
   )
 
-  const selectedKeyframes = track.keyframes.filter((k) =>
+  const _selectedKeyframes = track.keyframes.filter((k) =>
     timeline.selectedKeyframes.has(k.id)
   )
 
