@@ -56,6 +56,7 @@ import {
 } from '@/types'
 import { StoryboardView } from './views/StoryboardView'
 import { SceneEditorView } from './views/SceneEditorView'
+import { AssetLibraryView } from './views/AssetLibraryView'
 import { ContextMenu } from '../ContextMenu/ContextMenu'
 import { SearchFilter } from './components/SearchFilter'
 import { NewItemMenu } from './components/NewItemMenu'
@@ -272,6 +273,31 @@ export function LeftPanel({
     []
   )
 
+  const getAssetIcon = useCallback((asset: Asset) => {
+    switch (asset.type) {
+      case AssetType.Image:
+        return <Image size={14} />
+      case AssetType.Video:
+        return <Video size={14} />
+      case AssetType.Audio:
+        return <Mic size={14} />
+      case AssetType.Font:
+        return <Type size={14} />
+      case AssetType.Template:
+        return <FileText size={14} />
+      case AssetType.Plugin:
+        return <Zap size={14} />
+      case AssetType.AnimationSequence:
+        return <Play size={14} />
+      case AssetType.Render:
+        return <Monitor size={14} />
+      case AssetType.Component:
+        return <Square size={14} />
+      default:
+        return <div className="asset-icon-placeholder" />
+    }
+  }, [])
+
   const renderContextMenu = () => {
     if (!contextMenu.type || !contextMenu.target) return null
 
@@ -279,7 +305,8 @@ export function LeftPanel({
       case 'scene':
         return (
           <ContextMenu
-            target={contextMenu.target}
+            isOpen={true}
+            position={{ x: 0, y: 0 }}
             items={[
               {
                 id: 'duplicate',
@@ -332,7 +359,8 @@ export function LeftPanel({
       case 'layer':
         return (
           <ContextMenu
-            target={contextMenu.target}
+            isOpen={true}
+            position={{ x: 0, y: 0 }}
             items={[
               {
                 id: 'duplicate',
@@ -467,6 +495,14 @@ export function LeftPanel({
             <FileText size={16} />
             Scene Editor
           </button>
+          <button
+            className={`view-mode-btn ${viewMode === ViewMode.AssetsLibrary ? 'active' : ''}`}
+            onClick={() => onViewModeChange(ViewMode.AssetsLibrary)}
+            title="Assets and libraries"
+          >
+            <Folder size={16} />
+            Assets
+          </button>
         </div>
 
         {/* Search and Filter */}
@@ -506,7 +542,7 @@ export function LeftPanel({
             getLayerIcon={getLayerIcon}
             getLayerBadge={getLayerBadge}
           />
-        ) : (
+        ) : viewMode === ViewMode.Canvas ? (
           <SceneEditorView
             scene={currentScene}
             selectedLayers={selectedLayers}
@@ -519,6 +555,24 @@ export function LeftPanel({
             getLayerIcon={getLayerIcon}
             getLayerBadge={getLayerBadge}
             getFilteredLayers={getFilteredLayers}
+          />
+        ) : (
+          <AssetLibraryView
+            assets={project.assets}
+            libraries={project.libraries}
+            onAssetSelect={(assetId: string) => {
+              // TODO: Handle asset selection
+              console.log('Asset selected:', assetId)
+            }}
+            onAssetAdd={(asset: Asset) => {
+              // TODO: Handle asset addition
+              console.log('Asset added:', asset)
+            }}
+            onLibraryConnect={(libraryId: string) => {
+              // TODO: Handle library connection
+              console.log('Library connected:', libraryId)
+            }}
+            getAssetIcon={getAssetIcon}
           />
         )}
       </div>

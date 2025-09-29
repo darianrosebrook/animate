@@ -90,7 +90,7 @@ export function SceneEditorView({
     // Second pass: build hierarchy
     filteredLayers.forEach((layer) => {
       const treeNode = nodeMap.get(layer.id)!
-      const parentId = layer.parentId || null
+      const parentId = layer.parent?.id || null
 
       if (parentId && nodeMap.has(parentId)) {
         const parent = nodeMap.get(parentId)!
@@ -193,14 +193,14 @@ export function SceneEditorView({
         if (
           targetLayer &&
           draggedLayer &&
-          targetLayer.parentId === draggedLayer.parentId
+          targetLayer.parent?.id === draggedLayer.parent?.id
         ) {
-          const parentId = targetLayer.parentId
+          const parentId = targetLayer.parent?.id
           const siblings = (scene?.layers || []).filter(
-            (l) => l.parentId === parentId
+            (l) => l.parent?.id === parentId
           )
 
-          let newOrder: string[] = []
+          let newOrder: SceneNode[] = []
           const targetIndex = siblings.findIndex((l) => l.id === targetLayerId)
           const draggedIndex = siblings.findIndex(
             (l) => l.id === draggedLayerId

@@ -105,6 +105,7 @@ export enum UIMode {
 export enum ViewMode {
   SceneByScene = 'scene-by-scene',
   Canvas = 'canvas',
+  AssetsLibrary = 'assets-library',
 }
 
 export interface Scene {
@@ -124,6 +125,9 @@ export interface Project {
   mode: UIMode
   viewMode: ViewMode
   selectedLayerIds: string[]
+  libraries: Library[]
+  exportJobs: ExportJob[]
+  assets: Asset[]
 }
 
 export type PropertyValue =
@@ -292,6 +296,16 @@ export enum RenderQuality {
   Standard = 'standard',
   High = 'high',
   Ultra = 'ultra',
+}
+
+export type ExportQuality = 'low' | 'medium' | 'high'
+
+export enum CompressionLevel {
+  None = 'none',
+  Fast = 'fast',
+  Balanced = 'balanced',
+  Best = 'best',
+  Maximum = 'maximum',
 }
 
 export enum ColorSpace {
@@ -513,6 +527,7 @@ export interface Scene {
   rootNode: string
   camera: Camera
   settings: SceneSettings
+  assets?: AssetReference[]
 }
 
 export interface Camera {
@@ -1034,6 +1049,10 @@ export interface Asset {
   path: string
   metadata: AssetMetadata
   thumbnail?: string
+  libraryId?: string
+  tags?: string[]
+  createdAt: Date
+  modifiedAt: Date
 }
 
 export enum AssetType {
@@ -1043,6 +1062,9 @@ export enum AssetType {
   Font = 'font',
   Template = 'template',
   Plugin = 'plugin',
+  AnimationSequence = 'animation_sequence',
+  Render = 'render',
+  Component = 'component',
 }
 
 export interface AssetMetadata {
@@ -1054,6 +1076,95 @@ export interface AssetMetadata {
   codec?: string
   colorSpace?: ColorSpace
   hasAlpha?: boolean
+  fileSize?: number
+  mimeType?: string
+}
+
+// Library types
+export interface Library {
+  id: string
+  name: string
+  description?: string
+  type: LibraryType
+  assets: Asset[]
+  isConnected: boolean
+  source?: LibrarySource
+  settings?: LibrarySettings
+  createdAt: Date
+  modifiedAt: Date
+}
+
+export enum LibraryType {
+  DesignSystem = 'design_system',
+  AssetLibrary = 'asset_library',
+  ComponentLibrary = 'component_library',
+  TemplateLibrary = 'template_library',
+  Custom = 'custom',
+}
+
+export interface LibrarySource {
+  type: 'local' | 'figma' | 'notion' | 'github' | 'custom'
+  url?: string
+  apiKey?: string
+  workspaceId?: string
+}
+
+export interface LibrarySettings {
+  autoSync: boolean
+  syncInterval?: number
+  conflictResolution: 'local_wins' | 'remote_wins' | 'manual'
+}
+
+// Asset references in scenes
+export interface AssetReference {
+  assetId: string
+  layerId: string
+  usage: 'background' | 'foreground' | 'overlay' | 'component'
+  properties?: Record<string, any>
+}
+
+// Export types
+export interface ExportSettings {
+  format: ExportFormat
+  quality: ExportQuality
+  resolution: Size2D
+  frameRate: FrameRate
+  colorSpace: ColorSpace
+  includeAudio: boolean
+  compression: CompressionLevel
+  watermark?: WatermarkSettings
+}
+
+export enum ExportFormat {
+  MP4 = 'mp4',
+  WebM = 'webm',
+  GIF = 'gif',
+  PNGSequence = 'png_sequence',
+  JPEGSequence = 'jpeg_sequence',
+  ProRes = 'prores',
+  H264 = 'h264',
+  H265 = 'h265',
+}
+
+export interface WatermarkSettings {
+  enabled: boolean
+  text?: string
+  imagePath?: string
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center'
+  opacity: number
+  scale: number
+}
+
+export interface ExportJob {
+  id: string
+  name: string
+  settings: ExportSettings
+  status: 'queued' | 'processing' | 'completed' | 'failed'
+  progress: number
+  outputPath?: string
+  error?: string
+  createdAt: Date
+  completedAt?: Date
 }
 
 // Collaboration types - already defined above

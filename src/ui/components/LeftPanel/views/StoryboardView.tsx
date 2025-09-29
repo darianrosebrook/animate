@@ -21,8 +21,10 @@ import {
   Move,
   Play,
   Pause,
+  Layers,
+  Image,
 } from 'lucide-react'
-import { Scene } from '@/types'
+import { Scene, NodeType, SceneNode } from '@/types'
 
 interface StoryboardViewProps {
   scenes: Scene[]
@@ -35,8 +37,10 @@ interface StoryboardViewProps {
     target: HTMLElement,
     data?: any
   ) => void
-  getLayerIcon: (type: string) => React.ReactNode
-  getLayerBadge: (layer: any) => any[]
+  getLayerIcon: (type: NodeType) => React.ReactNode
+  getLayerBadge: (
+    layer: SceneNode
+  ) => Array<{ type: string; icon: React.ReactNode; title: string }>
 }
 
 export function StoryboardView({
@@ -118,8 +122,14 @@ export function StoryboardView({
     return `${duration.toFixed(1)}s`
   }
 
-  const getSceneBadges = (scene: Scene) => {
-    const badges = []
+  const getSceneBadges = (
+    scene: Scene
+  ): Array<{ type: string; icon: React.ReactNode; title: string }> => {
+    const badges: Array<{
+      type: string
+      icon: React.ReactNode
+      title: string
+    }> = []
 
     if (scene.id === currentSceneId) {
       badges.push({

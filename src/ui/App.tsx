@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Settings, Info } from 'lucide-react'
+import { Settings, Info, Download } from 'lucide-react'
 import './App.css'
 import { SceneGraph } from '@/core/scene-graph'
 import { Renderer } from '@/core/renderer'
 import { useMode } from '@/ui/hooks/use-mode'
 import { LeftPanel } from '@/ui/components/LeftPanel/LeftPanel'
 import { WorkspaceCanvas } from '@/ui/canvas/WorkspaceCanvas'
-import { PropertiesPanel } from '@/ui/components/PropertiesPanel/PropertiesPanel'
-import { FloatingToolbar } from '@/ui/components/FloatingToolbar/FloatingToolbar'
+import { ExportManager } from '@/ui/components/ExportManager/ExportManager'
 import { ToolSelectionBar } from '@/ui/components/ToolSelectionBar'
 import { ContextPane } from './components/ContextPane/ContextPane'
 import { KeyframeTimeline } from '@/ui/components/KeyframeTimeline/KeyframeTimeline'
@@ -20,8 +19,7 @@ import {
 } from '@/ui/hooks/use-keyboard-shortcuts'
 import './components/LeftPanel/LeftPanel.css'
 import './canvas/WorkspaceCanvas.css'
-import './components/PropertiesPanel/PropertiesPanel.css'
-import './components/FloatingToolbar/FloatingToolbar.css'
+import './components/ExportManager/ExportManager.css'
 import './components/KeyframeTimeline/KeyframeTimeline.css'
 import './components/KeyboardShortcutsHelp.css'
 import './components/KeyboardShortcutsSettings.css'
@@ -35,6 +33,7 @@ function App() {
   const [renderer, setRenderer] = useState<Renderer | null>(null)
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
   const [showShortcutsSettings, setShowShortcutsSettings] = useState(false)
+  const [showExportManager, setShowExportManager] = useState(false)
   const [timelineState, setTimelineState] = useState({
     currentTime: 0,
     duration: 10,
@@ -264,6 +263,18 @@ function App() {
     console.log(`Reparenting layer ${layerId} to ${newParentId}`)
   }
 
+  const handleExportStart = (settings: any) => {
+    // TODO: Implement export start logic
+    console.log('Starting export with settings:', settings)
+    // For demo, just close the export manager
+    setShowExportManager(false)
+  }
+
+  const handleExportCancel = (jobId: string) => {
+    // TODO: Implement export cancellation logic
+    console.log('Cancelling export job:', jobId)
+  }
+
   const handleRenderFrame = async () => {
     if (!renderer || !canvasManager || !currentScene) return
 
@@ -293,6 +304,13 @@ function App() {
         <div className="app-header">
           <h1>{project.name}</h1>
           <div className="header-controls">
+            <button
+              className="btn-secondary"
+              title="Export"
+              onClick={() => setShowExportManager(true)}
+            >
+              <Download size={16} />
+            </button>
             <button className="btn-secondary" title="Settings">
               <Settings size={16} />
             </button>
@@ -387,16 +405,6 @@ function App() {
         onKeyboardShortcut={handleKeyboardShortcut}
       />
 
-      {/* Floating Toolbar */}
-      <FloatingToolbar
-        mode={project.mode}
-        isPlaying={timelineState.isPlaying}
-        onModeChange={setMode}
-        onPlayPause={handlePlayPause}
-        onStop={handleStop}
-        onAddKeyframe={handleAddKeyframe}
-      />
-
       <KeyboardShortcutsHelp
         isOpen={showShortcutsHelp}
         onClose={() => setShowShortcutsHelp(false)}
@@ -405,6 +413,15 @@ function App() {
       <KeyboardShortcutsSettings
         isOpen={showShortcutsSettings}
         onClose={() => setShowShortcutsSettings(false)}
+      />
+
+      <ExportManager
+        project={project}
+        currentScene={currentScene}
+        isOpen={showExportManager}
+        onClose={() => setShowExportManager(false)}
+        onExportStart={handleExportStart}
+        onExportCancel={handleExportCancel}
       />
     </>
   )
