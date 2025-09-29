@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { TimelineState, TimelineTrack, TimelineKeyframe } from '@/ui/timeline'
+import { TimelineState, TimelineKeyframe, TimelineTrack } from '../timeline'
 
 const initialTimelineState: TimelineState = {
   currentTime: 0,

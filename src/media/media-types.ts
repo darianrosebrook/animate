@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError, Time, Point2D, Size2D, Color } from '@/types'
+import { Result, Time, Size2D } from '@/types'
 
 /**
  * Media asset types
@@ -208,7 +208,10 @@ export interface MediaFormatDetector {
  */
 export interface MediaThumbnailGenerator {
   generateThumbnail(asset: MediaAsset, time?: Time): Promise<Result<GPUTexture>>
-  generateThumbnails(asset: MediaAsset, count: number): Promise<Result<GPUTexture[]>>
+  generateThumbnails(
+    asset: MediaAsset,
+    count: number
+  ): Promise<Result<GPUTexture[]>>
   destroy(): void
 }
 
@@ -243,7 +246,10 @@ export interface MediaSyncInfo {
 export interface MediaTimelineIntegration {
   addMediaTrack(track: MediaTimelineTrack): Result<MediaTimelineTrack>
   removeMediaTrack(trackId: string): Result<boolean>
-  updateMediaTrack(trackId: string, updates: Partial<MediaTimelineTrack>): Result<MediaTimelineTrack>
+  updateMediaTrack(
+    trackId: string,
+    updates: Partial<MediaTimelineTrack>
+  ): Result<MediaTimelineTrack>
   getMediaTrack(trackId: string): MediaTimelineTrack | null
   syncMediaTracks(time: Time): Result<MediaSyncInfo>
   getMediaAssetsAtTime(time: Time): MediaAsset[]
@@ -253,9 +259,15 @@ export interface MediaTimelineIntegration {
  * Media processing pipeline
  */
 export interface MediaProcessingPipeline {
-  processVideoFrame(inputTexture: GPUTexture, time: Time): Promise<Result<GPUTexture>>
+  processVideoFrame(
+    inputTexture: GPUTexture,
+    time: Time
+  ): Promise<Result<GPUTexture>>
   processAudioFrame(audioData: AudioFrameData): Promise<Result<AudioFrameData>>
-  applyEffects(inputTexture: GPUTexture, effects: any[]): Promise<Result<GPUTexture>>
+  applyEffects(
+    inputTexture: GPUTexture,
+    effects: any[]
+  ): Promise<Result<GPUTexture>>
   compositeLayers(layers: GPUTexture[]): Promise<Result<GPUTexture>>
 }
 
@@ -265,8 +277,14 @@ export interface MediaProcessingPipeline {
 export interface MediaAssetLibrary {
   assets: MediaAsset[]
   search(query: string): MediaAsset[]
-  filter(type?: MediaType, duration?: { min: number; max: number }): MediaAsset[]
-  sort(by: 'name' | 'date' | 'duration' | 'size', ascending?: boolean): MediaAsset[]
+  filter(
+    type?: MediaType,
+    duration?: { min: number; max: number }
+  ): MediaAsset[]
+  sort(
+    by: 'name' | 'date' | 'duration' | 'size',
+    ascending?: boolean
+  ): MediaAsset[]
   getAsset(id: string): MediaAsset | null
   addAsset(asset: MediaAsset): Result<void>
   removeAsset(id: string): Result<void>
@@ -286,10 +304,16 @@ export interface MediaSystem {
   processingPipeline: MediaProcessingPipeline
 
   initialize(config?: Partial<MediaPipelineConfig>): Promise<Result<boolean>>
-  importMedia(files: File[], options?: MediaImportOptions): Promise<Result<MediaImportResult>>
+  importMedia(
+    files: File[],
+    options?: MediaImportOptions
+  ): Promise<Result<MediaImportResult>>
   getAsset(id: string): MediaAsset | null
   decodeVideoFrame(assetId: string, time: Time): Promise<Result<VideoFrameData>>
   analyzeAudio(assetId: string): Promise<Result<Float32Array[]>>
-  exportMedia(assetIds: string[], options: MediaExportOptions): Promise<Result<Blob>>
+  exportMedia(
+    assetIds: string[],
+    options: MediaExportOptions
+  ): Promise<Result<Blob>>
   destroy(): void
 }

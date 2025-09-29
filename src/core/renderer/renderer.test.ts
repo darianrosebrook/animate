@@ -5,7 +5,7 @@ import { SceneGraph } from '../scene-graph'
 import { createRectangleNode } from '../scene-graph'
 
 // Mock WebGPU for testing (since we can't run WebGPU in Node.js)
-class MockWebGPUContext {
+class _MockWebGPUContext {
   private initialized = false
 
   async initialize(): Promise<any> {
@@ -17,7 +17,7 @@ class MockWebGPUContext {
     if (!this.initialized) return null
 
     return {
-      createBuffer: (usage: any, data: any, label?: string) => ({
+      createBuffer: (_usage: any, data: any, _label?: string) => ({
         getMappedRange: () => new ArrayBuffer(data?.byteLength || 100),
         unmap: () => {},
       }),
@@ -86,7 +86,8 @@ class MockWebGPUContext {
 
 describe('Renderer', () => {
   let renderer: Renderer
-  let mockWebGPU: any
+  // TODO: Use mockWebGPU for testing
+  // let mockWebGPU: any
   let sceneGraph: SceneGraph
 
   beforeEach(() => {
@@ -197,7 +198,9 @@ describe('Integration Tests', () => {
     const renderer = new Renderer()
     const initResult = await renderer.initialize(canvas)
     expect(initResult.success).toBe(false)
-    expect(initResult.error?.code).toBe('WEBGPU_NOT_SUPPORTED')
+    if (!initResult.success) {
+      expect(initResult.error?.code).toBe('WEBGPU_NOT_SUPPORTED')
+    }
   })
 
   it('should handle rendering errors gracefully', async () => {
@@ -223,6 +226,8 @@ describe('Integration Tests', () => {
 
     const initResult = await renderer.initialize(canvas)
     expect(initResult.success).toBe(false)
-    expect(initResult.error?.code).toBe('WEBGPU_NOT_SUPPORTED')
+    if (!initResult.success) {
+      expect(initResult.error?.code).toBe('WEBGPU_NOT_SUPPORTED')
+    }
   })
 })

@@ -8,12 +8,13 @@ import {
   ZoomIn,
   ZoomOut,
 } from 'lucide-react'
-import { useTimelineContainer } from '@/ui/hooks/use-timeline-container'
+import { useTimelineContainer } from '../hooks/use-timeline-container'
 import { TimelineTrack } from './TimelineTrack'
 import { TimelineRuler } from './TimelineRuler'
 import { TimelineScrubber } from './TimelineScrubber'
 import { TimelineControls } from './TimelineControls'
 import { CurveEditor } from './CurveEditor'
+import { DopeSheet } from './DopeSheet'
 import './TimelinePanel.css'
 
 export interface TimelineKeyframe {
@@ -83,6 +84,8 @@ export function TimelinePanel({
   onKeyframeDelete,
   onTrackToggle,
   onTrackExpand,
+  onPlaybackSpeedChange,
+  onLoopToggle,
   className = '',
 }: TimelinePanelProps) {
   const { containerRef, containerWidth } = useTimelineContainer()
@@ -91,6 +94,96 @@ export function TimelinePanel({
   const [dragOffset, setDragOffset] = useState(0)
   const [isResizing, setIsResizing] = useState(false)
   const [showCurveEditor, setShowCurveEditor] = useState(false)
+
+  // Accessibility features
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const [keyboardNavigation, setKeyboardNavigation] = useState(false)
+
+  // Check for reduced motion preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReducedMotion(mediaQuery.matches)
+
+    const handleChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
+    mediaQuery.addEventListener('change', handleChange)
+
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
+
+  // Keyboard navigation for accessibility
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!timelineRef.current || !keyboardNavigation) return
+
+      const step = 1 / timeline.frameRate // One frame step
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault()
+          onTimelineChange({
+            currentTime: Math.max(0, timeline.currentTime - step),
+          })
+          announceToScreenReader(
+            `Moved to ${formatTime(Math.max(0, timeline.currentTime - step))}`
+          )
+          break
+        case 'ArrowRight':
+          event.preventDefault()
+          onTimelineChange({
+            currentTime: Math.min(
+              timeline.duration,
+              timeline.currentTime + step
+            ),
+          })
+          announceToScreenReader(
+            `Moved to ${formatTime(Math.min(timeline.duration, timeline.currentTime + step))}`
+          )
+          break
+        case 'Home':
+          event.preventDefault()
+          onTimelineChange({ currentTime: 0 })
+          announceToScreenReader('Moved to start')
+          break
+        case 'End':
+          event.preventDefault()
+          onTimelineChange({ currentTime: timeline.duration })
+          announceToScreenReader('Moved to end')
+          break
+        case ' ': // Spacebar
+          event.preventDefault()
+          onTimelineChange({ isPlaying: !timeline.isPlaying })
+          announceToScreenReader(timeline.isPlaying ? 'Paused' : 'Playing')
+          break
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [timeline, keyboardNavigation, onTimelineChange])
+
+  // Screen reader announcements
+  const announceToScreenReader = useCallback((message: string) => {
+    const announcement = document.createElement('div')
+    announcement.setAttribute('aria-live', 'polite')
+    announcement.setAttribute('aria-atomic', 'true')
+    announcement.style.position = 'absolute'
+    announcement.style.left = '-10000px'
+    announcement.style.width = '1px'
+    announcement.style.height = '1px'
+    announcement.style.overflow = 'hidden'
+    announcement.textContent = message
+
+    document.body.appendChild(announcement)
+    setTimeout(() => document.body.removeChild(announcement), 1000)
+  }, [])
+
+  // Format time for accessibility
+  const formatTime = (time: number): string => {
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    const frames = Math.floor((time % 1) * timeline.frameRate)
+    return `${minutes}:${seconds.toString().padStart(2, '0')}:${frames.toString().padStart(2, '0')}`
+  }
   const [selectedTrackForCurve, setSelectedTrackForCurve] = useState<
     string | null
   >(null)
@@ -247,7 +340,19 @@ export function TimelinePanel({
   }, [])
 
   return (
-    <div className={`timeline-panel ${className}`} ref={containerRef}>
+    <div
+      className={`timeline-panel ${className}`}
+      ref={containerRef}
+      role="application"
+      aria-label="Motion Graphics Timeline"
+      aria-describedby="timeline-help"
+    >
+      {/* Hidden help text for screen readers */}
+      <div id="timeline-help" className="sr-only">
+        Use arrow keys to navigate timeline. Spacebar to play/pause. Home/End
+        for start/end.
+      </div>
+
       {/* Timeline Controls */}
       <TimelineControls
         isPlaying={timeline.isPlaying}
@@ -257,12 +362,14 @@ export function TimelinePanel({
         zoom={timeline.zoom}
         playbackSpeed={timeline.playbackSpeed}
         onPlayPause={handlePlayPause}
+        reducedMotion={reducedMotion}
         onStop={handleStop}
         onRewind={handleRewind}
         onFastForward={handleFastForward}
         onZoom={handleZoom}
         onPlaybackSpeedChange={(speed) => {
-          if (onPlaybackSpeedChange) onPlaybackSpeedChange(speed)
+          onPlaybackSpeedChange?.(speed)
+          announceToScreenReader(`Playback speed changed to ${speed}x`)
         }}
         onLoopToggle={onLoopToggle ? () => onLoopToggle() : undefined}
         loopEnabled={timeline.loopEnabled}

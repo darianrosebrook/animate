@@ -157,7 +157,8 @@ describe('Performance Optimizations - Comprehensive Tests', () => {
 
     it('should track performance metrics', () => {
       const metrics = batchRenderer.getPerformanceMetrics()
-      expect(Array.isArray(metrics)).toBe(true)
+      expect(metrics).toHaveProperty('frameTimeMs')
+      expect(metrics).toHaveProperty('memoryPoolEfficiency')
     })
 
     it('should detect performance budget violations', () => {
@@ -547,7 +548,8 @@ describe('Performance Optimizations - Comprehensive Tests', () => {
       batchRenderer.optimizeRenderables()
 
       const metrics = batchRenderer.getPerformanceMetrics()
-      expect(metrics.length).toBeGreaterThanOrEqual(0)
+      expect(metrics).toHaveProperty('batchesUsed')
+      expect(metrics.batchesUsed).toBe(0)
     })
 
     it('should handle concurrent operations safely', async () => {
@@ -680,7 +682,7 @@ describe('Performance Optimizations - Comprehensive Tests', () => {
       expect(batchRenderer.isPerformanceWithinBudget()).toBe(true)
 
       // Add a note about testing performance regression detection
-      // In a real scenario, this would involve running with different loads
+      // PLACEHOLDER: In a real scenario, this would involve running with different loads
       // and checking that the system detects when performance drops below threshold
     })
   })

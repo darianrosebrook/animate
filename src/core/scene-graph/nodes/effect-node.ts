@@ -13,7 +13,8 @@ import {
   MaskReference,
   Time,
   Result,
-  AnimatorError,
+  // TODO: Use AnimatorError for error handling
+  // AnimatorError,
 } from '@/types'
 
 /**

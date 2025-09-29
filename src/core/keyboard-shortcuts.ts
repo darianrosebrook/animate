@@ -59,7 +59,7 @@ export class KeyboardShortcutsManager {
     shortcut: KeyboardShortcut,
     index: number
   ): string {
-    const parts = []
+    const parts: string[] = []
 
     if (shortcut.ctrl) parts.push('ctrl')
     if (shortcut.alt) parts.push('alt')
@@ -77,7 +77,7 @@ export class KeyboardShortcutsManager {
    * Generate a unique key for a shortcut combination
    */
   private getShortcutKey(shortcut: KeyboardShortcut): string {
-    const parts = []
+    const parts: string[] = []
 
     if (shortcut.ctrl) parts.push('ctrl')
     if (shortcut.alt) parts.push('alt')
@@ -131,7 +131,7 @@ export class KeyboardShortcutsManager {
    * Build shortcut key from keyboard event
    */
   private buildShortcutKey(event: KeyboardEvent): string {
-    const parts = []
+    const parts: string[] = []
 
     if (event.ctrlKey || event.metaKey) parts.push('ctrl')
     if (event.altKey) parts.push('alt')
@@ -370,7 +370,7 @@ export class KeyboardShortcutsManager {
    * Format shortcut key for display
    */
   private formatShortcutKey(shortcut: KeyboardShortcut): string {
-    const parts = []
+    const parts: string[] = []
 
     if (shortcut.meta) parts.push('Cmd')
     if (shortcut.ctrl) parts.push('Ctrl')

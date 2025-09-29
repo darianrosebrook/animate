@@ -228,9 +228,10 @@ export function TimelineTrack({
     [track.id]
   )
 
-  const _selectedKeyframes = track.keyframes.filter((k) =>
-    timeline.selectedKeyframes.has(k.id)
-  )
+  // TODO: Use selectedKeyframes for keyframe selection functionality
+  // const _selectedKeyframes = track.keyframes.filter((k) =>
+  //   timeline.selectedKeyframes.has(k.id)
+  // )
 
   return (
     <div

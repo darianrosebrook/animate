@@ -5,7 +5,8 @@
 
 import {
   Result,
-  AnimatorError,
+  // TODO: Use AnimatorError for error handling
+  // AnimatorError,
   Time,
   EvaluationContext,
   SceneGraph,
@@ -20,7 +21,9 @@ import {
   circleFragmentShader,
 } from './shaders'
 import { TextRenderer } from './text-renderer'
-import { ImageRenderer, ImageProperties, BlendMode } from './image-renderer'
+import { ImageRenderer } from './image-renderer'
+// TODO: Use ImageProperties and BlendMode
+// import { ImageProperties, BlendMode } from './image-renderer'
 import { SVGPathRenderer, PathProperties } from './path-renderer'
 import {
   BatchRenderer,
@@ -115,25 +118,112 @@ export class Renderer {
       return
     }
 
+    // Create uniform bind group layout
+    const uniformBindGroupLayout = this.webgpuContext
+      .getDevice()!
+      .createBindGroupLayout({
+        entries: [
+          {
+            binding: 0,
+            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+            buffer: {
+              type: 'uniform',
+            },
+          },
+        ],
+      })
+
     // Rectangle pipeline
-    const rectPipeline = this.shaderManager.createPipeline(
-      rectangleVertexShader,
-      rectangleFragmentShader,
-      [], // No bind group layouts for now
-      [{ format: this.webgpuContext.getFormat() }]
-    )
+    const rectPipeline = this.webgpuContext.getDevice()!.createRenderPipeline({
+      layout: this.webgpuContext.getDevice()!.createPipelineLayout({
+        bindGroupLayouts: [uniformBindGroupLayout],
+      }),
+      vertex: {
+        module: this.shaderManager.getShader(
+          rectangleVertexShader,
+          'Rectangle Vertex'
+        ),
+        entryPoint: 'main',
+        buffers: [
+          {
+            arrayStride: 4 * 4, // 4 floats * 4 bytes each
+            attributes: [
+              {
+                shaderLocation: 0,
+                offset: 0,
+                format: 'float32x2',
+              },
+              {
+                shaderLocation: 1,
+                offset: 2 * 4, // Offset to texCoord
+                format: 'float32x2',
+              },
+            ],
+          },
+        ],
+      },
+      fragment: {
+        module: this.shaderManager.getShader(
+          rectangleFragmentShader,
+          'Rectangle Fragment'
+        ),
+        entryPoint: 'main',
+        targets: [{ format: this.webgpuContext.getFormat() }],
+      },
+      primitive: {
+        topology: 'triangle-list',
+        cullMode: 'none',
+      },
+    })
 
     if (rectPipeline) {
       this.renderPipelines.set('rectangle', rectPipeline)
     }
 
     // Circle pipeline
-    const circlePipeline = this.shaderManager.createPipeline(
-      circleVertexShader,
-      circleFragmentShader,
-      [],
-      [{ format: this.webgpuContext.getFormat() }]
-    )
+    const circlePipeline = this.webgpuContext
+      .getDevice()!
+      .createRenderPipeline({
+        layout: this.webgpuContext.getDevice()!.createPipelineLayout({
+          bindGroupLayouts: [uniformBindGroupLayout],
+        }),
+        vertex: {
+          module: this.shaderManager.getShader(
+            circleVertexShader,
+            'Circle Vertex'
+          ),
+          entryPoint: 'main',
+          buffers: [
+            {
+              arrayStride: 4 * 4, // 4 floats * 4 bytes each
+              attributes: [
+                {
+                  shaderLocation: 0,
+                  offset: 0,
+                  format: 'float32x2',
+                },
+                {
+                  shaderLocation: 1,
+                  offset: 2 * 4, // Offset to texCoord
+                  format: 'float32x2',
+                },
+              ],
+            },
+          ],
+        },
+        fragment: {
+          module: this.shaderManager.getShader(
+            circleFragmentShader,
+            'Circle Fragment'
+          ),
+          entryPoint: 'main',
+          targets: [{ format: this.webgpuContext.getFormat() }],
+        },
+        primitive: {
+          topology: 'triangle-list',
+          cullMode: 'none',
+        },
+      })
 
     if (circlePipeline) {
       this.renderPipelines.set('circle', circlePipeline)
@@ -184,7 +274,7 @@ export class Renderer {
     ])
 
     const rectBuffer = this.webgpuContext.createBuffer(
-      'vertex' as any,
+      GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
       rectVertices,
       'Rectangle Vertices'
     )
@@ -215,7 +305,7 @@ export class Renderer {
     }
 
     const circleBuffer = this.webgpuContext.createBuffer(
-      'vertex' as any,
+      GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
       circleVertices,
       'Circle Vertices'
     )
@@ -231,7 +321,7 @@ export class Renderer {
   async renderFrame(
     sceneGraph: SceneGraph,
     time: Time,
-    context: EvaluationContext | RenderContext
+    _context: EvaluationContext | any // TODO: Fix RenderContext type
   ): Promise<Result<RenderOutput>> {
     try {
       // Evaluate the scene graph
@@ -275,14 +365,17 @@ export class Renderer {
 
       const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor)
 
-      let performanceMetrics: PerformanceMetrics | null = null
+      // TODO: Use performanceMetrics for monitoring
+      // let performanceMetrics: PerformanceMetrics | null = null
 
       // Use high-performance batch rendering if enabled
       if (this.useBatching && this.batchRenderer && this.performanceMode) {
-        performanceMetrics = await this.renderWithBatching(
-          evaluatedNodes,
-          renderPass
-        )
+        // TODO: Use performanceMetrics for monitoring
+        // performanceMetrics = await this.renderWithBatching(
+        //   evaluatedNodes,
+        //   renderPass
+        // )
+        await this.renderWithBatching(evaluatedNodes, renderPass)
       } else {
         // Use traditional rendering
         await this.renderTraditional(
@@ -347,7 +440,7 @@ export class Renderer {
       this.batchRenderer.optimizeRenderables()
 
       // Render all batches
-      const metricsResult = this.batchRenderer.renderBatches(renderPass)
+      const metricsResult = this.batchRenderer.renderAllBatches(renderPass)
       if (!metricsResult.success) {
         console.warn('Batch rendering failed:', metricsResult.error)
         return null
@@ -435,7 +528,7 @@ export class Renderer {
    * Get performance metrics
    */
   getPerformanceMetrics(): PerformanceMetrics[] {
-    return this.batchRenderer?.getPerformanceMetrics() || []
+    return this.batchRenderer?.getPerformanceMetricsArray() || []
   }
 
   /**
@@ -472,8 +565,8 @@ export class Renderer {
   private async renderNode(
     node: any,
     renderPass: GPURenderPassEncoder,
-    time: Time,
-    context: EvaluationContext
+    _time: Time,
+    _context: EvaluationContext
   ): Promise<Result<boolean>> {
     try {
       // Handle text nodes separately
@@ -517,7 +610,7 @@ export class Renderer {
           scale: node.scale || { x: 1, y: 1 },
         }
 
-        const imageResult = this.imageRenderer.renderImage(
+        const imageResult = await this.imageRenderer.renderImage(
           imageProperties,
           renderPass
         )
@@ -641,6 +734,30 @@ export class Renderer {
   }
 
   /**
+   * Create bind group for a node
+   */
+  private createBindGroupForNode(
+    pipeline: GPURenderPipeline,
+    uniformBuffer: GPUBuffer
+  ): GPUBindGroup | null {
+    if (!this.webgpuContext.getDevice()) {
+      return null
+    }
+
+    return this.webgpuContext.getDevice()!.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: {
+            buffer: uniformBuffer,
+          },
+        },
+      ],
+    })
+  }
+
+  /**
    * Create uniform buffer for a node
    */
   private createUniformBufferForNode(node: any): GPUBuffer | null {
@@ -759,7 +876,7 @@ export class Renderer {
    * Create default font data (placeholder for real font loading)
    */
   private createDefaultFontData(): ArrayBuffer {
-    // This is a placeholder - in a real implementation, we'd load
+    // This is a placeholder - PLACEHOLDER: In a real implementation, we'd load
     // actual font data from TTF/OTF files or use a font library
     const fontData = new ArrayBuffer(1024)
     const view = new Uint8Array(fontData)

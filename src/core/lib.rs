@@ -327,7 +327,7 @@ impl AnimatorEngine {
             render_pass.set_pipeline(pipeline);
 
             // For now, draw a simple test rectangle
-            // In a real implementation, this would iterate through scene graph nodes
+            // PLACEHOLDER: In a real implementation, this would iterate through scene graph nodes
             render_pass.draw(0..6, 0..1);
         }
 

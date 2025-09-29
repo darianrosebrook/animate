@@ -858,7 +858,7 @@ AssertionError: expected false to be true // Object.is equality
     611|       expect(effectResult.success).toBe(true)
        |                                    ^
     612| 
-    613|       // In a real implementation, this would clean up GPU resources
+    613|       // PLACEHOLDER: In a real implementation, this would clean up GPU resources
 
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/28]⎯
 

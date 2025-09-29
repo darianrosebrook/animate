@@ -1,23 +1,32 @@
-import { useState, useEffect, useRef } from 'react'
-import { Play, Pause, Square, Settings, Info, Split } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { Settings, Info } from 'lucide-react'
 import './App.css'
-import {
-  SceneGraph,
-  createRectangleNode,
-  createCircleNode,
-} from '@/core/scene-graph'
+import { SceneGraph } from '@/core/scene-graph'
 import { Renderer } from '@/core/renderer'
+import { useMode } from '@/ui/hooks/use-mode'
+import { LeftPanel } from '@/ui/components/LeftPanel/LeftPanel'
+import { WorkspaceCanvas } from '@/ui/canvas/WorkspaceCanvas'
+import { PropertiesPanel } from '@/ui/components/PropertiesPanel/PropertiesPanel'
+import { FloatingToolbar } from '@/ui/components/FloatingToolbar/FloatingToolbar'
+import { ToolSelectionBar } from '@/ui/components/ToolSelectionBar'
+import { ContextPane } from './components/ContextPane/ContextPane'
+import { KeyframeTimeline } from '@/ui/components/KeyframeTimeline/KeyframeTimeline'
+import { CanvasManager } from '@/ui/utils/canvas-manager'
+import { KeyboardShortcutsHelp } from '@/ui/components/KeyboardShortcutsHelp'
+import { KeyboardShortcutsSettings } from '@/ui/components/KeyboardShortcutsSettings'
 import {
   useKeyboardShortcuts,
   useKeyboardShortcutListener,
 } from '@/ui/hooks/use-keyboard-shortcuts'
-import { useTimeline } from '@/ui/hooks/use-timeline'
-import { TimelinePanel } from '@/ui/timeline'
-import { CanvasManager } from '@/ui/utils/canvas-manager'
-import { KeyboardShortcutsHelp } from '@/ui/components/KeyboardShortcutsHelp'
-import { KeyboardShortcutsSettings } from '@/ui/components/KeyboardShortcutsSettings'
+import './components/LeftPanel/LeftPanel.css'
+import './canvas/WorkspaceCanvas.css'
+import './components/PropertiesPanel/PropertiesPanel.css'
+import './components/FloatingToolbar/FloatingToolbar.css'
+import './components/KeyframeTimeline/KeyframeTimeline.css'
 import './components/KeyboardShortcutsHelp.css'
 import './components/KeyboardShortcutsSettings.css'
+import './components/ToolSelectionBar/ToolSelectionBar.css'
+import './components/ContextPane/ContextPane.css'
 
 function App() {
   const [_count, _setCount] = useState(0)
@@ -26,24 +35,46 @@ function App() {
   const [renderer, setRenderer] = useState<Renderer | null>(null)
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
   const [showShortcutsSettings, setShowShortcutsSettings] = useState(false)
-  const [showTimeline, setShowTimeline] = useState(true)
+  const [timelineState, setTimelineState] = useState({
+    currentTime: 0,
+    duration: 10,
+    isPlaying: false,
+  })
+
+  // Tool selection state
+  const [activeToolId, setActiveToolId] = useState<string | null>('select')
+  const [overlays, setOverlays] = useState({
+    grid: false,
+    guides: false,
+    outlines: true,
+    rulers: false,
+    safeZones: false,
+  })
+
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
   const [canvasManager, setCanvasManager] = useState<CanvasManager | null>(null)
 
-  // Timeline state management
+  // New mode-based state management
   const {
-    timeline,
-    updateTimeline,
-    selectKeyframes,
-    moveKeyframe,
-    addKeyframe,
-    deleteKeyframes,
-    toggleTrack,
-    expandTrack,
-    setPlaybackSpeed,
-    toggleLoop,
-  } = useTimeline()
+    project,
+    currentScene,
+    selectedLayers,
+    setMode,
+    setViewMode,
+    setCurrentScene,
+    addScene,
+    setSelectedLayers,
+    addLayer,
+    updateLayer,
+  } = useMode()
+
+  // Update timeline duration when scene changes
+  React.useEffect(() => {
+    if (currentScene) {
+      setTimelineState((prev) => ({ ...prev, duration: currentScene.duration }))
+    }
+  }, [currentScene])
 
   // Initialize WebGPU support check
   useEffect(() => {
@@ -69,7 +100,13 @@ function App() {
 
   // Initialize renderer and scene graph
   useEffect(() => {
-    if (!canvasRef.current || !webgpuSupported || !canvasManager) return
+    if (
+      !canvasRef.current ||
+      !webgpuSupported ||
+      !canvasManager ||
+      !currentScene
+    )
+      return
 
     const initRenderer = async () => {
       const rendererInstance = new Renderer()
@@ -81,50 +118,15 @@ function App() {
         // Get canvas configuration for scene setup
         const canvasConfig = canvasManager.getConfig()
 
-        // Create a simple scene
-        const redRect = createRectangleNode(
-          'red-rect',
-          'Red Rectangle',
-          100,
-          100,
-          { x: canvasConfig.width * 0.2, y: canvasConfig.height * 0.3 }
-        )
-        const redRectWithColor = redRect.withProperties({
-          ...redRect.properties,
-          fillColor: { r: 255, g: 0, b: 0, a: 1 },
+        // Add layers from current scene to scene graph
+        currentScene.layers.forEach((layer) => {
+          sceneGraph.addNode(layer)
         })
-
-        const blueRect = createRectangleNode(
-          'blue-rect',
-          'Blue Rectangle',
-          50,
-          50,
-          { x: canvasConfig.width * 0.6, y: canvasConfig.height * 0.5 }
-        )
-        const blueRectWithColor = blueRect.withProperties({
-          ...blueRect.properties,
-          fillColor: { r: 0, g: 0, b: 255, a: 1 },
-        })
-
-        const greenCircle = createCircleNode(
-          'green-circle',
-          'Green Circle',
-          75,
-          { x: canvasConfig.width * 0.8, y: canvasConfig.height * 0.4 }
-        )
-        const greenCircleWithColor = greenCircle.withProperties({
-          ...greenCircle.properties,
-          fillColor: { r: 0, g: 255, b: 0, a: 1 },
-        })
-
-        sceneGraph.addNode(redRectWithColor)
-        sceneGraph.addNode(blueRectWithColor)
-        sceneGraph.addNode(greenCircleWithColor)
 
         // Render initial frame
         const context = {
           time: 0.0,
-          frameRate: 30,
+          frameRate: currentScene.frameRate,
           resolution: canvasManager.getPhysicalSize(),
           devicePixelRatio: canvasConfig.devicePixelRatio,
           globalProperties: {},
@@ -142,7 +144,7 @@ function App() {
     return () => {
       renderer?.destroy()
     }
-  }, [webgpuSupported, sceneGraph, canvasManager])
+  }, [webgpuSupported, canvasManager, currentScene])
 
   // Setup keyboard shortcuts
   const { setContext } = useKeyboardShortcuts()
@@ -151,17 +153,16 @@ function App() {
     setContext('viewport')
   }, [setContext])
 
-  // Watch for timeline changes and trigger re-rendering
+  // Watch for scene/layer changes and trigger re-rendering
   useEffect(() => {
-    if (renderer && canvasRef.current) {
-      // Debounce rapid timeline changes to avoid excessive rendering
+    if (renderer && canvasRef.current && currentScene) {
       const timeoutId = setTimeout(() => {
         handleRenderFrame()
       }, 16) // ~60fps
 
       return () => clearTimeout(timeoutId)
     }
-  }, [timeline.currentTime, timeline.tracks])
+  }, [currentScene?.layers, selectedLayers])
 
   // Handle keyboard shortcuts
   useKeyboardShortcutListener((shortcut) => {
@@ -183,21 +184,100 @@ function App() {
         setShowShortcutsHelp(false)
         setShowShortcutsSettings(false)
         break
+      case ' ':
+        // Spacebar for play/pause
+        handlePlayPause()
+        break
       default:
         console.log('Keyboard shortcut:', shortcut.description)
     }
   })
 
-  const handleRenderFrame = async () => {
-    if (!renderer || !canvasManager) return
+  const handlePlayPause = () => {
+    setTimelineState((prev) => ({ ...prev, isPlaying: !prev.isPlaying }))
+  }
 
-    // Apply timeline keyframes to scene graph before rendering
-    applyTimelineToSceneGraph(timeline, sceneGraph)
+  const handleStop = () => {
+    setTimelineState((prev) => ({ ...prev, isPlaying: false, currentTime: 0 }))
+  }
+
+  const handleTimeChange = (time: number) => {
+    setTimelineState((prev) => ({ ...prev, currentTime: time }))
+  }
+
+  const handleAddKeyframe = (layerId: string, time: number) => {
+    console.log(`Adding keyframe for layer ${layerId} at time ${time}`)
+    // TODO: Implement keyframe addition logic
+  }
+
+  const handleToolChange = (toolId: string) => {
+    setActiveToolId(toolId)
+    // TODO: Update canvas interaction mode based on selected tool
+    console.log(`Tool changed to: ${toolId}`)
+  }
+
+  const handleKeyboardShortcut = (shortcut: KeyboardShortcut) => {
+    switch (shortcut.id) {
+      case 'toggle-grid':
+        setOverlays((prev) => ({ ...prev, grid: !prev.grid }))
+        break
+      case 'toggle-guides':
+        setOverlays((prev) => ({ ...prev, guides: !prev.guides }))
+        break
+      case 'toggle-outlines':
+        setOverlays((prev) => ({ ...prev, outlines: !prev.outlines }))
+        break
+      case 'toggle-rulers':
+        setOverlays((prev) => ({ ...prev, rulers: !prev.rulers }))
+        break
+      case 'toggle-safe-zones':
+        setOverlays((prev) => ({ ...prev, safeZones: !prev.safeZones }))
+        break
+      default:
+        console.log(`Tool shortcut used: ${shortcut.description}`)
+        break
+    }
+  }
+
+  const handleLayerUpdate = (layerId: string, updates: any) => {
+    // TODO: Implement layer update logic
+    console.log(`Updating layer ${layerId}:`, updates)
+  }
+
+  const handleSceneUpdate = (sceneId: string, updates: any) => {
+    // TODO: Implement scene update logic
+    console.log(`Updating scene ${sceneId}:`, updates)
+  }
+
+  const handleSceneDelete = (sceneId: string) => {
+    // TODO: Implement scene deletion logic
+    console.log(`Deleting scene ${sceneId}`)
+  }
+
+  const handleSceneReorder = (sceneIds: string[]) => {
+    // TODO: Implement scene reordering logic
+    console.log('Reordering scenes:', sceneIds)
+  }
+
+  const handleLayerReparent = (layerId: string, newParentId: string | null) => {
+    // TODO: Implement layer reparenting logic
+    console.log(`Reparenting layer ${layerId} to ${newParentId}`)
+  }
+
+  const handleRenderFrame = async () => {
+    if (!renderer || !canvasManager || !currentScene) return
+
+    // Update scene graph with current layers
+    // For now, just re-add all layers (inefficient but works for demo)
+    sceneGraph.clear()
+    currentScene.layers.forEach((layer) => {
+      sceneGraph.addNode(layer)
+    })
 
     const canvasConfig = canvasManager.getConfig()
     const context = {
-      time: timeline.currentTime,
-      frameRate: timeline.frameRate,
+      time: timelineState?.currentTime || 0.0,
+      frameRate: currentScene.frameRate,
       resolution: canvasManager.getPhysicalSize(),
       devicePixelRatio: canvasConfig.devicePixelRatio,
       globalProperties: {},
@@ -207,163 +287,12 @@ function App() {
     await renderer.renderFrame(sceneGraph, context.time, context)
   }
 
-  // Apply timeline keyframes to scene graph nodes
-  const applyTimelineToSceneGraph = (
-    timelineState: any,
-    sceneGraph: SceneGraph
-  ) => {
-    timelineState.tracks.forEach((track: any) => {
-      if (!track.enabled || !track.targetNodeId) return
-
-      const nodeResult = sceneGraph.getNode(track.targetNodeId)
-      if (!nodeResult.success) return
-
-      const _node = nodeResult.data
-
-      // Evaluate keyframes for this track
-      const evaluatedValue = evaluateTrackAtTime(
-        track,
-        timelineState.currentTime
-      )
-      if (evaluatedValue === undefined) return
-
-      // Apply the evaluated value to the scene graph node
-      sceneGraph.updateNodeProperties(track.targetNodeId, {
-        [track.propertyPath]: evaluatedValue,
-      })
-    })
-  }
-
-  // Evaluate a track's keyframes at a specific time
-  const evaluateTrackAtTime = (track: any, time: number): any => {
-    if (!track.keyframes || track.keyframes.length === 0) return undefined
-
-    // Sort keyframes by time
-    const sortedKeyframes = [...track.keyframes].sort((a, b) => a.time - b.time)
-
-    // Handle single keyframe case
-    if (sortedKeyframes.length === 1) {
-      return sortedKeyframes[0].value
-    }
-
-    // Find the appropriate keyframe segment
-    let startKeyframe = sortedKeyframes[0]
-    let endKeyframe = sortedKeyframes[sortedKeyframes.length - 1]
-
-    for (let i = 0; i < sortedKeyframes.length - 1; i++) {
-      if (
-        time >= sortedKeyframes[i].time &&
-        time <= sortedKeyframes[i + 1].time
-      ) {
-        startKeyframe = sortedKeyframes[i]
-        endKeyframe = sortedKeyframes[i + 1]
-        break
-      }
-    }
-
-    // Calculate interpolation parameter
-    const segmentDuration = endKeyframe.time - startKeyframe.time
-    if (segmentDuration === 0) return startKeyframe.value
-
-    const t = Math.max(
-      0,
-      Math.min(1, (time - startKeyframe.time) / segmentDuration)
-    )
-
-    // Apply interpolation based on mode
-    return interpolateValues(
-      startKeyframe.value,
-      endKeyframe.value,
-      t,
-      startKeyframe.interpolation
-    )
-  }
-
-  // Interpolate between two values
-  const interpolateValues = (
-    startValue: any,
-    endValue: any,
-    t: number,
-    interpolation: string
-  ): any => {
-    switch (interpolation) {
-      case 'linear':
-        return linearInterpolation(startValue, endValue, t)
-      case 'ease':
-      case 'ease-in':
-      case 'ease-out':
-      case 'ease-in-out':
-        return smoothInterpolation(startValue, endValue, t)
-      case 'bezier':
-        return bezierInterpolation(startValue, endValue, t)
-      default:
-        return linearInterpolation(startValue, endValue, t)
-    }
-  }
-
-  const linearInterpolation = (
-    startValue: any,
-    endValue: any,
-    t: number
-  ): any => {
-    if (typeof startValue === 'number' && typeof endValue === 'number') {
-      return startValue + t * (endValue - startValue)
-    }
-
-    if (startValue && endValue && typeof startValue === 'object') {
-      if ('x' in startValue && 'y' in endValue) {
-        return {
-          x: linearInterpolation(startValue.x, endValue.x, t),
-          y: linearInterpolation(startValue.y, endValue.y, t),
-        }
-      }
-
-      if ('r' in startValue && 'g' in endValue && 'b' in endValue) {
-        return {
-          r: linearInterpolation(startValue.r, endValue.r, t),
-          g: linearInterpolation(startValue.g, endValue.g, t),
-          b: linearInterpolation(startValue.b, endValue.b, t),
-          a: linearInterpolation(startValue.a ?? 1, endValue.a ?? 1, t),
-        }
-      }
-    }
-
-    return startValue
-  }
-
-  const smoothInterpolation = (
-    startValue: any,
-    endValue: any,
-    t: number
-  ): any => {
-    // Smoothstep function: 3t^2 - 2t^3
-    const smoothT = t * t * (3.0 - 2.0 * t)
-    return linearInterpolation(startValue, endValue, smoothT)
-  }
-
-  const bezierInterpolation = (
-    startValue: any,
-    endValue: any,
-    t: number
-  ): any => {
-    // Simple bezier-like interpolation
-    const bezierT = t * t * (3.0 - 2.0 * t)
-    return linearInterpolation(startValue, endValue, bezierT)
-  }
-
   return (
     <>
       <div className="app-layout">
         <div className="app-header">
-          <h1>Animator</h1>
+          <h1>{project.name}</h1>
           <div className="header-controls">
-            <button
-              className={`btn-secondary ${showTimeline ? 'active' : ''}`}
-              onClick={() => setShowTimeline(!showTimeline)}
-              title="Toggle Timeline"
-            >
-              <Split size={16} />
-            </button>
             <button className="btn-secondary" title="Settings">
               <Settings size={16} />
             </button>
@@ -374,6 +303,34 @@ function App() {
         </div>
 
         <div className="app-content">
+          {/* Left Sidebar - Project Navigator */}
+          <LeftPanel
+            project={project}
+            currentScene={currentScene}
+            selectedLayers={selectedLayers}
+            viewMode={project.viewMode}
+            mode={project.mode}
+            onViewModeChange={setViewMode}
+            onSceneSelect={setCurrentScene}
+            onSceneAdd={addScene}
+            onSceneUpdate={handleSceneUpdate}
+            onSceneDelete={handleSceneDelete}
+            onSceneReorder={handleSceneReorder}
+            onLayerAdd={addLayer}
+            onLayerUpdate={handleLayerUpdate}
+            onLayerDelete={(layerId) => {
+              // TODO: Implement layer deletion
+              console.log(`Deleting layer ${layerId}`)
+            }}
+            onLayerSelect={setSelectedLayers}
+            onLayerReorder={(sceneId, layerIds) => {
+              // TODO: Implement layer reordering
+              console.log(`Reordering layers in scene ${sceneId}:`, layerIds)
+            }}
+            onLayerReparent={handleLayerReparent}
+          />
+
+          {/* Main Canvas Area */}
           <div className="viewport-section">
             {webgpuSupported === null && <p>Checking WebGPU support...</p>}
 
@@ -385,86 +342,60 @@ function App() {
             )}
 
             {webgpuSupported === true && (
-              <>
-                <div className="canvas-container" ref={canvasContainerRef}>
-                  <canvas
-                    ref={canvasRef}
-                    style={{
-                      border: '1px solid #333',
-                      backgroundColor: '#111',
-                      width: '100%',
-                      height: '100%',
-                    }}
-                  />
-                </div>
-
-                <div className="viewport-controls">
-                  <button
-                    onClick={() =>
-                      updateTimeline((prev) => ({
-                        ...prev,
-                        isPlaying: !prev.isPlaying,
-                      }))
-                    }
-                    className="btn-primary"
-                  >
-                    {timeline.isPlaying ? (
-                      <Pause size={16} />
-                    ) : (
-                      <Play size={16} />
-                    )}
-                    {timeline.isPlaying ? 'Pause' : 'Play'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      updateTimeline((prev) => ({
-                        ...prev,
-                        isPlaying: false,
-                        currentTime: 0,
-                      }))
-                    }}
-                    className="btn-secondary"
-                  >
-                    <Square size={16} />
-                    Stop
-                  </button>
-                  <button onClick={handleRenderFrame} className="btn-secondary">
-                    Render Frame
-                  </button>
-                  <span className="frame-info">
-                    Time: {timeline.currentTime.toFixed(2)}s | Frame:{' '}
-                    {Math.floor(timeline.currentTime * timeline.frameRate)}
-                  </span>
-                </div>
-              </>
+              <WorkspaceCanvas
+                project={project}
+                currentScene={currentScene}
+                selectedLayers={selectedLayers}
+                onLayerSelect={setSelectedLayers}
+                onLayerUpdate={handleLayerUpdate}
+                onSceneReorder={handleSceneReorder}
+                onSceneUpdate={handleSceneUpdate}
+              />
             )}
 
             <p className="read-the-docs">
-              Scene contains: 3 shapes (2 rectangles, 1 circle) |{' '}
-              <a href="/implementation/README.md" target="_blank">
-                View implementation guide
-              </a>
+              {currentScene ? (
+                <>
+                  Scene: {currentScene.name} | {currentScene.layers.length}{' '}
+                  layers |{' '}
+                  <a href="/implementation/README.md" target="_blank">
+                    View implementation guide
+                  </a>
+                </>
+              ) : (
+                'No scene selected'
+              )}
             </p>
           </div>
 
-          {showTimeline && (
-            <div className="timeline-section">
-              <TimelinePanel
-                timeline={timeline}
-                onTimelineChange={updateTimeline}
-                onKeyframeSelect={selectKeyframes}
-                onKeyframeMove={moveKeyframe}
-                onKeyframeAdd={addKeyframe}
-                onKeyframeDelete={deleteKeyframes}
-                onTrackToggle={toggleTrack}
-                onTrackExpand={expandTrack}
-                onPlaybackSpeedChange={setPlaybackSpeed}
-                onLoopToggle={toggleLoop}
-              />
-            </div>
-          )}
+          {/* Right Sidebar - Context Pane */}
+          <ContextPane
+            mode={project.mode}
+            currentScene={currentScene}
+            selectedLayers={selectedLayers}
+            onLayerUpdate={handleLayerUpdate}
+            onSceneUpdate={handleSceneUpdate}
+          />
         </div>
       </div>
+
+      {/* Tool Selection Bar */}
+      <ToolSelectionBar
+        mode={project.mode}
+        activeToolId={activeToolId}
+        onToolChange={handleToolChange}
+        onKeyboardShortcut={handleKeyboardShortcut}
+      />
+
+      {/* Floating Toolbar */}
+      <FloatingToolbar
+        mode={project.mode}
+        isPlaying={timelineState.isPlaying}
+        onModeChange={setMode}
+        onPlayPause={handlePlayPause}
+        onStop={handleStop}
+        onAddKeyframe={handleAddKeyframe}
+      />
 
       <KeyboardShortcutsHelp
         isOpen={showShortcutsHelp}

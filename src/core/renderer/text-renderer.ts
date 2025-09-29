@@ -87,18 +87,33 @@ export interface TextProperties {
 /**
  * Font atlas for efficient texture management
  */
+export class TypefaceData {
+  constructor(private _fontData: ArrayBuffer) {
+    // TODO: Implement font data processing
+  }
+}
+
+/**
+ * Font atlas for efficient texture management
+ */
 export class FontAtlas {
   private texture: GPUTexture | null = null
   private textureSize: number = 1024
-  private _currentX = 0
-  private _currentY = 0
   private lineHeight = 0
   private glyphs: Map<number, GlyphInfo> = new Map()
+  // TODO: Implement font data storage
+  // private _fontData: ArrayBuffer
+
+  // private _typefaceData: TypefaceData
 
   constructor(
     private device: GPUDevice,
-    private fontData: ArrayBuffer
-  ) {}
+    _fontData: ArrayBuffer
+  ) {
+    // TODO: Implement font data initialization
+    // this.fontData = fontData
+    // this.typefaceData = new TypefaceData(fontData)
+  }
 
   /**
    * Initialize font atlas with basic glyphs
@@ -170,7 +185,8 @@ export class FontAtlas {
     const charWidth = 16
     const charHeight = 24
     const charsPerRow = Math.floor(this.textureSize / charWidth)
-    const _rows = Math.ceil((127 - 32) / charsPerRow)
+    // TODO: Use rows calculation for font texture generation
+    // const _rows = Math.ceil((127 - 32) / charsPerRow)
 
     // Create bitmap data for simple ASCII characters
     const bitmapData = new Uint8Array(this.textureSize * this.textureSize * 4)
@@ -745,14 +761,11 @@ export class TextRenderer {
       vertices[baseIndex + 5] = glyph.color.g / 255
       vertices[baseIndex + 6] = glyph.color.b / 255
       vertices[baseIndex + 7] = glyph.color.a ?? 1
-      const width = glyph.size?.width || 16
-      const height = glyph.size?.height || 24
-
-      vertices[baseIndex + 8] = width
-      vertices[baseIndex + 9] = height
+      vertices[baseIndex + 8] = glyph.size?.width || 16
+      vertices[baseIndex + 9] = glyph.size?.height || 24
 
       // Bottom-right
-      vertices[baseIndex + 10] = glyph.position.x + width
+      vertices[baseIndex + 10] = glyph.position.x + (glyph.size?.width || 16)
       vertices[baseIndex + 11] = glyph.position.y
       vertices[baseIndex + 12] = glyph.textureCoords.u2
       vertices[baseIndex + 13] = glyph.textureCoords.v2
@@ -760,36 +773,36 @@ export class TextRenderer {
       vertices[baseIndex + 15] = glyph.color.g / 255
       vertices[baseIndex + 16] = glyph.color.b / 255
       vertices[baseIndex + 17] = glyph.color.a ?? 1
-      vertices[baseIndex + 18] = width
-      vertices[baseIndex + 19] = height
+      vertices[baseIndex + 18] = glyph.size?.width || 16
+      vertices[baseIndex + 19] = glyph.size?.height || 24
 
       // Top-left
       vertices[baseIndex + 20] = glyph.position.x
-      vertices[baseIndex + 21] = glyph.position.y + height
+      vertices[baseIndex + 21] = glyph.position.y + (glyph.size?.height || 24)
       vertices[baseIndex + 22] = glyph.textureCoords.u1
       vertices[baseIndex + 23] = glyph.textureCoords.v1
       vertices[baseIndex + 24] = glyph.color.r / 255
       vertices[baseIndex + 25] = glyph.color.g / 255
       vertices[baseIndex + 26] = glyph.color.b / 255
       vertices[baseIndex + 27] = glyph.color.a ?? 1
-      vertices[baseIndex + 28] = width
-      vertices[baseIndex + 29] = height
+      vertices[baseIndex + 28] = glyph.size?.width || 16
+      vertices[baseIndex + 29] = glyph.size?.height || 24
 
       // Triangle 2
       // Top-left
       vertices[baseIndex + 30] = glyph.position.x
-      vertices[baseIndex + 31] = glyph.position.y + height
+      vertices[baseIndex + 31] = glyph.position.y + (glyph.size?.height || 24)
       vertices[baseIndex + 32] = glyph.textureCoords.u1
       vertices[baseIndex + 33] = glyph.textureCoords.v1
       vertices[baseIndex + 34] = glyph.color.r / 255
       vertices[baseIndex + 35] = glyph.color.g / 255
       vertices[baseIndex + 36] = glyph.color.b / 255
       vertices[baseIndex + 37] = glyph.color.a ?? 1
-      vertices[baseIndex + 38] = width
-      vertices[baseIndex + 39] = height
+      vertices[baseIndex + 38] = glyph.size?.width || 16
+      vertices[baseIndex + 39] = glyph.size?.height || 24
 
       // Bottom-right
-      vertices[baseIndex + 40] = glyph.position.x + width
+      vertices[baseIndex + 40] = glyph.position.x + (glyph.size?.width || 16)
       vertices[baseIndex + 41] = glyph.position.y
       vertices[baseIndex + 42] = glyph.textureCoords.u2
       vertices[baseIndex + 43] = glyph.textureCoords.v2
@@ -797,20 +810,20 @@ export class TextRenderer {
       vertices[baseIndex + 45] = glyph.color.g / 255
       vertices[baseIndex + 46] = glyph.color.b / 255
       vertices[baseIndex + 47] = glyph.color.a ?? 1
-      vertices[baseIndex + 48] = width
-      vertices[baseIndex + 49] = height
+      vertices[baseIndex + 48] = glyph.size?.width || 16
+      vertices[baseIndex + 49] = glyph.size?.height || 24
 
       // Top-right
-      vertices[baseIndex + 50] = glyph.position.x + width
-      vertices[baseIndex + 51] = glyph.position.y + height
+      vertices[baseIndex + 50] = glyph.position.x + (glyph.size?.width || 16)
+      vertices[baseIndex + 51] = glyph.position.y + (glyph.size?.height || 24)
       vertices[baseIndex + 52] = glyph.textureCoords.u2
       vertices[baseIndex + 53] = glyph.textureCoords.v1
       vertices[baseIndex + 54] = glyph.color.r / 255
       vertices[baseIndex + 55] = glyph.color.g / 255
       vertices[baseIndex + 56] = glyph.color.b / 255
       vertices[baseIndex + 57] = glyph.color.a ?? 1
-      vertices[baseIndex + 58] = width
-      vertices[baseIndex + 59] = height
+      vertices[baseIndex + 58] = glyph.size?.width || 16
+      vertices[baseIndex + 59] = glyph.size?.height || 24
     }
 
     return vertices

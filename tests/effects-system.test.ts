@@ -157,7 +157,7 @@ describe('Effects System - Comprehensive Tests', () => {
       expect(effectResult.success).toBe(true)
       const effect = effectResult.data!
 
-      // In a real test environment with GPU, we would:
+      // PLACEHOLDER: In a real test environment with GPU, we would:
       // 1. Create input/output textures
       // 2. Apply the effect
       // 3. Verify the output
@@ -174,7 +174,7 @@ describe('Effects System - Comprehensive Tests', () => {
       // Disable the effect
       effect.enabled = false
 
-      // In a real test, applying a disabled effect should return the input unchanged
+      // PLACEHOLDER: In a real test, applying a disabled effect should return the input unchanged
       expect(effect.enabled).toBe(false)
     })
   })
@@ -610,7 +610,7 @@ describe('Effects System - Comprehensive Tests', () => {
       const effectResult = effectsSystem.createEffect('glow')
       expect(effectResult.success).toBe(true)
 
-      // In a real implementation, this would clean up GPU resources
+      // PLACEHOLDER: In a real implementation, this would clean up GPU resources
       effectsSystem.destroy()
 
       // System should be in a clean state after destruction
@@ -622,7 +622,7 @@ describe('Effects System - Comprehensive Tests', () => {
   describe('Cross-Platform Compatibility', () => {
     it('should handle different GPU architectures', () => {
       // Test that effects work with different GPU types
-      // In a real test environment, this would test actual GPU differences
+      // PLACEHOLDER: In a real test environment, this would test actual GPU differences
 
       const effectResult = effectsSystem.createEffect('glow')
       expect(effectResult.success).toBe(true)

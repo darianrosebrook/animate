@@ -4,12 +4,40 @@
  * @author @darianrosebrook
  */
 
-// Re-export types from ExecutionContext for convenience
-export type {
-  SandboxConfig,
-  ExecutionResult,
-  ExecutionError,
-} from './ExecutionContext'
+// Define types here to avoid circular imports
+export interface SandboxConfig {
+  name?: string // Optional name for the sandbox
+  memoryLimit: number // MB
+  timeout: number // milliseconds
+  permissions: string[]
+  apis: string[]
+  networkAccess: boolean
+  fileSystemAccess: boolean
+}
+
+/**
+ * Execution result interface
+ */
+export interface ExecutionResult {
+  success: boolean
+  result: any
+  executionTime: number
+  memoryUsed: number
+  output: string
+  errors: ExecutionError[]
+  warnings: any[]
+}
+
+/**
+ * Execution error interface
+ */
+export interface ExecutionError {
+  type: 'syntax' | 'runtime' | 'timeout' | 'memory' | 'permission'
+  message: string
+  line?: number
+  column?: number
+  stack?: string
+}
 
 /**
  * Sandbox creation and management interfaces
@@ -111,12 +139,15 @@ export class DefaultSandboxManager implements SandboxManager {
       executionCount: 0,
       errorCount: 0,
 
-      async execute(code: string, parameters?: any): Promise<ExecutionResult> {
+      async execute(
+        _code: string,
+        _parameters?: any
+      ): Promise<ExecutionResult> {
         // Implementation would use ExecutionContext
         throw new Error('Sandbox execution not implemented')
       },
 
-      async validate(code: string): Promise<ValidationResult> {
+      async validate(_code: string): Promise<ValidationResult> {
         // Implementation would validate code without execution
         throw new Error('Sandbox validation not implemented')
       },

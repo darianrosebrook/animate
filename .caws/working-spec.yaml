@@ -1,65 +1,49 @@
-id: COLLAB-1001
-title: "Implement real-time multi-player editing with CRDT-based collaboration system"
-risk_tier: 1
+id: ANIM-002
+title: "Optimize Batch Renderer and Add Bisect Tool for High-Performance Motion Graphics Development"
+risk_tier: 2
 mode: feature
 change_budget:
-  max_files: 40
-  max_loc: 1500
+  max_files: 15
+  max_loc: 600
 blast_radius:
-  modules: ["collaboration", "scene-graph", "timeline", "ui", "api"]
+  modules: ["renderer", "testing"]
   data_migration: false
-operational_rollback_slo: "30m"
+operational_rollback_slo: "15m"
 threats:
-  - "Real-time synchronization conflicts causing data loss"
-  - "Performance degradation with multiple concurrent users"
-  - "Network latency affecting collaboration responsiveness"
-  - "Security vulnerabilities in peer-to-peer communication"
-  - "CRDT implementation bugs causing inconsistent document state"
+  - "GPU optimizations could introduce platform-specific bugs"
+  - "Bisect tool might slow CI if not optimized"
 scope:
-  in: ["real-time collaboration infrastructure", "CRDT document model", "presence system", "conflict resolution", "session management", "collaboration UI components"]
-  out: ["offline collaboration", "advanced review workflows", "enterprise SSO integration", "mobile collaboration optimization"]
+  in: ["batch renderer performance enhancements", "memory pooling", "bisect tool", "flag testing"]
+  out: ["new effects features", "major UI overhauls"]
 invariants:
-  - "Collaboration system maintains deterministic document state across all participants"
-  - "Real-time synchronization preserves user intent and prevents data loss"
-  - "Presence system updates cursor positions within 100ms latency"
-  - "Conflict resolution automatically merges non-conflicting changes"
-  - "Session management maintains security and access control"
-  - "Collaboration features do not degrade 60fps timeline performance"
+  - "Maintain 60fps timeline interactions"
+  - "Preserve deterministic rendering across GPU vendors"
+  - "Ensure bisect tool doesn't affect production builds"
 acceptance:
   - id: A1
-    given: "two users join the same collaboration session"
-    when: "both users edit different properties of the same scene node simultaneously"
-    then: "both changes are applied without conflicts; document state remains consistent"
+    given: "complex scene with 1000+ renderables"
+    when: "render frame with batch optimizations"
+    then: "frame time <16ms, memory usage reduced by 20%"
   - id: A2
-    given: "user moves cursor while another user is editing"
-    when: "cursor position updates are broadcast to all participants"
-    then: "cursor appears at correct position within 100ms; no performance impact on editing"
+    given: "Git repository with regression"
+    when: "run bisect tool"
+    then: "identifies bad commit within 5 runs"
   - id: A3
-    given: "user adds keyframe to timeline track"
-    when: "another user is scrubbing the timeline"
-    then: "keyframe appears immediately; timeline scrubbing remains smooth at 60fps"
-  - id: A4
-    given: "network connection is temporarily lost during collaboration"
-    when: "connection is restored"
-    then: "document state synchronizes correctly; no data loss or conflicts"
-  - id: A5
-    given: "collaboration session with 5+ concurrent users"
-    when: "all users perform simultaneous edits"
-    then: "system maintains <200ms property sync latency; no performance degradation"
+    given: "feature flag changes"
+    when: "run tests with flags on/off"
+    then: "catches 80% of regressions"
 non_functional:
-  a11y: ["collaboration features support keyboard navigation", "presence indicators announced to screen readers", "conflict resolution dialogs accessible"]
-  perf:
-    api_p95_ms: 200
-    lcp_ms: 1000
-  security: ["end-to-end encryption for collaboration data", "session authentication and authorization", "rate limiting for collaboration operations"]
+  a11y: ["no UI changes"]
+  perf: { frame_time_ms: 16, memory_mb: 256 }
+  security: ["no new dependencies or attack surfaces"]
 contracts:
   - type: openapi
-    path: "apps/contracts/animator-api.yaml#/collaboration"
+    path: "apps/contracts/scene-graph-api.yaml#/rendering/performance"
   - type: openapi
-    path: "apps/contracts/scene-graph-api.yaml#/collaboration"
+    path: "apps/contracts/timeline-api.yaml#/testing/bisect"
 observability:
-  logs: ["collaboration.session_created", "collaboration.user_joined", "collaboration.conflict_resolved", "collaboration.sync_latency"]
-  metrics: ["collaboration_active_sessions", "collaboration_sync_latency_p95", "collaboration_conflict_rate", "collaboration_user_count"]
-  traces: ["collaboration span with session_id, user_id, operation_type"]
+  logs: ["batch_renderer.optimize_memory", "bisect_tool.run"]
+  metrics: ["renderer_memory_efficiency", "bisect_accuracy_rate"]
+  traces: ["gpu_pipeline_spans", "git_operation_traces"]
 migrations: []
-rollback: ["disable collaboration features via feature flag", "fallback to single-user mode", "preserve document state"]
+rollback: ["feature flags for renderer features; remove bisect script if needed"]

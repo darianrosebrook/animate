@@ -1,4 +1,5 @@
-import React from 'react'
+// TODO: Use React for JSX
+// import React from 'react'
 import './TimelineRuler.css'
 
 export interface TimelineRulerProps {

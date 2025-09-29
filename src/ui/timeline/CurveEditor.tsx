@@ -30,8 +30,9 @@ export function CurveEditor({
   height,
   onPointsChange,
   onPointAdd,
-  onPointRemove,
-  onPointUpdate,
+  // TODO: Use onPointRemove and onPointUpdate for curve editing
+  // onPointRemove,
+  // onPointUpdate,
   className = '',
 }: CurveEditorProps) {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -407,4 +408,3 @@ export function CurveEditor({
     </div>
   )
 }
-

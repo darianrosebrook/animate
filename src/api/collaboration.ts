@@ -838,13 +838,13 @@ export class CollaborationManager implements CollaborationAPI {
         },
         settings: {
           autoSync: true,
-          conflictResolution: 'merge' as 'merge',
+          conflictResolution: ConflictResolutionStrategy.AutoMerge,
           activityTimeout: 30,
           maxIdleTime: 60,
           enableComments: true,
           enableChat: true,
         },
-        status: 'active' as 'active',
+        status: SessionStatus.Active,
         createdAt: now,
         lastActivity: now,
         metadata: {
@@ -936,7 +936,7 @@ export class CollaborationManager implements CollaborationAPI {
       }
 
       return { success: true, data: result }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -961,7 +961,7 @@ export class CollaborationManager implements CollaborationAPI {
       session.lastActivity = new Date()
 
       return { success: true, data: undefined }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -981,11 +981,11 @@ export class CollaborationManager implements CollaborationAPI {
         }
       }
 
-      session.status = 'ended' as 'ended'
+      session.status = SessionStatus.Ended
       session.lastActivity = new Date()
 
       return { success: true, data: undefined }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1006,7 +1006,7 @@ export class CollaborationManager implements CollaborationAPI {
       }
 
       return { success: true, data: session }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1053,7 +1053,7 @@ export class CollaborationManager implements CollaborationAPI {
       participant.lastActive = new Date()
 
       return { success: true, data: undefined }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1074,7 +1074,7 @@ export class CollaborationManager implements CollaborationAPI {
       }
 
       return { success: true, data: session.participants }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1104,7 +1104,7 @@ export class CollaborationManager implements CollaborationAPI {
       }
 
       return { success: true, data: participant.presence }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1114,7 +1114,7 @@ export class CollaborationManager implements CollaborationAPI {
 
   async subscribeToChanges(
     sessionId: string,
-    callback: (changes: DocumentChange[]) => void
+    _callback: (changes: DocumentChange[]) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>> {
     try {
       const session = this.sessions.get(sessionId)
@@ -1131,7 +1131,7 @@ export class CollaborationManager implements CollaborationAPI {
       }
 
       return { success: true, data: unsubscribe }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1141,7 +1141,7 @@ export class CollaborationManager implements CollaborationAPI {
 
   async applyChanges(
     sessionId: string,
-    changes: DocumentChange[]
+    _changes: DocumentChange[]
   ): Promise<Result<void, 'SESSION_NOT_FOUND' | 'CONFLICT_RESOLUTION_FAILED'>> {
     try {
       const session = this.sessions.get(sessionId)
@@ -1156,7 +1156,7 @@ export class CollaborationManager implements CollaborationAPI {
       session.lastActivity = new Date()
 
       return { success: true, data: undefined }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1187,7 +1187,7 @@ export class CollaborationManager implements CollaborationAPI {
       }
 
       return { success: true, data: snapshot }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1209,7 +1209,7 @@ export class CollaborationManager implements CollaborationAPI {
 
       // Simplified - no conflicts for now
       return { success: true, data: [] }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1218,8 +1218,8 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async resolveConflict(
-    conflictId: string,
-    resolution: ConflictResolution
+    _conflictId: string,
+    _resolution: ConflictResolution
   ): Promise<Result<void, 'CONFLICT_NOT_FOUND' | 'INVALID_RESOLUTION'>> {
     try {
       // Simplified - conflict resolution not implemented yet
@@ -1249,7 +1249,7 @@ export class CollaborationManager implements CollaborationAPI {
 
       // Simplified - no auto-resolution implemented yet
       return { success: true, data: [] }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1275,7 +1275,7 @@ export class CollaborationManager implements CollaborationAPI {
       session.lastActivity = new Date()
 
       return { success: true, data: undefined }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1296,7 +1296,7 @@ export class CollaborationManager implements CollaborationAPI {
       }
 
       return { success: true, data: session.permissions }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1305,9 +1305,9 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async grantPermission(
-    sessionId: string,
-    userId: string,
-    permission: string
+    _sessionId: string,
+    _userId: string,
+    _permission: string
   ): Promise<
     Result<void, 'SESSION_NOT_FOUND' | 'NOT_HOST' | 'INVALID_PERMISSION'>
   > {
@@ -1326,9 +1326,9 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async revokePermission(
-    sessionId: string,
-    userId: string,
-    permission: string
+    _sessionId: string,
+    _userId: string,
+    _permission: string
   ): Promise<
     Result<void, 'SESSION_NOT_FOUND' | 'NOT_HOST' | 'INVALID_PERMISSION'>
   > {
@@ -1347,8 +1347,8 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async addComment(
-    sessionId: string,
-    comment: Comment
+    _sessionId: string,
+    _comment: Comment
   ): Promise<Result<Comment, 'SESSION_NOT_FOUND' | 'INVALID_COMMENT'>> {
     try {
       // Simplified - comment system not implemented
@@ -1365,8 +1365,8 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async updateComment(
-    commentId: string,
-    updates: Partial<Comment>
+    _commentId: string,
+    _updates: Partial<Comment>
   ): Promise<Result<Comment, 'COMMENT_NOT_FOUND' | 'NOT_AUTHOR'>> {
     try {
       // Simplified - comment system not implemented
@@ -1383,7 +1383,7 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async deleteComment(
-    commentId: string
+    _commentId: string
   ): Promise<Result<void, 'COMMENT_NOT_FOUND' | 'NOT_AUTHOR'>> {
     try {
       // Simplified - comment system not implemented
@@ -1400,13 +1400,13 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async getComments(
-    sessionId: string,
-    filters?: CommentFilters
+    _sessionId: string,
+    _filters?: CommentFilters
   ): Promise<Result<Comment[], 'SESSION_NOT_FOUND'>> {
     try {
       // Simplified - comment system not implemented
       return { success: true, data: [] }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1415,8 +1415,8 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async resolveComment(
-    commentId: string,
-    resolution: string
+    _commentId: string,
+    _resolution: string
   ): Promise<Result<void, 'COMMENT_NOT_FOUND' | 'NOT_AUTHOR'>> {
     try {
       // Simplified - comment system not implemented
@@ -1433,13 +1433,13 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async getActivityFeed(
-    sessionId: string,
-    options?: ActivityFeedOptions
+    _sessionId: string,
+    _options?: ActivityFeedOptions
   ): Promise<Result<ActivityItem[], 'SESSION_NOT_FOUND'>> {
     try {
       // Simplified - activity tracking not implemented
       return { success: true, data: [] }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1448,8 +1448,8 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async getDocumentHistory(
-    sessionId: string,
-    options?: HistoryOptions
+    _sessionId: string,
+    _options?: HistoryOptions
   ): Promise<Result<DocumentHistory, 'SESSION_NOT_FOUND'>> {
     try {
       // Simplified - history tracking not implemented
@@ -1460,7 +1460,7 @@ export class CollaborationManager implements CollaborationAPI {
         totalChanges: 0,
       }
       return { success: true, data: history }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1469,14 +1469,14 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async subscribeToSessionEvents(
-    sessionId: string,
-    callback: (event: SessionEvent) => void
+    _sessionId: string,
+    _callback: (event: SessionEvent) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>> {
     try {
       // Simplified - event system not implemented
       const unsubscribe = () => {}
       return { success: true, data: unsubscribe }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1485,14 +1485,14 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async subscribeToPresenceChanges(
-    sessionId: string,
-    callback: (changes: PresenceChange[]) => void
+    _sessionId: string,
+    _callback: (changes: PresenceChange[]) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>> {
     try {
       // Simplified - presence events not implemented
       const unsubscribe = () => {}
       return { success: true, data: unsubscribe }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,
@@ -1501,14 +1501,14 @@ export class CollaborationManager implements CollaborationAPI {
   }
 
   async subscribeToCommentChanges(
-    sessionId: string,
-    callback: (changes: CommentChange[]) => void
+    _sessionId: string,
+    _callback: (changes: CommentChange[]) => void
   ): Promise<Result<UnsubscribeFn, 'SESSION_NOT_FOUND'>> {
     try {
       // Simplified - comment events not implemented
       const unsubscribe = () => {}
       return { success: true, data: unsubscribe }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SESSION_NOT_FOUND' as const,

@@ -1,0 +1,46 @@
+/* @author @darianrosebrook */
+.storyboard-canvas {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  background: #111;
+}
+
+.storyboard-grid {
+  position: absolute;
+  left: 40px;
+  top: 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 320px);
+  grid-auto-rows: 220px;
+  gap: 24px;
+}
+
+.storyboard-thumb {
+  width: 320px;
+  height: 200px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: grab;
+  transition: transform 0.15s ease;
+}
+
+.storyboard-thumb.dragged { opacity: 0.5 }
+
+.thumb-frame {
+  flex: 1;
+  margin: 8px;
+  border-radius: 4px;
+  background: #0f0f10;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.thumb-title {
+  padding: 0 10px 10px 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+}

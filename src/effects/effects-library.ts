@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError } from '@/types'
+import { Result } from '@/types'
 import {
   EffectLibrary as IEffectLibrary,
   EffectType,
@@ -279,6 +279,220 @@ export class EffectsLibrary implements IEffectLibrary {
       },
     })
 
+    // Motion Blur Effect
+    this.effectTypes.set('motion-blur', {
+      name: 'motion-blur',
+      displayName: 'Motion Blur',
+      category: EffectCategory.Blur,
+      description:
+        'Creates motion blur based on object velocity and movement direction',
+      parameters: [
+        {
+          name: 'intensity',
+          displayName: 'Intensity',
+          type: EffectParameterType.Float,
+          defaultValue: 1.0,
+          min: 0.0,
+          max: 3.0,
+          step: 0.1,
+          description: 'Blur intensity based on velocity',
+          animatable: true,
+        },
+        {
+          name: 'samples',
+          displayName: 'Samples',
+          type: EffectParameterType.Int,
+          defaultValue: 8,
+          min: 4,
+          max: 16,
+          step: 1,
+          description: 'Number of blur samples for quality',
+          animatable: false,
+        },
+        {
+          name: 'velocity_scale',
+          displayName: 'Velocity Scale',
+          type: EffectParameterType.Float,
+          defaultValue: 1.0,
+          min: 0.1,
+          max: 5.0,
+          step: 0.1,
+          description: 'Scale factor for velocity-based blur',
+          animatable: true,
+        },
+      ],
+      shader: this.getMotionBlurShader(),
+      passes: 2, // Velocity calculation + blur passes
+      performance: {
+        estimatedRenderTimeMs: 12.0,
+        memoryUsageMB: 48.0,
+      },
+    })
+
+    // Depth of Field Effect
+    this.effectTypes.set('depth-of-field', {
+      name: 'depth-of-field',
+      displayName: 'Depth of Field',
+      category: EffectCategory.Blur,
+      description:
+        'Simulates camera focus with blur based on depth information',
+      parameters: [
+        {
+          name: 'focus_distance',
+          displayName: 'Focus Distance',
+          type: EffectParameterType.Float,
+          defaultValue: 0.5,
+          min: 0.0,
+          max: 1.0,
+          step: 0.01,
+          description: 'Distance at which objects are in focus',
+          animatable: true,
+        },
+        {
+          name: 'focus_range',
+          displayName: 'Focus Range',
+          type: EffectParameterType.Float,
+          defaultValue: 0.1,
+          min: 0.0,
+          max: 0.5,
+          step: 0.01,
+          description: 'Range around focus distance that stays sharp',
+          animatable: true,
+        },
+        {
+          name: 'blur_amount',
+          displayName: 'Blur Amount',
+          type: EffectParameterType.Float,
+          defaultValue: 2.0,
+          min: 0.0,
+          max: 10.0,
+          step: 0.1,
+          description: 'Maximum blur amount for out-of-focus areas',
+          animatable: true,
+        },
+        {
+          name: 'aperture_blades',
+          displayName: 'Aperture Blades',
+          type: EffectParameterType.Int,
+          defaultValue: 6,
+          min: 3,
+          max: 12,
+          step: 1,
+          description: 'Number of aperture blades for bokeh shape',
+          animatable: false,
+        },
+      ],
+      shader: this.getDepthOfFieldShader(),
+      passes: 3, // Depth sampling + blur + composite passes
+      performance: {
+        estimatedRenderTimeMs: 18.0,
+        memoryUsageMB: 64.0,
+      },
+    })
+
+    // Particle System Effect
+    this.effectTypes.set('particles', {
+      name: 'particles',
+      displayName: 'Particle System',
+      category: EffectCategory.Generative,
+      description: 'GPU-accelerated particle system with physics simulation',
+      parameters: [
+        {
+          name: 'count',
+          displayName: 'Particle Count',
+          type: EffectParameterType.Int,
+          defaultValue: 1000,
+          min: 100,
+          max: 10000,
+          step: 100,
+          description: 'Number of particles to simulate',
+          animatable: false,
+        },
+        {
+          name: 'lifetime',
+          displayName: 'Lifetime',
+          type: EffectParameterType.Float,
+          defaultValue: 2.0,
+          min: 0.5,
+          max: 10.0,
+          step: 0.1,
+          description: 'Particle lifetime in seconds',
+          animatable: true,
+        },
+        {
+          name: 'gravity',
+          displayName: 'Gravity',
+          type: EffectParameterType.Point,
+          defaultValue: { x: 0.0, y: -9.8 },
+          description: 'Gravity vector for particle physics',
+          animatable: true,
+        },
+        {
+          name: 'start_velocity',
+          displayName: 'Start Velocity',
+          type: EffectParameterType.Point,
+          defaultValue: { x: 0.0, y: 5.0 },
+          description: 'Initial velocity for new particles',
+          animatable: true,
+        },
+        {
+          name: 'color_over_time',
+          displayName: 'Color Over Time',
+          type: EffectParameterType.Color,
+          defaultValue: [
+            { r: 1.0, g: 1.0, b: 1.0, a: 1.0 },
+            { r: 1.0, g: 0.5, b: 0.0, a: 0.8 },
+            { r: 0.0, g: 0.0, b: 0.0, a: 0.0 },
+          ],
+          description: 'Color gradient over particle lifetime',
+          animatable: false,
+        },
+      ],
+      shader: this.getParticleShader(),
+      passes: 2, // Physics simulation + rendering passes
+      performance: {
+        estimatedRenderTimeMs: 15.0,
+        memoryUsageMB: 96.0,
+      },
+    })
+
+    // Transition Effects
+    this.effectTypes.set('crossfade', {
+      name: 'crossfade',
+      displayName: 'Crossfade',
+      category: EffectCategory.Composite,
+      description:
+        'Smooth transition between two layers with customizable easing',
+      parameters: [
+        {
+          name: 'progress',
+          displayName: 'Progress',
+          type: EffectParameterType.Float,
+          defaultValue: 0.0,
+          min: 0.0,
+          max: 1.0,
+          step: 0.01,
+          description: 'Transition progress (0-1)',
+          animatable: true,
+        },
+        {
+          name: 'easing',
+          displayName: 'Easing',
+          type: EffectParameterType.Enum,
+          defaultValue: 'ease-in-out',
+          options: ['linear', 'ease-in', 'ease-out', 'ease-in-out'],
+          description: 'Easing function for transition',
+          animatable: false,
+        },
+      ],
+      shader: this.getCrossfadeShader(),
+      passes: 1,
+      performance: {
+        estimatedRenderTimeMs: 2.0,
+        memoryUsageMB: 8.0,
+      },
+    })
+
     // Initialize some default presets
     this.initializeDefaultPresets()
   }
@@ -351,6 +565,126 @@ export class EffectsLibrary implements IEffectLibrary {
         contrast: 1.3,
         saturation: 1.1,
         gamma: 1.0,
+      },
+      category: 'professional',
+    })
+
+    // Motion blur presets
+    this.presets.set('motion-blur-subtle', {
+      id: 'motion-blur-subtle',
+      name: 'Subtle Motion Blur',
+      description: 'Light motion blur for smooth movement',
+      effectType: 'motion-blur',
+      parameters: {
+        intensity: 0.5,
+        samples: 8,
+        velocity_scale: 1.0,
+      },
+      category: 'professional',
+    })
+
+    this.presets.set('motion-blur-dramatic', {
+      id: 'motion-blur-dramatic',
+      name: 'Dramatic Motion Blur',
+      description: 'Strong motion blur for dynamic effects',
+      effectType: 'motion-blur',
+      parameters: {
+        intensity: 2.0,
+        samples: 12,
+        velocity_scale: 2.0,
+      },
+      category: 'creative',
+    })
+
+    // Depth of field presets
+    this.presets.set('dof-portrait', {
+      id: 'dof-portrait',
+      name: 'Portrait Focus',
+      description: 'Shallow depth of field for portrait photography',
+      effectType: 'depth-of-field',
+      parameters: {
+        focus_distance: 0.3,
+        focus_range: 0.05,
+        blur_amount: 3.0,
+        aperture_blades: 8,
+      },
+      category: 'professional',
+    })
+
+    this.presets.set('dof-landscape', {
+      id: 'dof-landscape',
+      name: 'Landscape Focus',
+      description: 'Deep depth of field for landscape photography',
+      effectType: 'depth-of-field',
+      parameters: {
+        focus_distance: 0.6,
+        focus_range: 0.3,
+        blur_amount: 1.0,
+        aperture_blades: 6,
+      },
+      category: 'professional',
+    })
+
+    // Particle presets
+    this.presets.set('particles-fire', {
+      id: 'particles-fire',
+      name: 'Fire Particles',
+      description: 'Warm fire-like particle effect',
+      effectType: 'particles',
+      parameters: {
+        count: 2000,
+        lifetime: 1.5,
+        gravity: { x: 0.0, y: -2.0 },
+        start_velocity: { x: 0.0, y: 8.0 },
+        color_over_time: [
+          { r: 1.0, g: 0.8, b: 0.2, a: 1.0 },
+          { r: 1.0, g: 0.4, b: 0.0, a: 0.9 },
+          { r: 0.2, g: 0.1, b: 0.0, a: 0.0 },
+        ],
+      },
+      category: 'creative',
+    })
+
+    this.presets.set('particles-snow', {
+      id: 'particles-snow',
+      name: 'Snow Particles',
+      description: 'Gentle falling snow effect',
+      effectType: 'particles',
+      parameters: {
+        count: 1000,
+        lifetime: 5.0,
+        gravity: { x: 0.0, y: -1.0 },
+        start_velocity: { x: 0.0, y: 2.0 },
+        color_over_time: [
+          { r: 1.0, g: 1.0, b: 1.0, a: 1.0 },
+          { r: 0.9, g: 0.9, b: 1.0, a: 0.8 },
+          { r: 0.8, g: 0.8, b: 1.0, a: 0.0 },
+        ],
+      },
+      category: 'creative',
+    })
+
+    // Crossfade presets
+    this.presets.set('crossfade-smooth', {
+      id: 'crossfade-smooth',
+      name: 'Smooth Crossfade',
+      description: 'Smooth transition with ease-in-out',
+      effectType: 'crossfade',
+      parameters: {
+        progress: 0.5,
+        easing: 3, // ease-in-out
+      },
+      category: 'professional',
+    })
+
+    this.presets.set('crossfade-fast', {
+      id: 'crossfade-fast',
+      name: 'Fast Crossfade',
+      description: 'Quick transition with linear easing',
+      effectType: 'crossfade',
+      parameters: {
+        progress: 0.5,
+        easing: 0, // linear
       },
       category: 'professional',
     })
@@ -536,6 +870,211 @@ export class EffectsLibrary implements IEffectLibrary {
         // Apply vignette
         let darkened = original.rgb * pow(vignette, params.intensity);
         let result = vec4<f32>(darkened, original.a);
+
+        textureStore(outputTexture, id.xy, result);
+      }
+    `
+  }
+
+  private getMotionBlurShader(): string {
+    return `
+      struct MotionBlurParams {
+        intensity: f32,
+        samples: i32,
+        velocity_scale: f32,
+      }
+
+      @group(0) @binding(0) var inputTexture: texture_2d<f32>;
+      @group(0) @binding(1) var outputTexture: texture_storage_2d<rgba8unorm, write>;
+      @group(1) @binding(0) var<uniform> params: MotionBlurParams;
+
+      @compute @workgroup_size(8, 8)
+      fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+        let coord = vec2<f32>(id.xy);
+        let texSize = vec2<f32>(textureDimensions(inputTexture));
+        let uv = coord / texSize;
+
+        // Sample current frame
+        let current = textureLoad(inputTexture, id.xy, 0);
+
+        // Simulate motion blur by sampling along velocity direction
+        var blurred = vec4<f32>(0.0);
+        let sampleCount = f32(params.samples);
+
+        for (var i = 0; i < params.samples; i++) {
+          let t = f32(i) / (sampleCount - 1.0) - 0.5; // Center around current frame
+          let sampleUv = uv; // In a real implementation, this would use velocity buffer
+
+          if (sampleUv.x >= 0.0 && sampleUv.x <= 1.0 &&
+              sampleUv.y >= 0.0 && sampleUv.y <= 1.0) {
+            let sampleCoord = vec2<u32>(sampleUv * texSize);
+            let sample = textureLoad(inputTexture, sampleCoord, 0);
+            blurred += sample;
+          }
+        }
+
+        blurred /= sampleCount;
+        let result = mix(current, blurred, params.intensity);
+        textureStore(outputTexture, id.xy, result);
+      }
+    `
+  }
+
+  private getDepthOfFieldShader(): string {
+    return `
+      struct DepthOfFieldParams {
+        focus_distance: f32,
+        focus_range: f32,
+        blur_amount: f32,
+        aperture_blades: i32,
+      }
+
+      @group(0) @binding(0) var inputTexture: texture_2d<f32>;
+      @group(0) @binding(1) var outputTexture: texture_storage_2d<rgba8unorm, write>;
+      @group(1) @binding(0) var<uniform> params: DepthOfFieldParams;
+
+      @compute @workgroup_size(8, 8)
+      fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+        let coord = vec2<f32>(id.xy);
+        let texSize = vec2<f32>(textureDimensions(inputTexture));
+        let uv = coord / texSize;
+
+        // Sample original texture
+        let original = textureLoad(inputTexture, id.xy, 0);
+
+        // Calculate focus based on depth (simplified - would use depth buffer in practice)
+        let depth = length(uv - vec2<f32>(0.5, 0.5)); // Simplified depth calculation
+        let focusDiff = abs(depth - params.focus_distance);
+
+        if (focusDiff < params.focus_range) {
+          // In focus - no blur
+          textureStore(outputTexture, id.xy, original);
+        } else {
+          // Out of focus - apply blur
+          var blurred = vec4<f32>(0.0);
+          let blurRadius = (focusDiff - params.focus_range) * params.blur_amount;
+          let samples = i32(ceil(blurRadius * 2.0));
+
+          for (var y = -samples; y <= samples; y++) {
+            for (var x = -samples; x <= samples; x++) {
+              let offset = vec2<f32>(f32(x), f32(y));
+              let distance = length(offset);
+
+              if (distance <= blurRadius) {
+                let sampleCoord = vec2<i32>(id.xy) + vec2<i32>(offset);
+                if (sampleCoord.x >= 0 && sampleCoord.x < i32(texSize.x) &&
+                    sampleCoord.y >= 0 && sampleCoord.y < i32(texSize.y)) {
+                  let sample = textureLoad(inputTexture, sampleCoord, 0);
+                  let weight = 1.0 - (distance / blurRadius);
+                  blurred += sample * weight;
+                }
+              }
+            }
+          }
+
+          let sampleCount = f32((samples * 2 + 1) * (samples * 2 + 1));
+          blurred /= sampleCount;
+          textureStore(outputTexture, id.xy, blurred);
+        }
+      }
+    `
+  }
+
+  private getParticleShader(): string {
+    return `
+      struct ParticleParams {
+        count: i32,
+        lifetime: f32,
+        gravity: vec2<f32>,
+        start_velocity: vec2<f32>,
+        color_over_time: array<vec4<f32>, 3>,
+      }
+
+      @group(0) @binding(0) var inputTexture: texture_2d<f32>;
+      @group(0) @binding(1) var outputTexture: texture_storage_2d<rgba8unorm, write>;
+      @group(1) @binding(0) var<uniform> params: ParticleParams;
+
+      // Particle data would typically be in a separate buffer
+      // This is a simplified implementation showing the concept
+
+      @compute @workgroup_size(8, 8)
+      fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+        let coord = vec2<f32>(id.xy);
+        let texSize = vec2<f32>(textureDimensions(inputTexture));
+
+        // Sample original texture
+        let original = textureLoad(inputTexture, id.xy, 0);
+
+        // Simplified particle rendering
+        // In a real implementation, this would:
+        // 1. Read particle positions from a buffer
+        // 2. Update particle physics
+        // 3. Render particles as sprites or points
+
+        var result = original;
+
+        // Add some particle-like effects for demonstration
+        let time = f32(id.x) * 0.01; // Simplified time
+        let particlePos = vec2<f32>(
+          sin(time) * 0.3 + 0.5,
+          cos(time * 1.3) * 0.3 + 0.5
+        );
+
+        let screenPos = particlePos * texSize;
+        let distance = length(coord - screenPos);
+
+        if (distance < 5.0) {
+          let alpha = 1.0 - (distance / 5.0);
+          let particleColor = vec4<f32>(1.0, 0.5, 0.0, alpha * 0.8);
+          result = mix(result, particleColor, alpha);
+        }
+
+        textureStore(outputTexture, id.xy, result);
+      }
+    `
+  }
+
+  private getCrossfadeShader(): string {
+    return `
+      struct CrossfadeParams {
+        progress: f32,
+        easing: i32, // 0=linear, 1=ease-in, 2=ease-out, 3=ease-in-out
+      }
+
+      @group(0) @binding(0) var fromTexture: texture_2d<f32>;
+      @group(0) @binding(1) var toTexture: texture_2d<f32>;
+      @group(0) @binding(2) var outputTexture: texture_storage_2d<rgba8unorm, write>;
+      @group(1) @binding(0) var<uniform> params: CrossfadeParams;
+
+      fn easeInOut(t: f32) -> f32 {
+        return select(select(2.0 * t * t, -2.0 * t * t + 4.0 * t - 1.0, t < 0.5), 1.0, t >= 1.0);
+      }
+
+      fn easeIn(t: f32) -> f32 {
+        return t * t;
+      }
+
+      fn easeOut(t: f32) -> f32 {
+        return 1.0 - (1.0 - t) * (1.0 - t);
+      }
+
+      fn applyEasing(t: f32, easingType: i32) -> f32 {
+        switch easingType {
+          case 0: { return t; }
+          case 1: { return easeIn(t); }
+          case 2: { return easeOut(t); }
+          case 3: { return easeInOut(t); }
+          default: { return t; }
+        }
+      }
+
+      @compute @workgroup_size(8, 8)
+      fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+        let fromColor = textureLoad(fromTexture, id.xy, 0);
+        let toColor = textureLoad(toTexture, id.xy, 0);
+
+        let easedProgress = applyEasing(params.progress, params.easing);
+        let result = mix(fromColor, toColor, easedProgress);
 
         textureStore(outputTexture, id.xy, result);
       }

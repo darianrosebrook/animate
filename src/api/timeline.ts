@@ -10,6 +10,9 @@ import type {
   Keyframe,
   BezierCurve,
   Result,
+  TimelineMetadata,
+  PlaybackState,
+  TrackProperties,
 } from './animator-api'
 import { InterpolationMode } from './animator-api'
 
@@ -185,7 +188,7 @@ export enum TrackType {
   Constraint = 'constraint', // Constraint animation
 }
 
-export interface TrackProperties {
+export interface TimelineTrackProperties {
   interpolation: InterpolationMode
   extrapolation: ExtrapolationMode
   keyframesOptimization: boolean
@@ -201,12 +204,10 @@ export enum ExtrapolationMode {
   None = 'none', // No extrapolation
 }
 
-export enum BlendMode {
-  Replace = 'replace', // Replace existing animation
-  Add = 'add', // Add to existing animation
-  Multiply = 'multiply', // Multiply with existing animation
-  Override = 'override', // Override existing keyframes
-}
+// Use BlendMode from effects module instead of defining our own
+import { BlendMode } from '../types/effects'
+
+export { BlendMode }
 
 /**
  * Timeline markers and annotations
@@ -249,7 +250,7 @@ export interface SeekOptions {
   snapTolerance?: Time
 }
 
-export interface PlaybackState {
+export interface TimelinePlaybackState {
   isPlaying: boolean
   currentTime: Time
   playbackRate: number
@@ -501,7 +502,7 @@ export const KeyframeUtils = {
     time: Time,
     value: T,
     interpolation: InterpolationMode = InterpolationMode.Linear
-  ): Keyframe<T> => {
+  ): Keyframe => {
     if (time < 0) throw new Error('Keyframe time must be non-negative')
     return { time, value, interpolation }
   },
@@ -620,8 +621,8 @@ export const KeyframeUtils = {
     from: any,
     to: any,
     t: number,
-    fromEasing?: BezierCurve,
-    toEasing?: BezierCurve
+    _fromEasing?: BezierCurve,
+    _toEasing?: BezierCurve
   ): any => {
     // Simplified bezier interpolation - real implementation would use proper curve math
     const easedT = t * t * (3 - 2 * t) // Smoothstep approximation
@@ -771,7 +772,7 @@ export class TimelineManager implements TimelineAPI {
 
   async play(
     timelineId: string,
-    options?: PlaybackOptions
+    _options?: PlaybackOptions
   ): Promise<Result<void, 'TIMELINE_NOT_FOUND'>> {
     const timeline = this.timelines.get(timelineId)
     if (!timeline) {
@@ -806,7 +807,7 @@ export class TimelineManager implements TimelineAPI {
   async seek(
     timelineId: string,
     time: Time,
-    options?: SeekOptions
+    _options?: SeekOptions
   ): Promise<Result<void, 'TIMELINE_NOT_FOUND' | 'INVALID_TIME'>> {
     const timeline = this.timelines.get(timelineId)
     if (!timeline) {
@@ -825,7 +826,7 @@ export class TimelineManager implements TimelineAPI {
     timelineId: string,
     type: TrackType,
     name: string,
-    properties?: TrackProperties
+    _properties?: TrackProperties
   ): Promise<TimelineTrack> {
     const timeline = this.timelines.get(timelineId)
     if (!timeline) {
@@ -836,6 +837,7 @@ export class TimelineManager implements TimelineAPI {
       id: `track_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       name,
       type,
+      targetPath: '', // TODO: Set appropriate target path
       keyframes: [],
       enabled: true,
       locked: false,
@@ -845,7 +847,7 @@ export class TimelineManager implements TimelineAPI {
       height: 40,
       properties: {
         volume: 1,
-        blendMode: 'normal' as BlendMode,
+        blendMode: 'replace' as BlendMode,
         opacity: 1,
         visible: true,
       },
@@ -1010,7 +1012,7 @@ export class TimelineManager implements TimelineAPI {
   async setEasing(
     trackId: string,
     time: Time,
-    easing: BezierCurve
+    _easing: BezierCurve
   ): Promise<Result<void, 'TRACK_NOT_FOUND' | 'KEYFRAME_NOT_FOUND'>> {
     for (const timeline of this.timelines.values()) {
       const track = timeline.tracks.find((t) => t.id === trackId)
@@ -1029,7 +1031,7 @@ export class TimelineManager implements TimelineAPI {
 
   async optimizeKeyframes(
     trackId: string,
-    tolerance?: number
+    _tolerance?: number
   ): Promise<Result<number, 'TRACK_NOT_FOUND'>> {
     for (const timeline of this.timelines.values()) {
       const track = timeline.tracks.find((t) => t.id === trackId)
@@ -1320,7 +1322,7 @@ export class TimelineManager implements TimelineAPI {
 
   async subscribeToTimelineChanges(
     timelineId: string,
-    callback: (changes: TimelineChange[]) => void
+    _callback: (changes: TimelineChange[]) => void
   ): Promise<UnsubscribeFn> {
     // Basic subscription implementation - in production would use proper event system
     console.log(`Subscribed to timeline changes for ${timelineId}`)
@@ -1331,7 +1333,7 @@ export class TimelineManager implements TimelineAPI {
 
   async subscribeToPlaybackChanges(
     timelineId: string,
-    callback: (state: PlaybackState) => void
+    _callback: (state: PlaybackState) => void
   ): Promise<UnsubscribeFn> {
     // Basic subscription implementation - in production would use proper event system
     console.log(`Subscribed to playback changes for ${timelineId}`)
@@ -1342,7 +1344,7 @@ export class TimelineManager implements TimelineAPI {
 
   async subscribeToKeyframesChanges(
     trackId: string,
-    callback: (changes: KeyframeChange[]) => void
+    _callback: (changes: KeyframeChange[]) => void
   ): Promise<UnsubscribeFn> {
     // Basic subscription implementation - in production would use proper event system
     console.log(`Subscribed to keyframe changes for ${trackId}`)

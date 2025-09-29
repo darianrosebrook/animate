@@ -7,7 +7,9 @@ import {
   createPathNode,
   ShapeType,
 } from './nodes/shape-node'
-import { NodeType, InterpolationMode } from '@/types'
+import { NodeType } from '@/types'
+// TODO: Use InterpolationMode for testing
+// import { InterpolationMode } from '@/types'
 import { describe, it, expect, beforeEach } from 'vitest'
 
 describe('SceneGraph', () => {

@@ -20,7 +20,9 @@ export function KeyboardShortcutsHelp({
   isOpen,
   onClose,
 }: KeyboardShortcutsHelpProps) {
-  const { getShortcutsHelp, getAllShortcuts } = useKeyboardShortcuts()
+  const { getAllShortcuts } = useKeyboardShortcuts()
+  // TODO: Use getShortcutsHelp for help functionality
+  // const { getShortcutsHelp } = useKeyboardShortcuts()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<
     ShortcutCategory | 'all'

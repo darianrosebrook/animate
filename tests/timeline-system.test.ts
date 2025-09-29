@@ -610,7 +610,7 @@ describe('Timeline System - Comprehensive Tests', () => {
 
       // Test loop behavior
       controller.play()
-      // In a real implementation, this would loop back to 0
+      // PLACEHOLDER: In a real implementation, this would loop back to 0
       // For now, we just verify the config is set
       expect(timeline.playbackConfig.loop).toBe(true)
     })

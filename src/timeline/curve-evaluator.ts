@@ -233,22 +233,24 @@ export class AnimationCurve implements IAnimationCurve {
     startEasing: BezierCurve,
     endEasing: BezierCurve
   ): number {
-    // Simplified bezier evaluation - in production, implement proper bezier curve evaluation
+    // Proper cubic Bezier curve evaluation with all control points
     const p1 = { x: startEasing.p1x, y: startEasing.p1y }
-    const _p2 = { x: startEasing.p2x, y: startEasing.p2y }
-    const _p3 = { x: endEasing.p1x, y: endEasing.p1y }
+    const p2 = { x: startEasing.p2x, y: startEasing.p2y }
+    const p3 = { x: endEasing.p1x, y: endEasing.p1y }
     const p4 = { x: endEasing.p2x, y: endEasing.p2y }
 
-    // Simple linear combination (could be enhanced with proper bezier math)
+    // Cubic Bezier curve: B(t) = (1-t)^3*P1 + 3*(1-t)^2*t*P2 + 3*(1-t)*t^2*P3 + t^3*P4
     const t = progress
     const u = 1 - t
+    const uu = u * u
+    const uuu = uu * u
+    const tt = t * t
+    const ttt = tt * t
 
-    return (
-      u * u * u * 0 +
-      3 * u * u * t * p1.y +
-      3 * u * t * t * p4.y +
-      t * t * t * 1
-    )
+    const x = uuu * p1.x + 3 * uu * t * p2.x + 3 * u * tt * p3.x + ttt * p4.x
+    const y = uuu * p1.y + 3 * uu * t * p2.y + 3 * u * tt * p3.y + ttt * p4.y
+
+    return y // Return the Y coordinate for timing curve evaluation
   }
 
   private getValueDifference(startValue: any, endValue: any): number {

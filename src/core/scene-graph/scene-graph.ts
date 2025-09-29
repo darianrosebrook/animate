@@ -85,6 +85,15 @@ export class SceneGraph {
   }
 
   /**
+   * Clear all nodes from the scene graph
+   */
+  clear(): void {
+    this.rootNodes = []
+    this.nodeMap.clear()
+    this.dirtyNodes.clear()
+  }
+
+  /**
    * Remove a node from the scene graph
    */
   removeNode(nodeId: string): Result<boolean> {
@@ -461,7 +470,7 @@ export class SceneGraph {
     startValue: any,
     endValue: any,
     startEasing?: any,
-    endEasing?: any,
+    _endEasing?: any,
     t: number = 0
   ): any {
     // For now, implement 1D Bezier curve evaluation
@@ -471,12 +480,12 @@ export class SceneGraph {
       // Default Bezier easing if none provided
       const p1x = startEasing?.p1x ?? 0.25
       const p1y = startEasing?.p1y ?? 0.1
-      const p2x = endEasing?.p2x ?? 0.25
-      const p2y = endEasing?.p2y ?? 1.0
+      const p2x = _endEasing?.p2x ?? 0.25
+      const p2y = _endEasing?.p2y ?? 1.0
 
       // Convert Bezier control points to cubic Bezier coefficients
       // B(t) = (1-t)^3 * P0 + 3*(1-t)^2*t * P1 + 3*(1-t)*t^2 * P2 + t^3 * P3
-      const bezierT = this.bezierInterpolation(t, p1x, p2x)
+      const bezierT = this.bezierInterpolation(t, p1x, p1y, p2x, p2y)
       return this.lerp(startValue, endValue, bezierT)
     }
 
@@ -496,16 +505,22 @@ export class SceneGraph {
   /**
    * Evaluate Bezier curve timing function
    */
-  private bezierInterpolation(t: number, p1x: number, p2x: number): number {
-    // Simple cubic Bezier evaluation for timing
-    // In a full implementation, this would handle the full curve
+  private bezierInterpolation(t: number, p1x: number, p1y: number, p2x: number, p2y: number): number {
+    // Full cubic Bezier curve evaluation for timing functions
+    // B(t) = (1-t)^3*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3
+    // Where P0 = (0,0), P3 = (1,1), P1 = (p1x, p1y), P2 = (p2x, p2y)
     const u = 1.0 - t
-    const tt = t * t
     const uu = u * u
+    const uuu = uu * u
+    const tt = t * t
     const ttt = tt * t
 
-    // Cubic Bezier: B(t) = (1-t)^3*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3
-    // For timing curves, we typically use P0=(0,0), P3=(1,1), so we simplify
-    return 3.0 * uu * t * p1x + 3.0 * u * tt * p2x + ttt
+    // Calculate both x and y coordinates of the Bezier curve
+    const x = uuu * 0 + 3 * uu * t * p1x + 3 * u * tt * p2x + ttt * 1
+    const y = uuu * 0 + 3 * uu * t * p1y + 3 * u * tt * p2y + ttt * 1
+
+    // For timing functions, we want to map input time (t) to output time (y)
+    // Since the curve goes from (0,0) to (1,1), we can use y as the output
+    return Math.max(0, Math.min(1, y))
   }
 }

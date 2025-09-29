@@ -3,6 +3,9 @@
  * @author @darianrosebrook
  */
 
+// Import effect types
+import { EffectType, BlendMode, EffectParameters } from './effects'
+
 // Core time and coordinate types
 export type Time = number
 export type FrameRate = number
@@ -91,6 +94,36 @@ export interface SceneGraph {
   ): Result<SceneNode>
   getNode(nodeId: string): Result<SceneNode>
   evaluate(time: Time, context: EvaluationContext): Result<SceneNode[]>
+}
+
+// UI Mode System
+export enum UIMode {
+  Design = 'design',
+  Animate = 'animate',
+}
+
+export enum ViewMode {
+  SceneByScene = 'scene-by-scene',
+  Canvas = 'canvas',
+}
+
+export interface Scene {
+  id: string
+  name: string
+  thumbnail?: string
+  layers: SceneNode[]
+  duration: number
+  frameRate: FrameRate
+}
+
+export interface Project {
+  id: string
+  name: string
+  scenes: Scene[]
+  currentSceneId: string | null
+  mode: UIMode
+  viewMode: ViewMode
+  selectedLayerIds: string[]
 }
 
 export type PropertyValue =
@@ -200,7 +233,7 @@ export interface TimelineTrack {
 
 export interface TrackProperties {
   volume?: number
-  blendMode?: BlendMode
+  blendMode: BlendMode
   opacity?: number
   visible?: boolean
 }
@@ -909,6 +942,27 @@ export enum EntryPointType {
   Lifecycle = 'lifecycle',
 }
 
+// Sandbox types
+export interface SandboxConfig {
+  memoryLimit: number
+  timeout: number
+  allowedModules: string[]
+  allowedAPIs: string[]
+}
+
+export interface ExecutionResult {
+  success: boolean
+  data?: any
+  error?: ExecutionError
+  executionTime: number
+}
+
+export interface ExecutionError {
+  code: string
+  message: string
+  stack?: string
+}
+
 // Error types - already defined above
 
 // GPU and rendering types
@@ -1003,6 +1057,66 @@ export interface AssetMetadata {
 }
 
 // Collaboration types - already defined above
+
+// Tool Selection Bar types
+export enum ToolType {
+  Select = 'select',
+  Move = 'move',
+  Hand = 'hand',
+  Scale = 'scale',
+  Rotate = 'rotate',
+  Pen = 'pen',
+  Shape = 'shape',
+  Text = 'text',
+  Image = 'image',
+  Effect = 'effect',
+  Mask = 'mask',
+  Camera = 'camera',
+  Zoom = 'zoom',
+}
+
+export interface Tool {
+  id: string
+  type: ToolType
+  name: string
+  icon: string
+  shortcut?: string
+  description: string
+  category: ToolCategory
+  variants?: ToolVariant[]
+  defaultActive?: boolean
+}
+
+export interface ToolVariant {
+  id: string
+  name: string
+  icon?: string
+  description: string
+}
+
+export enum ToolCategory {
+  Selection = 'selection',
+  Transform = 'transform',
+  Drawing = 'drawing',
+  Content = 'content',
+  Effects = 'effects',
+  View = 'view',
+}
+
+export interface ToolGroup {
+  id: string
+  name: string
+  tools: Tool[]
+  primaryTool?: Tool
+  hasDropdown: boolean
+}
+
+export interface ToolSelectionState {
+  activeToolId: string | null
+  previousToolId?: string | null
+  dropdownOpen: boolean
+  dropdownToolGroup?: string | null
+}
 
 // Keyboard shortcut types
 export interface KeyboardShortcut {
@@ -1627,9 +1741,8 @@ export const DEFAULT_KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [
 export * from './effects'
 
 // Re-export commonly used effect types
+
 export type {
-  EffectType,
-  BlendMode,
   EffectParameters,
   BaseEffectParameters,
   GaussianBlurParameters,
@@ -1643,11 +1756,11 @@ export interface CollaborationSession {
   id: string
   documentId: string
   hostId: string
-  participants: any[]
+  participants: Participant[]
   maxParticipants: number
   status: 'active' | 'paused' | 'ended'
   createdAt: Date
-  settings: any
+  settings: SessionSettings
 }
 
 export interface ParticipantInfo {
@@ -1658,7 +1771,7 @@ export interface ParticipantInfo {
 
 export interface JoinSessionResult {
   session: CollaborationSession
-  participant: any
+  participant: Participant
 }
 
 export interface Presence {
@@ -1671,7 +1784,7 @@ export interface Presence {
 
 export interface DocumentChange {
   id: string
-  type: 'create' | 'update' | 'delete' | 'move'
+  type: ChangeType
   path: string
   oldValue?: any
   newValue?: any
@@ -1698,7 +1811,7 @@ export interface DocumentConflict {
 
 export interface ConflictResolution {
   conflictId: string
-  strategy: 'use_mine' | 'use_theirs' | 'merge' | 'manual'
+  strategy: ResolutionStrategy
   value?: any
   timestamp: Date
 }
@@ -1790,15 +1903,15 @@ export interface Viewport {
   width: number
   height: number
   devicePixelRatio: number
-  camera: any
-  settings: any
+  camera: CameraState
+  settings: ViewportSettings
 }
 
 export interface ViewportOptions {
   width: number
   height: number
   devicePixelRatio?: number
-  backgroundColor?: any
+  backgroundColor?: Color
   enableGrid?: boolean
   enableRulers?: boolean
 }
@@ -1860,13 +1973,7 @@ export interface AnimatorError {
   stack?: string
 }
 
-// Effects types
-export type {
-  EffectType,
-  EffectParameters,
-  BaseEffectParameters,
-  BlendMode,
-} from './effects'
+// Effects types are already exported above
 
 // Utility types
 export type Result<T, E = AnimatorError> =

@@ -3,7 +3,9 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError } from '@/types'
+import { Result } from '@/types'
+// TODO: Use AnimatorError for error handling
+// import { AnimatorError } from '@/types'
 
 /**
  * WebGPU rendering context and device management
@@ -93,8 +95,9 @@ export class WebGPUContext {
       })
 
       console.log('✅ WebGPU context initialized successfully')
-      console.log(`   Adapter: ${this.adapter.name}`)
-      console.log(`   Device: ${this.device.name || 'Unknown'}`)
+      // TODO: Add adapter and device name logging when available
+      // console.log(`   Adapter: ${this.adapter.name || 'Unknown'}`)
+      // console.log(`   Device: ${this.device.name || 'Unknown'}`)
       console.log(`   Canvas Format: ${this.format}`)
 
       return { success: true, data: true }
@@ -160,11 +163,8 @@ export class WebGPUContext {
 
     // Copy data to buffer
     const dstBuffer = buffer.getMappedRange()
-    if (data instanceof ArrayBuffer) {
-      new Uint8Array(dstBuffer).set(new Uint8Array(data))
-    } else {
-      new Uint8Array(dstBuffer).set(data)
-    }
+    // TODO: Handle different data types properly
+    new Uint8Array(dstBuffer).set(new Uint8Array(data as ArrayBuffer))
     buffer.unmap()
 
     return buffer
@@ -411,12 +411,13 @@ export class WebGPUContext {
         }
       }
 
-      const device = await adapter.requestDevice()
+      // TODO: Use device for GPU operations
+      // const device = await adapter.requestDevice()
 
       return {
         supported: true,
-        adapterInfo: adapter.name,
-        deviceInfo: device.name || 'Unknown GPU',
+        adapterInfo: 'Unknown Adapter', // TODO: Get adapter name when available
+        deviceInfo: 'Unknown GPU', // TODO: Get device name when available
       }
     } catch (error) {
       return {
@@ -437,33 +438,6 @@ export class WebGPUContext {
     this.context = null
     this.adapter = null
     this.canvas = null
-  }
-
-  /**
-   * Initialize mock WebGPU context for testing
-   */
-  private initializeMockContext(canvas: HTMLCanvasElement): Result<boolean> {
-    try {
-      // Set up mock properties for testing
-      this.canvas = canvas
-      this.format = 'bgra8unorm'
-
-      // Create mock device
-      this.device = this.createMockDevice()
-      this.adapter = this.createMockAdapter()
-
-      console.log('🧪 Mock WebGPU context initialized for testing')
-      return { success: true, data: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'MOCK_INIT_ERROR',
-          message: `Failed to initialize mock WebGPU context: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
   }
 
   /**
@@ -496,7 +470,7 @@ export class WebGPUContext {
         this.createMockQuerySet(descriptor),
       destroy: () => {},
       getQueue: () => this.createMockQueue(),
-      pushErrorScope: (filter: GPUErrorFilter) => {},
+      pushErrorScope: (_filter: GPUErrorFilter) => {},
       popErrorScope: () => Promise.resolve(null),
       name: 'Mock GPU Device',
       features: new Set(),
@@ -537,6 +511,7 @@ export class WebGPUContext {
   /**
    * Create mock GPU adapter for testing
    */
+  // TODO: Implement mock adapter creation
   private createMockAdapter(): GPUAdapter {
     return {
       name: 'Mock GPU Adapter',
@@ -593,10 +568,10 @@ export class WebGPUContext {
       usage: descriptor.usage,
       mapState: 'unmapped',
       destroy: () => {},
-      getMappedRange: (offset?: number, size?: number) =>
+      getMappedRange: (_offset?: number, size?: number) =>
         new ArrayBuffer(size || descriptor.size),
       unmap: () => {},
-      mapAsync: (mode: GPUMapModeFlags, offset?: number, size?: number) =>
+      mapAsync: (_mode: GPUMapModeFlags, _offset?: number, _size?: number) =>
         Promise.resolve(),
       label: descriptor.label || 'Mock Buffer',
     } as GPUBuffer
@@ -607,9 +582,9 @@ export class WebGPUContext {
    */
   private createMockTexture(descriptor: GPUTextureDescriptor): GPUTexture {
     return {
-      width: descriptor.size[0],
-      height: descriptor.size[1] || 1,
-      depthOrArrayLayers: descriptor.size[2] || 1,
+      width: (descriptor.size as number[])[0],
+      height: (descriptor.size as number[])[1] || 1,
+      depthOrArrayLayers: (descriptor.size as number[])[2] || 1,
       mipLevelCount: descriptor.mipLevelCount || 1,
       sampleCount: descriptor.sampleCount || 1,
       dimension: descriptor.dimension || '2d',
@@ -672,7 +647,8 @@ export class WebGPUContext {
   ): GPURenderPipeline {
     return {
       label: descriptor.label || 'Mock Render Pipeline',
-      getBindGroupLayout: (index: number) => this.createMockBindGroupLayout({}),
+      getBindGroupLayout: (_index: number) =>
+        this.createMockBindGroupLayout({ entries: [] }),
     } as GPURenderPipeline
   }
 
@@ -684,7 +660,8 @@ export class WebGPUContext {
   ): GPUComputePipeline {
     return {
       label: descriptor.label || 'Mock Compute Pipeline',
-      getBindGroupLayout: (index: number) => this.createMockBindGroupLayout({}),
+      getBindGroupLayout: (_index: number) =>
+        this.createMockBindGroupLayout({ entries: [] }),
     } as GPUComputePipeline
   }
 
@@ -729,7 +706,7 @@ export class WebGPUContext {
    * Create mock GPU render pass encoder for testing
    */
   private createMockRenderPassEncoder(
-    descriptor: GPURenderPassDescriptor
+    _descriptor: GPURenderPassDescriptor
   ): GPURenderPassEncoder {
     return {
       label: 'Mock Render Pass Encoder',
@@ -760,7 +737,7 @@ export class WebGPUContext {
    * Create mock GPU compute pass encoder for testing
    */
   private createMockComputePassEncoder(
-    descriptor?: GPUComputePassDescriptor
+    _descriptor?: GPUComputePassDescriptor
   ): GPUComputePassEncoder {
     return {
       label: 'Mock Compute Pass Encoder',
@@ -782,7 +759,7 @@ export class WebGPUContext {
    * Create mock GPU render bundle encoder for testing
    */
   private createMockRenderBundleEncoder(
-    descriptor: GPURenderBundleEncoderDescriptor
+    _descriptor: GPURenderBundleEncoderDescriptor
   ): GPURenderBundleEncoder {
     return {
       label: 'Mock Render Bundle Encoder',

@@ -99,7 +99,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck && npm run lint
 
-  # Unit Tests with Coverage
+  # Unit Tests with Coverage and Flag Testing
   unit:
     needs: setup
     runs-on: ubuntu-latest
@@ -116,6 +116,18 @@ jobs:
             # TODO: Add actual coverage enforcement logic
             echo "Coverage enforcement for tier $TIER not yet implemented"
           fi
+      - name: Flag Testing (All Flags Off)
+        run: |
+          echo "Running tests with all feature flags disabled..."
+          # Set all flags to false (placeholder - adjust based on your flag system)
+          export FEATURE_FLAGS_OFF=true
+          npm run test:unit || (echo "Tests failed with flags off" && exit 1)
+      - name: Flag Testing (All Flags On)
+        run: |
+          echo "Running tests with all feature flags enabled..."
+          # Set all flags to true (placeholder - adjust based on your flag system)
+          export FEATURE_FLAGS_ON=true
+          npm run test:unit || (echo "Tests failed with flags on" && exit 1)
 
   # Build Verification
   build:

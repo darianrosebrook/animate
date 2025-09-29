@@ -4,7 +4,10 @@
  * @author @darianrosebrook
  */
 
-import type { SandboxConfig, ExecutionResult, ExecutionError } from './types'
+import { SandboxConfig, ExecutionResult, ExecutionError } from './types'
+
+// PLACEHOLDER: Import types once conflicts are resolved
+// import type { SandboxConfig, ExecutionResult, ExecutionError } from './types'
 
 /**
  * Secure execution environment for user code
@@ -277,9 +280,9 @@ export class ExecutionContext {
   /**
    * Extract line number from error stack
    */
-  private extractLineNumber(stack: string, code: string): number {
+  private extractLineNumber(_stack: string, code: string): number {
     // Simplified line number extraction
-    // In a real implementation, this would parse the stack trace
+    // PLACEHOLDER: In a real implementation, this would parse the stack trace
     const lines = code.split('\n')
     return Math.min(lines.length, 1) // Default to first line
   }
@@ -288,7 +291,7 @@ export class ExecutionContext {
    * Generate unique execution ID
    */
   private generateExecutionId(): string {
-    return `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `exec_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
   }
 
   /**
@@ -335,11 +338,11 @@ class ApiProxy {
     return new Proxy(
       {},
       {
-        get: (target, prop) => {
+        get: (_target, prop) => {
           // Check if the API method is allowed
           if (this.isAllowedMethod(apiName, prop as string)) {
             return (...args: any[]) => {
-              // In a real implementation, this would call the actual API
+              // PLACEHOLDER: In a real implementation, this would call the actual API
               // with proper error handling and validation
               console.log(`API call: ${apiName}.${String(prop)}`, args)
               return Promise.resolve(null)
@@ -355,8 +358,8 @@ class ApiProxy {
   /**
    * Check if an API method is allowed
    */
-  private isAllowedMethod(apiName: string, method: string): boolean {
-    // In a real implementation, this would check against a whitelist
+  private isAllowedMethod(_apiName: string, _method: string): boolean {
+    // PLACEHOLDER: In a real implementation, this would check against a whitelist
     // of allowed API methods for each API
     return true // Simplified for demo
   }
@@ -366,13 +369,15 @@ class ApiProxy {
  * Resource monitoring for memory and CPU limits
  */
 class ResourceMonitor {
-  private memoryLimit: number
-  private timeout: number
+  // TODO: Implement memory and timeout monitoring
+  // private _memoryLimit: number
+  // private _timeout: number
   private monitoringData: Map<string, any> = new Map()
 
-  constructor(memoryLimit: number, timeout: number) {
-    this.memoryLimit = memoryLimit
-    this.timeout = timeout
+  constructor(_memoryLimit: number, _timeout: number) {
+    // TODO: Implement memory and timeout monitoring
+    // this._memoryLimit = memoryLimit
+    // this._timeout = timeout
   }
 
   /**
@@ -401,7 +406,7 @@ class ResourceMonitor {
    */
   getMemoryUsage(): number {
     // Simplified memory usage tracking
-    // In a real implementation, this would use performance.memory or similar
+    // PLACEHOLDER: In a real implementation, this would use performance.memory or similar
     return 0
   }
 
@@ -411,40 +416,4 @@ class ResourceMonitor {
   cleanup(): void {
     this.monitoringData.clear()
   }
-}
-
-/**
- * Sandbox configuration interface
- */
-export interface SandboxConfig {
-  memoryLimit: number // MB
-  timeout: number // milliseconds
-  permissions: string[]
-  apis: string[]
-  networkAccess: boolean
-  fileSystemAccess: boolean
-}
-
-/**
- * Execution result interface
- */
-export interface ExecutionResult {
-  success: boolean
-  result: any
-  executionTime: number
-  memoryUsed: number
-  output: string
-  errors: ExecutionError[]
-  warnings: any[]
-}
-
-/**
- * Execution error interface
- */
-export interface ExecutionError {
-  type: 'syntax' | 'runtime' | 'timeout' | 'memory' | 'permission'
-  message: string
-  line?: number
-  column?: number
-  stack?: string
 }

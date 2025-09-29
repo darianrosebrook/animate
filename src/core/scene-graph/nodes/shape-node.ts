@@ -7,7 +7,6 @@ import {
   SceneNode,
   NodeType,
   PropertyMap,
-  PropertyValue,
   Time,
   EvaluationContext,
   Point2D,
@@ -185,7 +184,7 @@ export class ShapeNode implements SceneNode {
   private evaluateAnimationCurve(
     curve: any,
     time: Time,
-    context: EvaluationContext
+    _context: EvaluationContext
   ): any {
     if (!curve.keyframes || curve.keyframes.length === 0) {
       return undefined

@@ -4,7 +4,7 @@
  * @author @darianrosebrook
  */
 
-import type { Time, FrameRate, Size2D, Color, Result, SceneNode, SceneState } from './animator-api'
+import type { Time, FrameRate, Size2D, Color, Result } from './animator-api'
 import type { WebGPUContext } from '@/core/renderer/webgpu-context'
 
 /**
@@ -784,7 +784,6 @@ export class Renderer implements RenderingAPI {
   private nextViewportId = 1
 
   constructor() {
-    this._webgpuContext = new WebGPUContext()
     // WebGPU context is initialized for future use
   }
 
@@ -795,7 +794,7 @@ export class Renderer implements RenderingAPI {
   ): Promise<RenderResult> {
     try {
       // Evaluate the scene graph at the given time
-      const sceneState = await sceneGraph.evaluate(time)
+      const _sceneState = await sceneGraph.evaluate(time)
 
       // For now, create a basic render result
       // In a full implementation, this would:
@@ -804,42 +803,68 @@ export class Renderer implements RenderingAPI {
       // 3. Return the rendered frame data
 
       const renderResult: RenderResult = {
-        id: `render_${Date.now()}`,
-        sceneId: 'current-scene', // TODO: Get actual scene ID from sceneGraph
+        renderId: `render_${Date.now()}`,
+        sceneId: sceneGraph.id || 'current-scene',
         time,
         duration: 0, // Frame rendering time
-        frameRate: options?.frameRate || 30,
-        resolution: options?.resolution || { width: 1920, height: 1080 },
-        colorSpace: options?.colorSpace || 'srgb',
-        quality: options?.quality || 'high',
-        format: 'rgba8unorm',
-        data: new Uint8Array(1920 * 1080 * 4), // Placeholder frame data
-        metadata: {
-          renderTime: Date.now(),
-          engineVersion: '0.1.0',
-          gpuInfo: await this.getGPUInfo(),
-          evaluatedNodes: sceneState.nodes.size,
+        frameBuffer: {
+          width: 1920,
+          height: 1080,
+          format: 'rgba8unorm' as PixelFormat,
+          data: new Uint8Array(1920 * 1080 * 4),
         },
+        metadata: {
+          resolution: { width: 1920, height: 1080 },
+          frameRate: 30,
+          colorSpace: 'sRGB' as ColorSpace,
+          pixelFormat: 'rgba8unorm' as PixelFormat,
+          memoryUsage: 1920 * 1080 * 4,
+          gpuTime: 0,
+          cpuTime: 0,
+          cacheHitRate: 0,
+          quality: 'high' as RenderQuality,
+        },
+        errors: [],
+        warnings: [],
       }
 
       return renderResult
     } catch (error) {
       return {
-        id: `render_${Date.now()}`,
+        renderId: `render_${Date.now()}`,
         sceneId: 'current-scene',
         time,
         duration: 0,
-        frameRate: 30,
-        resolution: { width: 1920, height: 1080 },
-        colorSpace: 'srgb',
-        quality: 'high',
-        format: 'rgba8unorm',
-        error:
-          error instanceof Error ? error.message : 'Unknown rendering error',
-        metadata: {
-          renderTime: Date.now(),
-          error: true,
+        frameBuffer: {
+          width: 1920,
+          height: 1080,
+          format: 'rgba8unorm' as PixelFormat,
+          data: new Uint8Array(1920 * 1080 * 4),
         },
+        metadata: {
+          resolution: { width: 1920, height: 1080 },
+          frameRate: 30,
+          colorSpace: 'sRGB' as ColorSpace,
+          pixelFormat: 'rgba8unorm' as PixelFormat,
+          memoryUsage: 1920 * 1080 * 4,
+          gpuTime: 0,
+          cpuTime: 0,
+          cacheHitRate: 0,
+          quality: 'high' as RenderQuality,
+        },
+        errors: [
+          {
+            code: 'RENDER_ERROR',
+            message:
+              error instanceof Error
+                ? error.message
+                : 'Unknown rendering error',
+            severity: 'error' as const,
+            timestamp: new Date(),
+            name: 'RenderError',
+          },
+        ],
+        warnings: [],
       }
     }
   }
@@ -861,7 +886,7 @@ export class Renderer implements RenderingAPI {
       results.push(result)
 
       // Stop if there was an error
-      if (result.error) break
+      if (result.errors.length > 0) break
     }
 
     return results
@@ -874,12 +899,12 @@ export class Renderer implements RenderingAPI {
   ): Promise<RenderResult[]> {
     const results: RenderResult[] = []
 
-    for (const time of sequence.times) {
+    for (const time of sequence.frames) {
       const result = await this.renderFrame(sceneGraph, time, options)
       results.push(result)
 
       // Stop if there was an error
-      if (result.error) break
+      if (result.errors.length > 0) break
     }
 
     return results
@@ -897,36 +922,38 @@ export class Renderer implements RenderingAPI {
       canvas: document.createElement('canvas'),
       context: null as any, // Would be WebGPU context
       camera: {
-        id: 'default_camera',
-        type: 'perspective' as CameraType,
-        transform: {
-          position: { x: 0, y: 0, z: 5 },
-          rotation: { x: 0, y: 0, z: 0 },
-          scale: { x: 1, y: 1, z: 1 },
-          anchorPoint: { x: 0, y: 0 },
-          opacity: 1,
-        },
-        settings: {
-          fieldOfView: 60,
-          near: 0.1,
-          far: 100,
-          aspectRatio: 16 / 9,
-        },
+        position: { x: 0, y: 0, z: 5 },
+        rotation: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
+        fieldOfView: 60,
+        nearPlane: 0.1,
+        farPlane: 1000,
+        aspectRatio: 16 / 9,
+        projection: 'perspective' as ProjectionType,
       },
+      isPlaying: false,
+      frameRate: options?.frameRate || 30,
+      size: { width: options?.width || 1920, height: options?.height || 1080 },
       settings: {
-        width: options?.width || 1920,
-        height: options?.height || 1080,
-        frameRate: options?.frameRate || 30,
-        quality: options?.quality || 'high',
-        antialiasing: options?.antialiasing ?? true,
+        pixelRatio: 1,
+        antiAliasing: true,
+        depthTest: true,
+        blendMode: 'normal' as BlendMode,
+        clearColor: { r: 0, g: 0, b: 0, a: 0 },
+        viewportMask: {
+          x: 0,
+          y: 0,
+          width: options?.width || 1920,
+          height: options?.height || 1080,
+        },
       },
     }
 
     // Set up canvas
-    viewport.canvas.width = viewport.settings.width
-    viewport.canvas.height = viewport.settings.height
-    viewport.canvas.style.width = `${viewport.settings.width}px`
-    viewport.canvas.style.height = `${viewport.settings.height}px`
+    viewport.canvas.width = options?.width || 1920
+    viewport.canvas.height = options?.height || 1080
+    viewport.canvas.style.width = `${options?.width || 1920}px`
+    viewport.canvas.style.height = `${options?.height || 1080}px`
     container.appendChild(viewport.canvas)
 
     this.viewports.set(viewportId, viewport)
@@ -1027,12 +1054,15 @@ export class Renderer implements RenderingAPI {
     throw new Error('Rendering implementation pending')
   }
 
-  async setQuality(quality: RenderQuality): Promise<void> {
+  async setQuality(_quality: RenderQuality): Promise<void> {
     // Implementation would update quality settings
     throw new Error('Rendering implementation pending')
   }
 
-  async enableFeature(feature: RenderFeature, enabled: boolean): Promise<void> {
+  async enableFeature(
+    _feature: RenderFeature,
+    _enabled: boolean
+  ): Promise<void> {
     // Implementation would enable/disable render features
     throw new Error('Rendering implementation pending')
   }
@@ -1043,28 +1073,28 @@ export class Renderer implements RenderingAPI {
   }
 
   async batchRender(
-    requests: BatchRenderRequest[]
+    _requests: BatchRenderRequest[]
   ): Promise<BatchRenderResult[]> {
     // Implementation would batch multiple render operations
     throw new Error('Rendering implementation pending')
   }
 
   async cancelRender(
-    renderId: string
+    _renderId: string
   ): Promise<Result<void, 'RENDER_NOT_FOUND'>> {
     // Implementation would cancel ongoing render
     throw new Error('Rendering implementation pending')
   }
 
-  async exportFrame(viewportId: string, format: ExportFormat): Promise<Blob> {
+  async exportFrame(_viewportId: string, _format: ExportFormat): Promise<Blob> {
     // Implementation would export current frame
     throw new Error('Rendering implementation pending')
   }
 
   async exportSequence(
-    viewportId: string,
-    format: ExportFormat,
-    options?: ExportOptions
+    _viewportId: string,
+    _format: ExportFormat,
+    _options?: ExportOptions
   ): Promise<Blob> {
     // Implementation would export frame sequence
     throw new Error('Rendering implementation pending')
@@ -1076,15 +1106,15 @@ export class Renderer implements RenderingAPI {
   }
 
   async subscribeToRenderEvents(
-    callback: (event: RenderEvent) => void
+    _callback: (event: RenderEvent) => void
   ): Promise<UnsubscribeFn> {
     // Implementation would set up render event subscription
     throw new Error('Rendering implementation pending')
   }
 
   async subscribeToViewportEvents(
-    viewportId: string,
-    callback: (event: ViewportEvent) => void
+    _viewportId: string,
+    _callback: (event: ViewportEvent) => void
   ): Promise<UnsubscribeFn> {
     // Implementation would set up viewport event subscription
     throw new Error('Rendering implementation pending')

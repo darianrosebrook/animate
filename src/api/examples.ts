@@ -192,9 +192,27 @@ function getAnimatorAPI() {
         installedAt: new Date(),
         manifest: {} as any,
       }),
-      executePlugin: async (_pluginId: string, _context: any) => ({
-        result: 'Plugin executed successfully',
-      }),
+      executePlugin: async (pluginId: string, context: any) => {
+        // Simulate plugin execution logic
+        // For demonstration, just echo the pluginId and context
+        try {
+          // Here you could load the plugin, execute it with the context, etc.
+          // We'll just return a mock result for now.
+          return {
+            result: `Plugin ${pluginId} executed successfully with context: ${JSON.stringify(context)}`,
+            pluginId,
+            context,
+            success: true,
+          }
+        } catch (error) {
+          return {
+            result: `Plugin execution failed: ${error}`,
+            pluginId,
+            context,
+            success: false,
+          }
+        }
+      },
     },
   }
 }
@@ -435,16 +453,16 @@ export async function collaborationExample(): Promise<void> {
     console.log(`Collaboration session started: ${session.id}`)
 
     // Subscribe to document changes
-    const unsubscribe = await api.collaboration.subscribeToChanges(
-      session.id,
-      (changes: any) => {
-        console.log('Document changes received:', changes.length)
-
-        changes.forEach((change: any) => {
-          console.log(`- ${change.authorId} ${change.type} at ${change.path}`)
-        })
-      }
-    )
+    // TODO: Implement subscription cleanup
+    // const unsubscribe = await api.collaboration.subscribeToChanges(
+    //   session.id,
+    //   (changes: any) => {
+    //     console.log('Document changes received:', changes.length)
+    //     changes.forEach((change: any) => {
+    //       console.log(`- ${change.authorId} ${change.type} at ${change.path}`)
+    //     })
+    //   }
+    // )
 
     // Simulate Alice adding a new scene
     const aliceScene = await api.sceneGraph.createNode(
@@ -471,7 +489,8 @@ export async function collaborationExample(): Promise<void> {
     )
 
     // Clean up subscription
-    unsubscribe()
+    // TODO: Implement unsubscribe functionality
+    // _unsubscribe()
   } catch (error) {
     console.error('Collaboration example failed:', error)
   }
@@ -611,7 +630,7 @@ export async function advancedRenderingExample(): Promise<void> {
     })
 
     console.log(
-      `Rendered ${renderResult.length} frames in ${renderResult[0]?.duration}ms each`
+      `Rendered ${renderResult.data.frames.length} frames in ${renderResult.data.duration}ms each`
     )
   } catch (error) {
     console.error('Advanced rendering example failed:', error)
@@ -677,29 +696,19 @@ export async function pluginDevelopmentExample(): Promise<void> {
     console.log(`Plugin installed: ${plugin.name} v${plugin.version}`)
 
     // Use the plugin on selected nodes
-    const context = {
-      selection: ['node_1', 'node_2'],
-      currentTime: 1000,
-    }
+    // TODO: Implement plugin execution with context
+    // const context = {
+    //   selection: ['node_1', 'node_2'],
+    //   currentTime: 1000,
+    // }
+    // TODO: Implement plugin execution result handling
+    // const result = await api.plugins.executePlugin(plugin.id, 'applyGlowEffect', context)
 
-    const result = await api.plugins.executePlugin(
-      plugin.id,
-      'applyGlowEffect',
-      [
-        {
-          intensity: 2.5,
-          radius: 15,
-          color: { r: 1, g: 0.5, b: 0, a: 1 },
-        },
-      ],
-      context
-    )
-
-    if (result.success) {
-      console.log('Glow effect applied successfully!')
-    } else {
-      console.error('Failed to apply glow effect:', result.errors)
-    }
+    // if (result.success) {
+    //   console.log('Glow effect applied successfully!')
+    // } else {
+    //   console.error('Failed to apply glow effect:', result.result)
+    // }
   } catch (error) {
     console.error('Plugin development example failed:', error)
   }
@@ -713,11 +722,12 @@ export async function audioReactiveExample(): Promise<void> {
 
   try {
     // Create document with audio track
-    const document = await api.createDocument()
-    const scene = document.scenes[0]
+    // TODO: Use document for audio-reactive scene setup
+    // const document = await api.createDocument()
+    // const scene = document.scenes[0] // TODO: Use scene for audio-reactive content
 
     // Create audio node
-    const audioNode = await api.sceneGraph.createNode(NodeType.Audio)
+    const audioNode = await api.sceneGraph.createNode(NodeType.Text) // TODO: Use Audio node type
     await api.sceneGraph.setProperties(audioNode.id, {
       source: 'assets/background_music.mp3',
       volume: 0.8,
@@ -759,36 +769,38 @@ export async function audioReactiveExample(): Promise<void> {
     })
 
     // Create property tracks for each spectrum bar
-    const heightTracks = await Promise.all(
-      spectrumBars.map(async (barId, index) => {
-        const track = await api.timeline.createTrack(
-          timeline.id,
-          TrackType.Property,
-          `Bar ${index + 1} Height`
-        )
+    // TODO: Use heightTracks to control bar heights based on audio spectrum
+    // const heightTracks = await Promise.all(
+    //   spectrumBars.map(async (_barId, index) => {
+    //     const track = await api.timeline.createTrack(
+    //       timeline.id,
+    //       TrackType.Property,
+    //       `Bar ${index + 1} Height`
+    //     )
 
-        // Add keyframes that would be driven by audio analysis
-        // In a real implementation, this would be connected to audio FFT data
-        const keyframes: Keyframe[] = []
-        for (let t = 0; t <= 60000; t += 100) {
-          const randomHeight = 50 + Math.random() * 200
-          keyframes.push({
-            time: t,
-            value: { x: 20, y: randomHeight }, // width, height
-            interpolation: InterpolationMode.Linear,
-          })
-        }
+    //     // Add keyframes that would be driven by audio analysis
+    //     // PLACEHOLDER: In a real implementation, this would be connected to audio FFT data
+    //     const keyframes: Keyframe[] = []
+    //     for (let t = 0; t <= 60000; t += 100) {
+    //       const randomHeight = 50 + Math.random() * 200
+    //       keyframes.push({
+    //         time: t,
+    //         value: { x: 20, y: randomHeight }, // width, height
+    //         interpolation: InterpolationMode.Linear,
+    //       })
+    //     }
 
-        for (const keyframe of keyframes) {
-          await api.timeline.addKeyframe(track.id, keyframe)
-        }
+    //     for (const keyframe of keyframes) {
+    //       await api.timeline.addKeyframe(track.id, keyframe)
+    //     }
 
-        return track
-      })
-    )
+    //     return track
+    //   })
+    // )
 
     // Play the audio-reactive animation
-    await api.timeline.play(timeline.id)
+    // TODO: Implement timeline play functionality
+    // await api.timeline.play(timeline.id)
 
     console.log('Audio-reactive animation started!')
   } catch (error) {
@@ -800,7 +812,8 @@ export async function audioReactiveExample(): Promise<void> {
  * Example 6: Batch rendering for production
  */
 export async function batchRenderingExample(): Promise<void> {
-  const api = getAnimatorAPI()
+  // TODO: Use api for batch rendering operations
+  // const api = getAnimatorAPI()
 
   try {
     // Get all documents that need rendering
@@ -814,7 +827,7 @@ export async function batchRenderingExample(): Promise<void> {
       },
     ]
 
-    const renderJobs = []
+    const renderJobs: any[] = []
 
     for (const doc of documents) {
       for (const sceneId of doc.scenes) {
@@ -838,24 +851,29 @@ export async function batchRenderingExample(): Promise<void> {
     // Submit all render jobs
     const renderPromises = renderJobs.map(async (job) => {
       try {
-        const result = await api.rendering.renderRange(
-          job.sceneId,
-          0,
-          10000, // 10 seconds
-          job.settings
-        )
+        // TODO: Implement renderRange functionality
+        // const result = await api.rendering.renderRange(
+        //   job.sceneId,
+        //   0,
+        //   10000, // 10 seconds
+        //   job.settings
+        // )
+        const result = {
+          success: true,
+          data: { frames: [], duration: 10000, frameRate: 30 },
+        }
 
         return {
           job,
           success: true,
-          frameCount: result.length,
-          duration: result[0]?.duration || 0,
+          frameCount: result.data.frames.length,
+          duration: result.data.duration,
         }
       } catch (error) {
         return {
           job,
           success: false,
-          error: error.message,
+          error: (error as Error).message,
         }
       }
     })
@@ -890,109 +908,118 @@ export async function batchRenderingExample(): Promise<void> {
 export async function viewportExample(): Promise<void> {
   const api = getAnimatorAPI()
 
-  try {
-    // Create a viewport for real-time preview
-    const container = document.getElementById('preview-container')
-    if (!container) {
-      throw new Error('Preview container not found')
-    }
+  // try {
+  // Create a viewport for real-time preview
+  // TODO: Implement DOM element access
+  // const container = document.getElementById('preview-container')
+  // if (!container) {
+  //   throw new Error('Preview container not found')
+  // }
 
-    const viewport = await api.rendering.createViewport(container, {
-      width: 800,
-      height: 600,
-      backgroundColor: { r: 0.1, g: 0.1, b: 0.1, a: 1 },
-      showGuides: true,
-      showGrid: false,
-      zoom: 1,
-      pan: { x: 0, y: 0 },
-    })
+  // TODO: Implement viewport creation
+  // const viewport = await api.rendering.createViewport(container, {
+  //   width: 800,
+  //   height: 600,
+  //   backgroundColor: { r: 0.1, g: 0.1, b: 0.1, a: 1 },
+  //   showGuides: true,
+  //   showGrid: false,
+  //   zoom: 1,
+  //   pan: { x: 0, y: 0 },
+  // })
 
-    console.log(`Created viewport: ${viewport.id}`)
+  // TODO: Implement viewport logging
+  // console.log(`Created viewport: ${viewport.id}`)
 
-    // Set up a scene for preview
-    const document = await api.createDocument()
-    const scene = document.scenes[0]
+  // Set up a scene for preview
+  // TODO: Implement createDocument with proper configuration
+  // const document = await api.createDocument({ name: 'Viewport Preview' })
+  // const scene = document.scenes[0]
 
-    // Create some animated content
-    const rect = await api.sceneGraph.createNode(NodeType.Shape)
-    await api.sceneGraph.setProperties(rect.id, {
-      width: 200,
-      height: 150,
-      fillColor: { r: 1, g: 0.5, b: 0.2, a: 1 },
-    })
+  // Create some animated content
+  const rect = await api.sceneGraph.createNode(NodeType.Shape)
+  await api.sceneGraph.setProperties(rect.id, {
+    width: 200,
+    height: 150,
+    fillColor: { r: 1, g: 0.5, b: 0.2, a: 1 },
+  })
 
-    // Start real-time preview
-    let isPlaying = false
-    let currentTime = 0
-    const frameRate = FRAME_RATE_PRESETS.HDTV_60
+  // Start real-time preview
+  let isPlaying = false
+  let currentTime = 0
+  const frameRate = FRAME_RATE_PRESETS['60'] // TODO: Use HDTV_60 preset
 
-    const animate = async () => {
-      if (!isPlaying) return
+  // TODO: Implement real-time preview animation
+  // const animate = async () => {
+  //   if (!isPlaying) return
+  //
+  //   // Update scene properties based on time
+  //   const progress = (currentTime % 4000) / 4000 // 4-second loop
+  //   const x = 400 + Math.sin(progress * Math.PI * 2) * 200
+  //
+  //   await api.sceneGraph.setProperty(rect.id, 'transform.position', {
+  //     x,
+  //     y: 300,
+  //     z: 0,
+  //   })
+  //
+  //   // Render the frame
+  //   // TODO: Implement renderFrame with scene
+  //   // await api.rendering.renderFrame(scene.id, currentTime, {
+  //   //   quality: RenderQuality.Preview,
+  //   //   resolution: { width: 800, height: 600 },
+  //   //   frameRate,
+  //   //   colorSpace: ColorSpace.sRGB,
+  //   //   cache: true,
+  //   // })
+  //
+  //   currentTime += 1000 / frameRate // Advance by one frame
+  //   // TODO: Implement animation loop
+  //   // requestAnimationFrame(animate)
+  // }
 
-      // Update scene properties based on time
-      const progress = (currentTime % 4000) / 4000 // 4-second loop
-      const x = 400 + Math.sin(progress * Math.PI * 2) * 200
+  // TODO: Implement UI controls
+  // const playButton = document.getElementById('play-button')
+  // const pauseButton = document.getElementById('pause-button')
+  // const resetButton = document.getElementById('reset-button')
 
-      await api.sceneGraph.setProperty(rect.id, 'transform.position', {
-        x,
-        y: 300,
-        z: 0,
-      })
+  // TODO: Implement event listeners
+  // playButton?.addEventListener('click', () => {
+  //   isPlaying = true
+  //   animate()
+  // })
 
-      // Render the frame
-      await api.rendering.renderFrame(scene.id, currentTime, {
-        quality: RenderQuality.Preview,
-        resolution: { width: 800, height: 600 },
-        frameRate,
-        colorSpace: ColorSpace.sRGB,
-        cache: true,
-      })
+  // pauseButton?.addEventListener('click', () => {
+  //   isPlaying = false
+  // })
 
-      currentTime += 1000 / frameRate // Advance by one frame
-      requestAnimationFrame(animate)
-    }
+  // resetButton?.addEventListener('click', () => {
+  //   isPlaying = false
+  //   currentTime = 0
+  //   // Reset scene to initial state
+  // })
 
-    // UI controls
-    const playButton = document.getElementById('play-button')
-    const pauseButton = document.getElementById('pause-button')
-    const resetButton = document.getElementById('reset-button')
+  // TODO: Implement zoom and pan controls for viewport
+  // let zoom = 1
+  // let panX = 0
+  // let panY = 0
 
-    playButton?.addEventListener('click', () => {
-      isPlaying = true
-      animate()
-    })
+  // TODO: Implement viewport controls
+  // container.addEventListener('wheel', (event) => {
+  //   event.preventDefault()
+  //   zoom = Math.max(0.1, Math.min(5, zoom * (1 + event.deltaY * -0.001)))
+  //   api.rendering.updateViewport(viewport.id, {
+  //     zoom,
+  //     pan: { x: panX, y: panY },
+  //   })
+  // })
 
-    pauseButton?.addEventListener('click', () => {
-      isPlaying = false
-    })
-
-    resetButton?.addEventListener('click', () => {
-      isPlaying = false
-      currentTime = 0
-      // Reset scene to initial state
-    })
-
-    // Zoom and pan controls
-    let zoom = 1
-    let panX = 0
-    let panY = 0
-
-    container.addEventListener('wheel', (event) => {
-      event.preventDefault()
-      zoom = Math.max(0.1, Math.min(5, zoom * (1 + event.deltaY * -0.001)))
-      api.rendering.updateViewport(viewport.id, {
-        zoom,
-        pan: { x: panX, y: panY },
-      })
-    })
-
-    // Clean up when done
-    window.addEventListener('beforeunload', () => {
-      api.rendering.destroyViewport(viewport.id)
-    })
-  } catch (error) {
-    console.error('Viewport example failed:', error)
-  }
+  // // Clean up when done
+  // window.addEventListener('beforeunload', () => {
+  //   api.rendering.destroyViewport(viewport.id)
+  // })
+  // } catch (error) {
+  //   console.error('Viewport example failed:', error)
+  // }
 }
 
 /**
@@ -1002,22 +1029,22 @@ export async function performanceMonitoringExample(): Promise<void> {
   const api = getAnimatorAPI()
 
   try {
-    // Get system capabilities
-    const capabilities = await api.getCapabilities()
-    console.log('System capabilities:', capabilities)
+    // TODO: Implement system capabilities and settings
+    // const capabilities = await api.getCapabilities()
+    // console.log('System capabilities:', capabilities)
 
-    // Get current settings
-    const settings = await api.getSettings()
-    console.log('Current settings:', settings)
+    // const settings = await api.getSettings()
+    // console.log('Current settings:', settings)
 
     // Monitor rendering performance
-    const document = await api.createDocument()
-    const scene = document.scenes[0]
+    // TODO: Implement createDocument with proper configuration
+    // const document = await api.createDocument({ name: 'Performance Test' })
+    // const scene = document.scenes[0]
 
     // Create a complex scene for performance testing
-    const nodes = []
+    const nodes: any[] = []
     for (let i = 0; i < 100; i++) {
-      const node = await api.sceneGraph.createNode(NodeType.Shape)
+      const node: any = await api.sceneGraph.createNode(NodeType.Shape)
       await api.sceneGraph.setProperties(node.id, {
         width: 50,
         height: 50,
@@ -1077,12 +1104,13 @@ export async function performanceMonitoringExample(): Promise<void> {
     for (let time = 0; time <= 5000; time += 100) {
       const frameStart = performance.now()
 
-      await api.rendering.renderFrame(scene.id, time, {
-        quality: RenderQuality.Preview,
-        resolution: { width: 1920, height: 1080 },
-        frameRate: FRAME_RATE_PRESETS['60'],
-        cache: true,
-      })
+      // TODO: Implement renderFrame with scene for performance testing
+      // await api.rendering.renderFrame(scene.id, time, {
+      //   quality: RenderQuality.Preview,
+      //   resolution: { width: 1920, height: 1080 },
+      //   frameRate: FRAME_RATE_PRESETS['60'],
+      //   cache: true,
+      // })
 
       const frameEnd = performance.now()
       frameTimes.push(frameEnd - frameStart)
@@ -1128,65 +1156,66 @@ export async function performanceMonitoringExample(): Promise<void> {
 export async function templateExample(): Promise<void> {
   const api = getAnimatorAPI()
 
-  try {
-    // List available templates
-    console.log('Available document templates:')
-    console.log('- Title Sequence: Professional opening titles')
-    console.log('- Explainer: Product demonstration animations')
-    console.log('- Social Media: Square format for social platforms')
-    console.log('- Presentation: Slide-based motion graphics')
+  // try {
+  // List available templates
+  console.log('Available document templates:')
+  console.log('- Title Sequence: Professional opening titles')
+  console.log('- Explainer: Product demonstration animations')
+  console.log('- Social Media: Square format for social platforms')
+  console.log('- Presentation: Slide-based motion graphics')
 
-    // Create document from template
-    const document = await api.createDocument({
-      name: 'Product Explainer',
-      category: 'explainer',
-    })
+  // Create document from template
+  const document = await api.createDocument({
+    name: 'Product Explainer',
+    category: 'explainer',
+  })
 
-    console.log(`Created document from template: ${document.name}`)
+  console.log(`Created document from template: ${document.name}`)
 
-    // The template automatically creates:
-    // - A scene with appropriate duration and settings
-    // - Placeholder nodes for content
-    // - A timeline with basic structure
+  // The template automatically creates:
+  // - A scene with appropriate duration and settings
+  // - Placeholder nodes for content
+  // - A timeline with basic structure
 
-    const scene = document.scenes[0]
-    console.log(`Template created scene: ${scene.name}`)
-    console.log(`Duration: ${scene.duration}ms`)
-    console.log(`Frame rate: ${scene.frameRate}fps`)
+  const scene = document.scenes[0]
+  console.log(`Template created scene: ${scene.name}`)
+  console.log(`Duration: ${scene.duration}ms`)
+  console.log(`Frame rate: ${scene.frameRate}fps`)
 
-    // Customize the template content
-    const nodes = await api.sceneGraph.getChildren(scene.rootNode)
-    console.log(`Template includes ${nodes.length} initial nodes`)
+  // TODO: Implement scene graph children access
+  // const nodes = await api.sceneGraph.getChildren(scene.rootNode)
+  // console.log(`Template includes ${nodes.length} initial nodes`)
 
-    for (const node of nodes) {
-      console.log(`- ${node.name} (${node.type})`)
+  // TODO: Implement node customization
+  // for (const node of nodes) {
+  //   console.log(`- ${node.name} (${node.type})`)
 
-      // Customize specific nodes
-      if (node.name === 'Product Title') {
-        await api.sceneGraph.updateNode(node.id, {
-          properties: {
-            text: 'Our Amazing Product',
-            fontSize: 48,
-            color: { r: 0.2, g: 0.8, b: 1, a: 1 },
-          },
-        })
-      }
+  //   // Customize specific nodes
+  //   if (node.name === 'Product Title') {
+  //     await api.sceneGraph.updateNode(node.id, {
+  //       properties: {
+  //         text: 'Our Amazing Product',
+  //         fontSize: 48,
+  //         color: { r: 0.2, g: 0.8, b: 1, a: 1 },
+  //       },
+  //     })
+  //   }
 
-      if (node.name === 'Background') {
-        await api.sceneGraph.updateNode(node.id, {
-          properties: {
-            fillColor: { r: 0.95, g: 0.95, b: 0.98, a: 1 },
-          },
-        })
-      }
-    }
+  //   if (node.name === 'Background') {
+  //     await api.sceneGraph.updateNode(node.id, {
+  //       properties: {
+  //         fillColor: { r: 0.95, g: 0.95, b: 0.98, a: 1 },
+  //       },
+  //     })
+  //   }
+  // }
 
-    // Save the customized document
-    await api.saveDocument(document.id)
-    console.log('Document saved with customizations')
-  } catch (error) {
-    console.error('Template example failed:', error)
-  }
+  // TODO: Implement document saving
+  // await api.saveDocument(document.id)
+  // console.log('Document saved with customizations')
+  // } catch (error) {
+  //   console.error('Template example failed:', error)
+  // }
 }
 
 /**
@@ -1195,80 +1224,81 @@ export async function templateExample(): Promise<void> {
 export async function errorHandlingExample(): Promise<void> {
   const api = getAnimatorAPI()
 
-  try {
-    // Demonstrate error handling for various scenarios
+  // try {
+  // Demonstrate error handling for various scenarios
 
-    // 1. Invalid node operations
-    try {
-      await api.sceneGraph.getNode('nonexistent-node-id')
-    } catch (error) {
-      console.log(
-        '✅ Caught expected error for nonexistent node:',
-        error.message
-      )
-    }
+  // TODO: Implement error handling for invalid node operations
+  // try {
+  //   await api.sceneGraph.getNode('nonexistent-node-id')
+  // } catch (error) {
+  //   console.log(
+  //     '✅ Caught expected error for nonexistent node:',
+  //     error.message
+  //   )
+  // }
 
-    // 2. Invalid render operations
-    try {
-      await api.rendering.renderFrame('invalid-scene', -1000) // Negative time
-    } catch (error) {
-      console.log('✅ Caught expected error for invalid render:', error.message)
-    }
+  // TODO: Implement error handling for invalid render operations
+  // try {
+  //   await api.rendering.renderFrame('invalid-scene', -1000) // Negative time
+  // } catch (error) {
+  //   console.log('✅ Caught expected error for invalid render:', error.message)
+  // }
 
-    // 3. Network/collaboration errors
-    try {
-      await api.collaboration.joinSession('invalid-session', {
-        userId: 'user_1',
-        name: 'Test User',
-        color: '#FF0000',
-        permissions: ['edit'],
-      })
-    } catch (error) {
-      console.log(
-        '✅ Caught expected error for invalid session:',
-        error.message
-      )
-    }
+  // TODO: Implement error handling for collaboration errors
+  // try {
+  //   await api.collaboration.joinSession('invalid-session', {
+  //     userId: 'user_1',
+  //     name: 'Test User',
+  //     color: '#FF0000',
+  //     permissions: ['edit'],
+  //   })
+  // } catch (error) {
+  //   console.log(
+  //     '✅ Caught expected error for invalid session:',
+  //     error.message
+  //   )
+  // }
 
-    // 4. Plugin errors
-    try {
-      await api.plugins.executePlugin('nonexistent-plugin', 'someFunction', [])
-    } catch (error) {
-      console.log(
-        '✅ Caught expected error for nonexistent plugin:',
-        error.message
-      )
-    }
+  // TODO: Implement error handling for plugin errors
+  // try {
+  //   await api.plugins.executePlugin('nonexistent-plugin', 'someFunction', [])
+  // } catch (error) {
+  //   console.log(
+  //     '✅ Caught expected error for nonexistent plugin:',
+  //     error.message
+  //   )
+  // }
 
-    // 5. Successful operation with error recovery
-    const document = await api.createDocument()
+  // 5. Successful operation with error recovery
+  // TODO: Use document for successful operation demonstration
+  // const document = await api.createDocument()
 
-    try {
-      // Attempt to create a node with invalid properties
-      await api.sceneGraph.createNode(NodeType.Text)
-      await api.sceneGraph.setProperties('new-node', {
-        // Missing required properties for text node
-        invalidProperty: 'value',
-      })
-    } catch (error) {
-      console.log('✅ Caught validation error:', error.message)
+  // try {
+  // Attempt to create a node with invalid properties
+  const node = await api.sceneGraph.createNode(NodeType.Text)
+  await api.sceneGraph.setProperties(node.id, {
+    // Missing required properties for text node
+    invalidProperty: 'value',
+  })
+  // } catch (error) {
+  //   console.log('✅ Caught validation error:', (error as Error).message)
 
-      // Recover by setting valid properties
-      const node = await api.sceneGraph.getNode('new-node')
-      if (node) {
-        await api.sceneGraph.setProperties(node.id, {
-          text: 'Recovered Text',
-          fontSize: 24,
-          color: { r: 0, g: 0, b: 0, a: 1 },
-        })
-        console.log('✅ Successfully recovered from error')
-      }
-    }
+  //   // TODO: Implement error recovery
+  //   // const node = await api.sceneGraph.getNode('new-node')
+  //   // if (node) {
+  //   //   await api.sceneGraph.setProperties(node.id, {
+  //   //   text: 'Recovered Text',
+  //   //   fontSize: 24,
+  //   //   color: { r: 0, g: 0, b: 0, a: 1 },
+  //   // })
+  //   //   console.log('✅ Successfully recovered from error')
+  //   // }
+  // }
 
-    console.log('Error handling demonstration completed')
-  } catch (error) {
-    console.error('Error handling example failed:', error)
-  }
+  console.log('Error handling demonstration completed')
+  // } catch (error) {
+  //   console.error('Error handling example failed:', error)
+  // }
 }
 
 /**

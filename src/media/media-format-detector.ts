@@ -3,13 +3,14 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError } from '@/types'
+import { Result } from '@/types'
 import {
   MediaFormatDetector as IMediaFormatDetector,
   MediaType,
   MediaMetadata,
   VideoCodec,
-  AudioCodec,
+  // TODO: Use AudioCodec for audio format detection
+  // AudioCodec,
 } from './media-types'
 
 /**
@@ -43,15 +44,36 @@ export class MediaFormatDetector implements IMediaFormatDetector {
   ])
 
   private videoExtensions = new Set([
-    '.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.mpg', '.mpeg'
+    '.mp4',
+    '.mov',
+    '.avi',
+    '.mkv',
+    '.webm',
+    '.m4v',
+    '.mpg',
+    '.mpeg',
   ])
 
   private imageExtensions = new Set([
-    '.png', '.jpg', '.jpeg', '.webp', '.tiff', '.tif', '.bmp', '.gif', '.svg'
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.webp',
+    '.tiff',
+    '.tif',
+    '.bmp',
+    '.gif',
+    '.svg',
   ])
 
   private audioExtensions = new Set([
-    '.wav', '.mp3', '.aac', '.flac', '.opus', '.m4a', '.ogg'
+    '.wav',
+    '.mp3',
+    '.aac',
+    '.flac',
+    '.opus',
+    '.m4a',
+    '.ogg',
   ])
 
   async detectFormat(file: File): Promise<Result<MediaType>> {
@@ -200,7 +222,10 @@ export class MediaFormatDetector implements IMediaFormatDetector {
     return [MediaType.Video, MediaType.Image, MediaType.Audio]
   }
 
-  private async getVideoMetadata(file: File, baseMetadata: MediaMetadata): Promise<Result<MediaMetadata>> {
+  private async getVideoMetadata(
+    file: File,
+    baseMetadata: MediaMetadata
+  ): Promise<Result<MediaMetadata>> {
     try {
       // Use WebCodecs API if available
       if ('VideoDecoder' in window) {
@@ -221,16 +246,24 @@ export class MediaFormatDetector implements IMediaFormatDetector {
     }
   }
 
-  private async getVideoMetadataWebCodecs(file: File, baseMetadata: MediaMetadata): Promise<Result<MediaMetadata>> {
+  private async getVideoMetadataWebCodecs(
+    file: File,
+    baseMetadata: MediaMetadata
+  ): Promise<Result<MediaMetadata>> {
     try {
       const videoDecoder = new VideoDecoder({
         output: () => {}, // We just need metadata
         error: (error) => console.error('VideoDecoder error:', error),
       })
 
+      const detectedCodec = await this.detectVideoCodec(file)
+      if (!detectedCodec) {
+        throw new Error('Unable to detect video codec')
+      }
+
       const config = {
-        codec: await this.detectVideoCodec(file),
-        hardwareAcceleration: 'prefer-hardware',
+        codec: detectedCodec,
+        hardwareAcceleration: 'prefer-hardware' as HardwareAcceleration,
       }
 
       await videoDecoder.configure(config)
@@ -255,7 +288,10 @@ export class MediaFormatDetector implements IMediaFormatDetector {
     }
   }
 
-  private async getImageMetadata(file: File, baseMetadata: MediaMetadata): Promise<Result<MediaMetadata>> {
+  private async getImageMetadata(
+    file: File,
+    baseMetadata: MediaMetadata
+  ): Promise<Result<MediaMetadata>> {
     try {
       return new Promise((resolve) => {
         const img = new Image()
@@ -298,11 +334,15 @@ export class MediaFormatDetector implements IMediaFormatDetector {
     }
   }
 
-  private async getAudioMetadata(file: File, baseMetadata: MediaMetadata): Promise<Result<MediaMetadata>> {
+  private async getAudioMetadata(
+    file: File,
+    baseMetadata: MediaMetadata
+  ): Promise<Result<MediaMetadata>> {
     try {
       // Use Web Audio API for basic metadata
       return new Promise((resolve) => {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+        const audioContext = new (window.AudioContext ||
+          (window as any).webkitAudioContext)()
         const reader = new FileReader()
 
         reader.onload = async (e) => {
@@ -359,7 +399,8 @@ export class MediaFormatDetector implements IMediaFormatDetector {
   private async validateVideoFile(file: File): Promise<Result<boolean>> {
     try {
       // Check video-specific constraints
-      if (file.size > 2 * 1024 * 1024 * 1024) { // 2GB limit for videos
+      if (file.size > 2 * 1024 * 1024 * 1024) {
+        // 2GB limit for videos
         return {
           success: false,
           error: {
@@ -397,7 +438,8 @@ export class MediaFormatDetector implements IMediaFormatDetector {
   private async validateImageFile(file: File): Promise<Result<boolean>> {
     try {
       // Check image-specific constraints
-      if (file.size > 100 * 1024 * 1024) { // 100MB limit for images
+      if (file.size > 100 * 1024 * 1024) {
+        // 100MB limit for images
         return {
           success: false,
           error: {
@@ -435,7 +477,8 @@ export class MediaFormatDetector implements IMediaFormatDetector {
   private async validateAudioFile(file: File): Promise<Result<boolean>> {
     try {
       // Check audio-specific constraints
-      if (file.size > 500 * 1024 * 1024) { // 500MB limit for audio
+      if (file.size > 500 * 1024 * 1024) {
+        // 500MB limit for audio
         return {
           success: false,
           error: {
@@ -507,32 +550,5 @@ export class MediaFormatDetector implements IMediaFormatDetector {
   private getFileExtension(fileName: string): string {
     const lastDot = fileName.lastIndexOf('.')
     return lastDot >= 0 ? fileName.slice(lastDot) : ''
-  }
-
-  private async detectAudioCodec(file: File): Promise<AudioCodec | null> {
-    const fileName = file.name.toLowerCase()
-
-    if (fileName.includes('flac')) {
-      return AudioCodec.FLAC
-    }
-
-    if (fileName.includes('wav')) {
-      return AudioCodec.WAV
-    }
-
-    if (fileName.includes('mp3')) {
-      return AudioCodec.MP3
-    }
-
-    if (fileName.includes('aac') || fileName.includes('m4a')) {
-      return AudioCodec.AAC
-    }
-
-    if (fileName.includes('opus')) {
-      return AudioCodec.Opus
-    }
-
-    // Default fallback
-    return AudioCodec.AAC
   }
 }

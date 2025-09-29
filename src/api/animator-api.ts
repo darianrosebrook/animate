@@ -10,14 +10,20 @@
 
 // Import API implementations
 import { TimelineManager } from './timeline'
+import { RenderPriority, PixelFormat } from './rendering'
 import {
   AnimatorError,
   BaseNode,
+  NodeState,
   BezierCurve,
   Camera,
   CollaborationSession,
   Color,
   ColorSpace,
+  TimelineMetadata,
+  PlaybackState,
+  TrackProperties,
+  Document,
   CompressionLevel,
   ConflictResolution,
   DocumentChange,
@@ -55,14 +61,11 @@ import {
   Time,
   TrackType,
   Transform,
-} from '@/types'
-
-// Import sandbox types from their specific module
-import type {
+  // Sandbox types
   SandboxConfig,
   ExecutionResult,
   ExecutionError,
-} from '@/core/sandbox/types'
+} from '../types'
 
 // Re-export all core types for external consumption
 export type {
@@ -70,8 +73,15 @@ export type {
   FrameRate,
   Keyframe,
   BaseNode,
+  NodeState,
+  Document,
   DocumentTemplate,
   RenderOptions,
+  RenderPriority,
+  PixelFormat,
+  TimelineMetadata,
+  PlaybackState,
+  TrackProperties,
   PluginContext,
   RenderOutput,
   CollaborationSession,
@@ -461,7 +471,7 @@ class PluginManager implements PluginAPI {
         // Cleanup subscription
         console.log('Unsubscribing from plugin events for:', pluginId)
       }
-      
+
       // Store callback for future use
       this.pluginEventCallbacks.set(pluginId, callback)
 
@@ -474,12 +484,9 @@ class PluginManager implements PluginAPI {
 
 // Core types are already imported and exported above
 
-// Import and re-export additional types from effects
-import type {
-  EffectType,
-  BlendMode,
-  BaseEffectParameters,
-} from '../types/effects'
+// Import and re-export additional types from effects and timeline
+import type { EffectType, BaseEffectParameters } from '../types/effects'
+import type { BlendMode } from './timeline'
 
 export type { EffectType, BlendMode, BaseEffectParameters }
 

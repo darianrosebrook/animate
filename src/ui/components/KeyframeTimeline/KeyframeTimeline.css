@@ -1,0 +1,237 @@
+.keyframe-timeline {
+  background: #1a1a1a;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.timeline-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #2a2a2a;
+  border-bottom: 1px solid #333;
+}
+
+.timeline-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #ccc;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.timeline-btn:hover {
+  background: #3a3a3a;
+  border-color: #777;
+  color: white;
+}
+
+.time-display {
+  margin-left: auto;
+  font-size: 12px;
+  color: #999;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.timeline-ruler {
+  height: 20px;
+  background: #1a1a1a;
+  position: relative;
+  border-bottom: 1px solid #333;
+}
+
+.ruler-mark {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  background: #444;
+}
+
+.ruler-label {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 10px;
+  color: #666;
+  background: #1a1a1a;
+  padding: 0 4px;
+}
+
+.timeline-track {
+  height: 60px;
+  background: #1a1a1a;
+  position: relative;
+  cursor: crosshair;
+}
+
+.timeline-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 122, 204, 0.1) 0%,
+    transparent 50%,
+    rgba(0, 122, 204, 0.1) 100%
+  );
+}
+
+.keyframe-markers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.layer-keyframes {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  height: 20px;
+}
+
+.keyframe-marker {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background: #666;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.keyframe-marker:hover {
+  background: #007acc;
+  transform: translateY(-50%) scale(1.2);
+}
+
+.keyframe-marker.active {
+  background: #007acc;
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
+}
+
+.timeline-scrubber {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #007acc;
+  cursor: ew-resize;
+  z-index: 10;
+}
+
+.scrubber-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: #007acc;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: ew-resize;
+}
+
+.layer-tracks {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.layer-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.layer-name {
+  min-width: 100px;
+  font-size: 12px;
+  color: #ccc;
+  font-weight: 500;
+}
+
+.layer-properties {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.property-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+}
+
+.property-name {
+  min-width: 60px;
+  font-size: 10px;
+  color: #999;
+  text-transform: uppercase;
+}
+
+.property-keyframes {
+  flex: 1;
+  height: 100%;
+  background: #1a1a1a;
+  border-radius: 3px;
+  position: relative;
+}
+
+.property-keyframe {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: #444;
+  border: 1px solid #666;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.property-keyframe.active {
+  background: #ff6b35;
+  border-color: #fff;
+}
+
+/* Scrollbar styling */
+.keyframe-timeline::-webkit-scrollbar {
+  width: 6px;
+}
+
+.keyframe-timeline::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.keyframe-timeline::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+.keyframe-timeline::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

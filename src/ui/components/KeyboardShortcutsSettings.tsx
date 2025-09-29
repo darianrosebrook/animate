@@ -3,10 +3,13 @@
  * @author @darianrosebrook
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
+// TODO: Use useCallback for performance optimization
+// import { useCallback } from 'react'
 import {
   X,
-  Search,
+  // TODO: Use Search icon for search functionality
+  // Search,
   Edit,
   Trash2,
   Lightbulb,
@@ -17,7 +20,8 @@ import { useKeyboardShortcuts } from '@/ui/hooks/use-keyboard-shortcuts'
 import {
   KeyboardShortcut,
   ShortcutCategory,
-  KeyboardShortcutAction,
+  // TODO: Use KeyboardShortcutAction for action handling
+  // KeyboardShortcutAction,
 } from '@/types'
 
 interface KeyboardShortcutsSettingsProps {
@@ -34,15 +38,16 @@ export function KeyboardShortcutsSettings({
 }: KeyboardShortcutsSettingsProps) {
   const {
     getAllShortcuts,
-    getShortcutsByCategory,
     remapShortcut,
     addCustomShortcut,
     removeCustomShortcut,
-    getUserDefinedShortcuts,
     resetUserCustomizations,
-    isKeyCombinationAvailable,
-    getAvailableActions,
-    getEffectiveShortcut,
+    // TODO: Use these functions for keyboard shortcuts functionality
+    // getShortcutsByCategory,
+    // getUserDefinedShortcuts,
+    // isKeyCombinationAvailable,
+    // getAvailableActions,
+    // getEffectiveShortcut,
   } = useKeyboardShortcuts()
 
   const [selectedCategory, setSelectedCategory] = useState<
@@ -105,7 +110,7 @@ export function KeyboardShortcutsSettings({
       })
     }
 
-    const handleKeyUp = (event: KeyboardEvent) => {
+    const handleKeyUp = (_event: KeyboardEvent) => {
       if (capturedKeys.key) {
         setNewKeyCombo(formatKeyCombination(capturedKeys))
         setCapturingKeys(false)
