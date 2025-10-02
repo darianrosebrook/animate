@@ -83,6 +83,11 @@ export class Logger {
    * Log info message
    */
   info(message: string, context?: Record<string, unknown>): void {
+    // Prevent infinite recursion
+    if (message.includes('Effects timeline integration destroyed')) {
+      console.log(`[${new Date().toISOString()}] INFO: ${message}`)
+      return
+    }
     this.log(LogLevel.INFO, message, context)
   }
 
