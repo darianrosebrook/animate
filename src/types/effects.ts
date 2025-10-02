@@ -172,26 +172,32 @@ export interface MotionBlurParameters extends BaseEffectParameters {
   shutterAngle?: number // Shutter angle for realistic motion blur (0-360)
 }
 
-/**
- * Brightness/Contrast effect parameters
- */
 export interface BrightnessContrastParameters extends BaseEffectParameters {
-  brightness: number // Brightness adjustment (-100 to 100)
-  contrast: number // Contrast adjustment (-100 to 100)
-  preserveLuminosity?: boolean // Preserve original luminosity
+  brightness: number // Brightness adjustment (-1.0 to 1.0)
+  contrast: number // Contrast multiplier (0.0 to 2.0)
 }
 
-/**
- * Levels effect parameters
- */
 export interface LevelsParameters extends BaseEffectParameters {
-  inputBlack: number // Input black point (0-255)
-  inputWhite: number // Input white point (0-255)
-  gamma: number // Gamma correction (0.1-10)
-  outputBlack: number // Output black point (0-255)
-  outputWhite: number // Output white point (0-255)
-  channel?: 'rgb' | 'red' | 'green' | 'blue' // Channel to affect
+  inputBlack: number // Input black point (0.0 to 1.0)
+  inputWhite: number // Input white point (0.0 to 1.0)
+  outputBlack: number // Output black point (0.0 to 1.0)
+  outputWhite: number // Output white point (0.0 to 1.0)
+  gamma: number // Gamma correction (0.1 to 5.0)
 }
+
+export interface CurvePoint {
+  input: number // Input value (0.0 to 1.0)
+  output: number // Output value (0.0 to 1.0)
+}
+
+export interface CurvesParameters extends BaseEffectParameters {
+  redCurve: CurvePoint[] // Red channel curve points
+  greenCurve: CurvePoint[] // Green channel curve points
+  blueCurve: CurvePoint[] // Blue channel curve points
+  masterCurve?: CurvePoint[] // Master curve affecting all channels
+}
+
+
 
 /**
  * Curves effect parameters
