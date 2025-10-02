@@ -42,6 +42,8 @@ function App() {
 
   // Tool selection state
   const [activeToolId, setActiveToolId] = useState<string | null>('select')
+  const [selectedLayers, setSelectedLayers] = useState<string[]>([])
+  const [canvasSelection, setCanvasSelection] = useState<Set<string>>(new Set())
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
@@ -71,7 +73,29 @@ function App() {
 
   // Handle layer rename from layers panel
   const handleLayerRename = (layerId: string, newName: string) => {
-    updateLayer(layerId, { name: newName })
+    updateLayer(currentScene?.id || 'scene-1', layerId, { name: newName })
+  }
+
+  // Calculate union bounds for multiple nodes
+  const calculateUnionBounds = (nodes: SceneNode[]) => {
+    if (nodes.length === 0) return null
+    
+    let minX = Infinity
+    let minY = Infinity
+    let maxX = -Infinity
+    let maxY = -Infinity
+    
+    for (const node of nodes) {
+      const transform = node.transform
+      if (transform) {
+        minX = Math.min(minX, transform.position.x)
+        minY = Math.min(minY, transform.position.y)
+        maxX = Math.max(maxX, transform.position.x + (transform.scale?.x || 1) * 100)
+        maxY = Math.max(maxY, transform.position.y + (transform.scale?.y || 1) * 100)
+      }
+    }
+    
+    return { minX, minY, maxX, maxY }
   }
 
   // Handle zoom to fit from layers panel
@@ -198,7 +222,7 @@ function App() {
 
         await renderer?.renderFrame(sceneGraph, 0.0, context)
       } else {
-        logger.error('Failed to initialize renderer:', result.error)
+        logger.error('Failed to initialize renderer:', result.error as any)
       }
     }
 
@@ -319,15 +343,6 @@ function App() {
     )
   }
 
-  const handleLayerReparent = (
-    _layerId: string,
-    _newParentId: string | null
-  ) => {
-    // PLACEHOLDER: Layer reparenting logic - requires scene graph hierarchy management
-    throw new Error(
-      'PLACEHOLDER: Layer reparenting not implemented - requires scene graph hierarchy updates'
-    )
-  }
 
   const handleExportStart = (_settings: any) => {
     // PLACEHOLDER: Export start logic - requires proper type definitions and export system integration

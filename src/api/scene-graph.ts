@@ -34,9 +34,9 @@ export class SceneGraph {
       name,
       type,
       properties: {
-        position: { x: 0, y: 0 },
-        rotation: 0,
-        scale: { x: 1, y: 1 },
+        position: { x: 0, y: 0, z: 0 },
+        rotation: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
         opacity: 1,
         visible: true,
       },
@@ -290,9 +290,9 @@ export class SceneGraph {
     // Evaluate node at specific time, applying keyframes and constraints
     const evaluatedProperties = { ...node.properties }
     const evaluatedTransform = {
-      position: { x: 0, y: 0 },
-      rotation: 0,
-      scale: { x: 1, y: 1 },
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
       opacity: 1,
       anchorPoint: { x: 0, y: 0 },
     }
@@ -312,7 +312,9 @@ export class SceneGraph {
     }
 
     return {
-      nodeId: node.id,
+      id: node.id,
+      name: node.name,
+      type: node.type,
       properties: evaluatedProperties,
       transform: evaluatedTransform,
       isVisible: true, // TODO: Implement visibility logic

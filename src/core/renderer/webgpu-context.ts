@@ -30,7 +30,7 @@ export class WebGPUContext {
     try {
       logger.info('About to check navigator.gpu')
       // Check for WebGPU support
-      logger.info('Checking WebGPU support, navigator.gpu:', !!navigator.gpu)
+      logger.info('Checking WebGPU support, navigator.gpu:', !!navigator.gpu as any)
       if (!navigator.gpu) {
         return {
           success: false,

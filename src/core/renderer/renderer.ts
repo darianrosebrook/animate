@@ -75,7 +75,7 @@ export class Renderer {
     const fontData = this.createDefaultFontData() // Placeholder font data
     const textResult = await this.textRenderer.initialize(fontData)
     if (!textResult.success) {
-      logger.warn('Text renderer initialization failed:', textResult.error)
+      logger.warn('Text renderer initialization failed:', textResult.error as any)
       this.textRenderer = null
     }
 
@@ -83,7 +83,7 @@ export class Renderer {
     this.imageRenderer = new ImageRenderer(this.webgpuContext)
     const imageResult = await this.imageRenderer.initialize()
     if (!imageResult.success) {
-      logger.warn('Image renderer initialization failed:', imageResult.error)
+      logger.warn('Image renderer initialization failed:', imageResult.error as any)
       this.imageRenderer = null
     }
 
@@ -91,7 +91,7 @@ export class Renderer {
     this.pathRenderer = new SVGPathRenderer(this.webgpuContext)
     const pathResult = await this.pathRenderer.initialize()
     if (!pathResult.success) {
-      logger.warn('Path renderer initialization failed:', pathResult.error)
+      logger.warn('Path renderer initialization failed:', pathResult.error as any)
       this.pathRenderer = null
     }
 
@@ -99,7 +99,7 @@ export class Renderer {
     this.batchRenderer = new BatchRenderer(this.webgpuContext)
     const batchResult = await this.batchRenderer.initialize()
     if (!batchResult.success) {
-      logger.warn('Batch renderer initialization failed:', batchResult.error)
+      logger.warn('Batch renderer initialization failed:', batchResult.error as any)
       this.batchRenderer = null
     }
 
@@ -328,7 +328,7 @@ export class Renderer {
       // Evaluate the scene graph
       const evaluationResult = sceneGraph.evaluate(
         time,
-        context as EvaluationContext
+        _context as EvaluationContext
       )
       if (!evaluationResult.success) {
         return evaluationResult
@@ -383,7 +383,7 @@ export class Renderer {
           evaluatedNodes,
           renderPass,
           time,
-          context as EvaluationContext
+          _context as EvaluationContext
         )
       }
 
@@ -443,13 +443,13 @@ export class Renderer {
       // Render all batches
       const metricsResult = this.batchRenderer.renderAllBatches(renderPass)
       if (!metricsResult.success) {
-        logger.warn('Batch rendering failed:', metricsResult.error)
+        logger.warn('Batch rendering failed:', metricsResult.error as any)
         return null
       }
 
       return metricsResult.data
     } catch (error) {
-      logger.warn('Batch rendering error:', error)
+      logger.warn('Batch rendering error:', error as any)
       return null
     }
   }
@@ -471,7 +471,7 @@ export class Renderer {
         context
       )
       if (!renderResult.success) {
-        logger.warn(`Failed to render node ${node.id}:`, renderResult.error)
+        logger.warn(`Failed to render node ${node.id}:`, renderResult.error as any)
       }
     }
   }

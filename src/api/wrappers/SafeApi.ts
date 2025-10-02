@@ -1630,7 +1630,6 @@ class SafeCollaborationWrapper implements SafeCollaborationAPI {
   }
 
   async resolveConflict(
-    sessionId: string,
     conflictId: string,
     resolution: SafeConflictResolution
   ): Promise<void> {
@@ -1638,7 +1637,7 @@ class SafeCollaborationWrapper implements SafeCollaborationAPI {
 
     try {
       await this.api.resolveConflict(
-        sessionId,
+        conflictId,
         {
           id: conflictId,
           localValue: resolution.value,
@@ -1955,6 +1954,24 @@ class SafeDocumentWrapper implements SafeDocumentAPI {
     private api: AnimatorAPI,
     private context: ApiContext
   ) {}
+
+  private sanitizeNode(node: any): SafeNode {
+    return {
+      id: node.id,
+      name: node.name,
+      type: node.type,
+      properties: node.properties || {},
+      transform: node.transform || {
+        position: { x: 0, y: 0, z: 0 },
+        rotation: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
+        opacity: 1,
+        anchorPoint: { x: 0.5, y: 0.5 },
+      },
+      children: node.children || [],
+      parent: node.parent,
+    }
+  }
 
   async createDocument(template?: SafeDocumentTemplate): Promise<SafeDocument> {
     this.checkPermission('documents.create')

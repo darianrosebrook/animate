@@ -791,7 +791,7 @@ export class EffectShaderManager {
 
       return result
     } catch (error) {
-      logger.error(`Failed to compile shader for effect ${effectName}:`, error)
+      logger.error(`Failed to compile shader for effect ${effectName}:`, error as Error)
       return null
     }
   }

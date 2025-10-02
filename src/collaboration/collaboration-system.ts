@@ -324,7 +324,7 @@ export class CollaborationSystem implements ICollaborationSystem {
 
     return document.collaborators.map((user) => ({
       user,
-      session: this.sessions.get(`${documentId}_${user.id}`),
+      session: this.sessions.get(`${documentId}_${user.id}`) || null,
       lastSeen: new Date(),
       cursor: { x: 0, y: 0, time: 0 },
       selection: null,

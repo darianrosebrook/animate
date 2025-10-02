@@ -174,7 +174,7 @@ export class TransformUtils {
       matrix[10] * 0 +
       matrix[14] * 1
     // TODO: add z to the point
-    logger.info('z', _z)
+    logger.info('z', _z as any)
     const w =
       matrix[3] * point.x +
       matrix[7] * point.y +
