@@ -5,12 +5,12 @@
  */
 
 import { Result } from '../types'
-import { 
-  GaussianBlurParameters, 
-  BoxBlurParameters, 
+import {
+  GaussianBlurParameters,
+  BoxBlurParameters,
   MotionBlurParameters,
-  EffectType, 
-  BlendMode 
+  EffectType,
+  BlendMode,
 } from '../types/effects'
 import { WebGPUContext } from '../core/renderer/webgpu-context'
 import { logger } from '../core/logging/logger'
@@ -174,13 +174,7 @@ export class BlurEffectRenderer {
     parameters: BoxBlurParameters,
     time: number
   ): Result<boolean> {
-    return this.applyBlur(
-      inputTexture,
-      outputTexture,
-      parameters,
-      time,
-      'box'
-    )
+    return this.applyBlur(inputTexture, outputTexture, parameters, time, 'box')
   }
 
   /**
@@ -207,7 +201,10 @@ export class BlurEffectRenderer {
   private applyBlur(
     inputTexture: GPUTexture,
     outputTexture: GPUTexture,
-    parameters: GaussianBlurParameters | BoxBlurParameters | MotionBlurParameters,
+    parameters:
+      | GaussianBlurParameters
+      | BoxBlurParameters
+      | MotionBlurParameters,
     time: number,
     blurType: 'gaussian' | 'box' | 'motion'
   ): Result<boolean> {
@@ -251,7 +248,12 @@ export class BlurEffectRenderer {
       }
 
       // Update uniforms based on blur type
-      const uniforms = this.createUniforms(parameters, inputTexture, time, blurType)
+      const uniforms = this.createUniforms(
+        parameters,
+        inputTexture,
+        time,
+        blurType
+      )
       const uniformData = new Float32Array([
         uniforms.resolution[0],
         uniforms.resolution[1],
@@ -296,7 +298,7 @@ export class BlurEffectRenderer {
       })
       computePass.setPipeline(pipeline)
       computePass.setBindGroup(0, bindGroup)
-      
+
       const workgroupsX = Math.ceil(inputTexture.width / 8)
       const workgroupsY = Math.ceil(inputTexture.height / 8)
       computePass.dispatchWorkgroups(workgroupsX, workgroupsY)
@@ -339,7 +341,10 @@ export class BlurEffectRenderer {
    * Create uniforms based on parameters and blur type
    */
   private createUniforms(
-    parameters: GaussianBlurParameters | BoxBlurParameters | MotionBlurParameters,
+    parameters:
+      | GaussianBlurParameters
+      | BoxBlurParameters
+      | MotionBlurParameters,
     inputTexture: GPUTexture,
     time: number,
     blurType: string
@@ -571,7 +576,9 @@ export function createDefaultMotionBlurParameters(): MotionBlurParameters {
  * Validate blur parameters
  */
 export function validateBlurParameters(
-  params: Partial<GaussianBlurParameters | BoxBlurParameters | MotionBlurParameters>
+  params: Partial<
+    GaussianBlurParameters | BoxBlurParameters | MotionBlurParameters
+  >
 ): Result<GaussianBlurParameters | BoxBlurParameters | MotionBlurParameters> {
   const errors: string[] = []
 

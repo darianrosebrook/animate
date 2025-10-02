@@ -5,15 +5,21 @@
  */
 
 import { Result, Time } from '../types'
-import { Timeline, TimelineTrack, Keyframe, TrackType, InterpolationMode } from '../timeline/timeline-types'
-import { 
-  EffectInstance, 
+import {
+  Timeline,
+  TimelineTrack,
+  Keyframe,
+  TrackType,
+  InterpolationMode,
+} from '../timeline/timeline-types'
+import {
+  EffectInstance,
   EffectParameters,
   GlowParameters,
   GaussianBlurParameters,
   BrightnessContrastParameters,
   LevelsParameters,
-  CurvesParameters
+  CurvesParameters,
 } from '../types/effects'
 import { EffectsSystem } from './effects-system'
 import { logger } from '../core/logging/logger'
@@ -48,14 +54,29 @@ export class EffectsTimelineIntegration {
   async initialize(): Promise<Result<boolean>> {
     try {
       logger.info('Initializing effects timeline integration')
-      
+
       // Set up timeline event listeners
-      this.timeline.addEventListener('timeChanged', this.handleTimeChange.bind(this))
-      this.timeline.addEventListener('trackAdded', this.handleTrackAdded.bind(this))
-      this.timeline.addEventListener('trackRemoved', this.handleTrackRemoved.bind(this))
-      this.timeline.addEventListener('keyframeAdded', this.handleKeyframeAdded.bind(this))
-      this.timeline.addEventListener('keyframeRemoved', this.handleKeyframeRemoved.bind(this))
-      
+      this.timeline.addEventListener(
+        'timeChanged',
+        this.handleTimeChange.bind(this)
+      )
+      this.timeline.addEventListener(
+        'trackAdded',
+        this.handleTrackAdded.bind(this)
+      )
+      this.timeline.addEventListener(
+        'trackRemoved',
+        this.handleTrackRemoved.bind(this)
+      )
+      this.timeline.addEventListener(
+        'keyframeAdded',
+        this.handleKeyframeAdded.bind(this)
+      )
+      this.timeline.addEventListener(
+        'keyframeRemoved',
+        this.handleKeyframeRemoved.bind(this)
+      )
+
       logger.info('✅ Effects timeline integration initialized successfully')
       return { success: true, data: true }
     } catch (error) {
@@ -157,7 +178,9 @@ export class EffectsTimelineIntegration {
         }
       }
 
-      const parameterTrack = effectTracks.find(track => track.parameterName === parameterName)
+      const parameterTrack = effectTracks.find(
+        (track) => track.parameterName === parameterName
+      )
       if (!parameterTrack) {
         return {
           success: false,
@@ -218,7 +241,9 @@ export class EffectsTimelineIntegration {
         }
       }
 
-      const parameterTrack = effectTracks.find(track => track.parameterName === parameterName)
+      const parameterTrack = effectTracks.find(
+        (track) => track.parameterName === parameterName
+      )
       if (!parameterTrack) {
         return {
           success: false,
@@ -233,7 +258,9 @@ export class EffectsTimelineIntegration {
       this.timeline.removeKeyframe(parameterTrack.timelineTrack.id, keyframeId)
 
       // Update local keyframes
-      parameterTrack.keyframes = parameterTrack.keyframes.filter(kf => kf.id !== keyframeId)
+      parameterTrack.keyframes = parameterTrack.keyframes.filter(
+        (kf) => kf.id !== keyframeId
+      )
 
       logger.info(`Removed effect keyframe: ${keyframeId}`)
       return { success: true, data: true }
@@ -261,9 +288,14 @@ export class EffectsTimelineIntegration {
         const updatedParameters: Partial<EffectParameters> = {}
 
         for (const parameterTrack of parameterTracks) {
-          const animatedValue = this.evaluateParameterAtTime(parameterTrack, time)
+          const animatedValue = this.evaluateParameterAtTime(
+            parameterTrack,
+            time
+          )
           if (animatedValue !== undefined) {
-            updatedParameters[parameterTrack.parameterName as keyof EffectParameters] = animatedValue
+            updatedParameters[
+              parameterTrack.parameterName as keyof EffectParameters
+            ] = animatedValue
           }
         }
 
@@ -353,7 +385,9 @@ export class EffectsTimelineIntegration {
   private handleTrackRemoved(event: { trackId: string }): void {
     // Find and remove from local storage
     for (const [effectId, parameterTracks] of this.effectTracks) {
-      const index = parameterTracks.findIndex(track => track.timelineTrack.id === event.trackId)
+      const index = parameterTracks.findIndex(
+        (track) => track.timelineTrack.id === event.trackId
+      )
       if (index !== -1) {
         parameterTracks.splice(index, 1)
         logger.info(`Effect parameter track removed: ${event.trackId}`)
@@ -365,10 +399,15 @@ export class EffectsTimelineIntegration {
   /**
    * Handle keyframe added events
    */
-  private handleKeyframeAdded(event: { trackId: string; keyframe: Keyframe }): void {
+  private handleKeyframeAdded(event: {
+    trackId: string
+    keyframe: Keyframe
+  }): void {
     // Find the parameter track and update local keyframes
     for (const [effectId, parameterTracks] of this.effectTracks) {
-      const parameterTrack = parameterTracks.find(track => track.timelineTrack.id === event.trackId)
+      const parameterTrack = parameterTracks.find(
+        (track) => track.timelineTrack.id === event.trackId
+      )
       if (parameterTrack) {
         parameterTrack.keyframes.push(event.keyframe)
         parameterTrack.keyframes.sort((a, b) => a.time - b.time)
@@ -381,12 +420,19 @@ export class EffectsTimelineIntegration {
   /**
    * Handle keyframe removed events
    */
-  private handleKeyframeRemoved(event: { trackId: string; keyframeId: string }): void {
+  private handleKeyframeRemoved(event: {
+    trackId: string
+    keyframeId: string
+  }): void {
     // Find the parameter track and update local keyframes
     for (const [effectId, parameterTracks] of this.effectTracks) {
-      const parameterTrack = parameterTracks.find(track => track.timelineTrack.id === event.trackId)
+      const parameterTrack = parameterTracks.find(
+        (track) => track.timelineTrack.id === event.trackId
+      )
       if (parameterTrack) {
-        parameterTrack.keyframes = parameterTrack.keyframes.filter(kf => kf.id !== event.keyframeId)
+        parameterTrack.keyframes = parameterTrack.keyframes.filter(
+          (kf) => kf.id !== event.keyframeId
+        )
         logger.info(`Effect keyframe removed: ${event.keyframeId}`)
         break
       }
@@ -396,7 +442,10 @@ export class EffectsTimelineIntegration {
   /**
    * Evaluate parameter value at specific time
    */
-  private evaluateParameterAtTime(parameterTrack: EffectParameterTrack, time: Time): any {
+  private evaluateParameterAtTime(
+    parameterTrack: EffectParameterTrack,
+    time: Time
+  ): any {
     const keyframes = parameterTrack.keyframes
     if (keyframes.length === 0) return undefined
 
@@ -422,19 +471,37 @@ export class EffectsTimelineIntegration {
     if (beforeKeyframe.time === afterKeyframe.time) return beforeKeyframe.value
 
     // Interpolate between keyframes
-    const t = (time - beforeKeyframe.time) / (afterKeyframe.time - beforeKeyframe.time)
-    
+    const t =
+      (time - beforeKeyframe.time) / (afterKeyframe.time - beforeKeyframe.time)
+
     switch (beforeKeyframe.interpolation) {
       case InterpolationMode.Linear:
-        return this.linearInterpolation(beforeKeyframe.value, afterKeyframe.value, t)
+        return this.linearInterpolation(
+          beforeKeyframe.value,
+          afterKeyframe.value,
+          t
+        )
       case InterpolationMode.Bezier:
-        return this.bezierInterpolation(beforeKeyframe.value, afterKeyframe.value, t, beforeKeyframe.easing)
+        return this.bezierInterpolation(
+          beforeKeyframe.value,
+          afterKeyframe.value,
+          t,
+          beforeKeyframe.easing
+        )
       case InterpolationMode.Stepped:
         return beforeKeyframe.value
       case InterpolationMode.Smooth:
-        return this.smoothInterpolation(beforeKeyframe.value, afterKeyframe.value, t)
+        return this.smoothInterpolation(
+          beforeKeyframe.value,
+          afterKeyframe.value,
+          t
+        )
       default:
-        return this.linearInterpolation(beforeKeyframe.value, afterKeyframe.value, t)
+        return this.linearInterpolation(
+          beforeKeyframe.value,
+          afterKeyframe.value,
+          t
+        )
     }
   }
 
@@ -489,13 +556,13 @@ export class EffectsTimelineIntegration {
       radius: '#4ECDC4',
       color: '#45B7D1',
       threshold: '#96CEB4',
-      
+
       // Blur parameters
       sigma: '#FECA57',
       iterations: '#FF9FF3',
       angle: '#54A0FF',
       distance: '#5F27CD',
-      
+
       // Color correction parameters
       brightness: '#FFD93D',
       contrast: '#6BCF7F',
@@ -505,7 +572,7 @@ export class EffectsTimelineIntegration {
       outputBlack: '#2C2C54',
       outputWhite: '#F8F8FF',
     }
-    
+
     return colorMap[parameterName] || '#95A5A6'
   }
 
@@ -514,16 +581,31 @@ export class EffectsTimelineIntegration {
    */
   destroy(): void {
     // Remove event listeners
-    this.timeline.removeEventListener('timeChanged', this.handleTimeChange.bind(this))
-    this.timeline.removeEventListener('trackAdded', this.handleTrackAdded.bind(this))
-    this.timeline.removeEventListener('trackRemoved', this.handleTrackRemoved.bind(this))
-    this.timeline.removeEventListener('keyframeAdded', this.handleKeyframeAdded.bind(this))
-    this.timeline.removeEventListener('keyframeRemoved', this.handleKeyframeRemoved.bind(this))
-    
+    this.timeline.removeEventListener(
+      'timeChanged',
+      this.handleTimeChange.bind(this)
+    )
+    this.timeline.removeEventListener(
+      'trackAdded',
+      this.handleTrackAdded.bind(this)
+    )
+    this.timeline.removeEventListener(
+      'trackRemoved',
+      this.handleTrackRemoved.bind(this)
+    )
+    this.timeline.removeEventListener(
+      'keyframeAdded',
+      this.handleKeyframeAdded.bind(this)
+    )
+    this.timeline.removeEventListener(
+      'keyframeRemoved',
+      this.handleKeyframeRemoved.bind(this)
+    )
+
     // Clear local storage
     this.effectTracks.clear()
     this.parameterAnimations.clear()
-    
+
     logger.info('Effects timeline integration destroyed')
   }
 }
@@ -581,3 +663,4 @@ export function createDefaultEffectTracks(
     }
   }
 }
+

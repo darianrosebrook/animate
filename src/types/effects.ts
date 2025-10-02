@@ -197,8 +197,6 @@ export interface CurvesParameters extends BaseEffectParameters {
   masterCurve?: CurvePoint[] // Master curve affecting all channels
 }
 
-
-
 /**
  * Curves effect parameters
  */

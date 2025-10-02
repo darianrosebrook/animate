@@ -5,11 +5,11 @@
  */
 
 import { Result } from '../types'
-import { 
+import {
   BrightnessContrastParameters,
   LevelsParameters,
   CurvesParameters,
-  BlendMode 
+  BlendMode,
 } from '../types/effects'
 import { WebGPUContext } from '../core/renderer/webgpu-context'
 import { logger } from '../core/logging/logger'
@@ -210,7 +210,10 @@ export class ColorCorrectionEffectRenderer {
   private applyColorCorrection(
     inputTexture: GPUTexture,
     outputTexture: GPUTexture,
-    parameters: BrightnessContrastParameters | LevelsParameters | CurvesParameters,
+    parameters:
+      | BrightnessContrastParameters
+      | LevelsParameters
+      | CurvesParameters,
     time: number,
     correctionType: 'brightnessContrast' | 'levels' | 'curves'
   ): Result<boolean> {
@@ -247,10 +250,22 @@ export class ColorCorrectionEffectRenderer {
         uniforms.inputWhite,
         uniforms.outputBlack,
         uniforms.outputWhite,
-        uniforms.redCurve[0], uniforms.redCurve[1], uniforms.redCurve[2], uniforms.redCurve[3],
-        uniforms.greenCurve[0], uniforms.greenCurve[1], uniforms.greenCurve[2], uniforms.greenCurve[3],
-        uniforms.blueCurve[0], uniforms.blueCurve[1], uniforms.blueCurve[2], uniforms.blueCurve[3],
-        uniforms.masterCurve[0], uniforms.masterCurve[1], uniforms.masterCurve[2], uniforms.masterCurve[3],
+        uniforms.redCurve[0],
+        uniforms.redCurve[1],
+        uniforms.redCurve[2],
+        uniforms.redCurve[3],
+        uniforms.greenCurve[0],
+        uniforms.greenCurve[1],
+        uniforms.greenCurve[2],
+        uniforms.greenCurve[3],
+        uniforms.blueCurve[0],
+        uniforms.blueCurve[1],
+        uniforms.blueCurve[2],
+        uniforms.blueCurve[3],
+        uniforms.masterCurve[0],
+        uniforms.masterCurve[1],
+        uniforms.masterCurve[2],
+        uniforms.masterCurve[3],
         uniforms.time,
         uniforms.padding,
       ])
@@ -288,7 +303,7 @@ export class ColorCorrectionEffectRenderer {
       })
       computePass.setPipeline(pipeline)
       computePass.setBindGroup(0, bindGroup)
-      
+
       const workgroupsX = Math.ceil(inputTexture.width / 8)
       const workgroupsY = Math.ceil(inputTexture.height / 8)
       computePass.dispatchWorkgroups(workgroupsX, workgroupsY)
@@ -331,7 +346,10 @@ export class ColorCorrectionEffectRenderer {
    * Create uniforms based on parameters and correction type
    */
   private createUniforms(
-    parameters: BrightnessContrastParameters | LevelsParameters | CurvesParameters,
+    parameters:
+      | BrightnessContrastParameters
+      | LevelsParameters
+      | CurvesParameters,
     time: number,
     correctionType: string
   ): ColorCorrectionUniforms {
@@ -371,10 +389,14 @@ export class ColorCorrectionEffectRenderer {
         const curvesParams = parameters as CurvesParameters
         // Convert curve points to uniform format (simplified to 4 points)
         baseUniforms.redCurve = this.convertCurvePoints(curvesParams.redCurve)
-        baseUniforms.greenCurve = this.convertCurvePoints(curvesParams.greenCurve)
+        baseUniforms.greenCurve = this.convertCurvePoints(
+          curvesParams.greenCurve
+        )
         baseUniforms.blueCurve = this.convertCurvePoints(curvesParams.blueCurve)
         if (curvesParams.masterCurve) {
-          baseUniforms.masterCurve = this.convertCurvePoints(curvesParams.masterCurve)
+          baseUniforms.masterCurve = this.convertCurvePoints(
+            curvesParams.masterCurve
+          )
         }
         break
     }
@@ -385,17 +407,23 @@ export class ColorCorrectionEffectRenderer {
   /**
    * Convert curve points to uniform format
    */
-  private convertCurvePoints(curvePoints: Array<{ input: number; output: number }>): [number, number, number, number] {
+  private convertCurvePoints(
+    curvePoints: Array<{ input: number; output: number }>
+  ): [number, number, number, number] {
     // Simplified conversion - take first 4 points or interpolate
     if (curvePoints.length >= 4) {
       return [
-        curvePoints[0].input, curvePoints[0].output,
-        curvePoints[1].input, curvePoints[1].output,
+        curvePoints[0].input,
+        curvePoints[0].output,
+        curvePoints[1].input,
+        curvePoints[1].output,
       ]
     } else if (curvePoints.length >= 2) {
       return [
-        curvePoints[0].input, curvePoints[0].output,
-        curvePoints[1].input, curvePoints[1].output,
+        curvePoints[0].input,
+        curvePoints[0].output,
+        curvePoints[1].input,
+        curvePoints[1].output,
       ]
     } else {
       return [0, 0, 1, 1] // Default linear curve
@@ -582,9 +610,18 @@ export function createDefaultLevelsParameters(): LevelsParameters {
 
 export function createDefaultCurvesParameters(): CurvesParameters {
   return {
-    redCurve: [{ input: 0, output: 0 }, { input: 1, output: 1 }],
-    greenCurve: [{ input: 0, output: 0 }, { input: 1, output: 1 }],
-    blueCurve: [{ input: 0, output: 0 }, { input: 1, output: 1 }],
+    redCurve: [
+      { input: 0, output: 0 },
+      { input: 1, output: 1 },
+    ],
+    greenCurve: [
+      { input: 0, output: 0 },
+      { input: 1, output: 1 },
+    ],
+    blueCurve: [
+      { input: 0, output: 0 },
+      { input: 1, output: 1 },
+    ],
     enabled: true,
     opacity: 1.0,
     blendMode: BlendMode.NORMAL,
@@ -595,7 +632,9 @@ export function createDefaultCurvesParameters(): CurvesParameters {
  * Validate color correction parameters
  */
 export function validateColorCorrectionParameters(
-  params: Partial<BrightnessContrastParameters | LevelsParameters | CurvesParameters>
+  params: Partial<
+    BrightnessContrastParameters | LevelsParameters | CurvesParameters
+  >
 ): Result<BrightnessContrastParameters | LevelsParameters | CurvesParameters> {
   const errors: string[] = []
 
@@ -642,3 +681,4 @@ export function validateColorCorrectionParameters(
 
   return { success: true, data: params as any }
 }
+

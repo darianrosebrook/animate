@@ -101,14 +101,22 @@ export class Logger {
   /**
    * Log error message
    */
-  error(message: string, error?: Error, context?: Record<string, unknown>): void {
+  error(
+    message: string,
+    error?: Error,
+    context?: Record<string, unknown>
+  ): void {
     this.log(LogLevel.ERROR, message, context, error)
   }
 
   /**
    * Log fatal error message
    */
-  fatal(message: string, error?: Error, context?: Record<string, unknown>): void {
+  fatal(
+    message: string,
+    error?: Error,
+    context?: Record<string, unknown>
+  ): void {
     this.log(LogLevel.FATAL, message, context, error)
   }
 
@@ -139,7 +147,9 @@ export class Logger {
     const logMessage = message || `Performance: ${label}`
     this.log(LogLevel.INFO, logMessage, undefined, undefined, {
       duration,
-      memoryUsage: this.config.enableMemoryTracking ? this.getMemoryUsage() : undefined,
+      memoryUsage: this.config.enableMemoryTracking
+        ? this.getMemoryUsage()
+        : undefined,
     })
 
     return duration
@@ -229,7 +239,9 @@ export class Logger {
     const errorStr = entry.error ? `\n${entry.error.stack}` : ''
     const perfStr = entry.performance
       ? ` [${entry.performance.duration.toFixed(2)}ms${
-          entry.performance.memoryUsage ? `, ${entry.performance.memoryUsage}MB` : ''
+          entry.performance.memoryUsage
+            ? `, ${entry.performance.memoryUsage}MB`
+            : ''
         }]`
       : ''
 
@@ -278,7 +290,9 @@ export const logger = Logger.getInstance()
  */
 export function createScopedLogger(context: Record<string, unknown>): Logger {
   const scopedLogger = Logger.getInstance()
-  scopedLogger.configure({ context: { ...scopedLogger['config'].context, ...context } })
+  scopedLogger.configure({
+    context: { ...scopedLogger['config'].context, ...context },
+  })
   return scopedLogger
 }
 
@@ -310,7 +324,10 @@ export function logPerformance<T extends (...args: any[]) => any>(
 /**
  * Error boundary logging
  */
-export function logError(error: Error, context?: Record<string, unknown>): void {
+export function logError(
+  error: Error,
+  context?: Record<string, unknown>
+): void {
   logger.error('Unhandled error', error, context)
 }
 
@@ -319,7 +336,7 @@ export function logError(error: Error, context?: Record<string, unknown>): void 
  */
 export function initializeLogging(config?: Partial<LoggerConfig>): Logger {
   const logger = Logger.getInstance(config)
-  
+
   // Set up global error handling
   if (typeof window !== 'undefined') {
     window.addEventListener('error', (event) => {

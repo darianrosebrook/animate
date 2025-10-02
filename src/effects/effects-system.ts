@@ -45,7 +45,7 @@ export class EffectsSystem implements IEffectSystem {
     this.monitor = new EffectPerformanceMonitor()
     this.cache = new EffectCache()
     this.validator = new EffectValidator()
-    
+
     // Initialize components with proper error handling
     this.renderer = new EffectRendererImpl(
       this.webgpuContext,
