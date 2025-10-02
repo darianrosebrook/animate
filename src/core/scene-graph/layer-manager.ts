@@ -15,7 +15,7 @@ import {
   LayerHierarchy,
   LayerOperation,
   LayerValidation,
-} from './scene-graph-types'
+} from './layer-manager-types'
 
 /**
  * Advanced layer management system with grouping, masking, and blending
@@ -463,7 +463,7 @@ export class LayerManager {
       layerIds,
       depth: this.calculateHierarchyDepth(groupId),
       children: [],
-      parentId: null,
+      parentId: undefined,
     }
 
     this.layerHierarchy.set(groupId, hierarchy)

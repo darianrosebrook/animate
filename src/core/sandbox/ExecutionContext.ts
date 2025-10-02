@@ -345,7 +345,7 @@ class ApiProxy {
             return (...args: any[]) => {
               // PLACEHOLDER: In a real implementation, this would call the actual API
               // with proper error handling and validation
-              logger.info(`API call: ${apiName}.${String(prop)}`, args)
+              logger.info(`API call: ${apiName}.${String(prop)}`, args as any)
               return Promise.resolve(null)
             }
           }

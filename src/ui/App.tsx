@@ -107,11 +107,11 @@ function App() {
       }
     }
 
-    return { 
-      x: minX, 
-      y: minY, 
-      width: maxX - minX, 
-      height: maxY - minY 
+    return {
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY,
     }
   }
 
@@ -424,7 +424,11 @@ function App() {
           <LeftPanel
             project={project}
             currentScene={currentScene}
-            selectedLayers={currentScene?.layers.filter(layer => selectedLayers.includes(layer.id)) || []}
+            selectedLayers={
+              currentScene?.layers.filter((layer) =>
+                selectedLayers.includes(layer.id)
+              ) || []
+            }
             viewMode={project.viewMode}
             mode={project.mode}
             onViewModeChange={setViewMode}
@@ -469,7 +473,11 @@ function App() {
               <WorkspaceCanvas
                 project={project}
                 currentScene={currentScene}
-                selectedLayers={currentScene?.layers.filter(layer => selectedLayers.includes(layer.id)) || []}
+                selectedLayers={
+                  currentScene?.layers.filter((layer) =>
+                    selectedLayers.includes(layer.id)
+                  ) || []
+                }
                 activeTool={activeToolId ? (activeToolId as any) : null}
                 onLayerSelect={setSelectedLayers}
                 onLayerUpdate={handleLayerUpdate}
@@ -498,7 +506,11 @@ function App() {
           <ContextPane
             mode={project.mode}
             currentScene={currentScene}
-            selectedLayers={currentScene?.layers.filter(layer => selectedLayers.includes(layer.id)) || []}
+            selectedLayers={
+              currentScene?.layers.filter((layer) =>
+                selectedLayers.includes(layer.id)
+              ) || []
+            }
             onLayerUpdate={handleLayerUpdate}
             onSceneUpdate={handleSceneUpdate}
           />

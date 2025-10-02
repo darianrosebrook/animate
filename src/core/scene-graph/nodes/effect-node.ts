@@ -60,8 +60,6 @@ export class EffectNode implements IEffectNode {
       quality: 'high',
       maxMemoryMB: 256,
       adaptiveQuality: true,
-      cacheEnabled: true,
-      shaderPrecision: 'fp32',
       ...options.performanceSettings,
     }
     this.createdAt = Date.now()
@@ -83,7 +81,7 @@ export class EffectNode implements IEffectNode {
       }
 
       // Update parameters
-      this.parameters = { ...this.parameters, ...newParameters }
+      this.parameters = { ...this.parameters, ...newParameters as EffectParameters }
       this.updatedAt = Date.now()
       this.updateCacheKey()
 
@@ -124,8 +122,8 @@ export class EffectNode implements IEffectNode {
     switch (this.type) {
       case EffectType.GAUSSIAN_BLUR:
         if (
-          parameters.radius !== undefined &&
-          (parameters.radius < 0.1 || parameters.radius > 100)
+          (parameters as any).radius !== undefined &&
+          ((parameters as any).radius < 0.1 || (parameters as any).radius > 100)
         ) {
           return {
             success: false,
@@ -139,8 +137,8 @@ export class EffectNode implements IEffectNode {
 
       case EffectType.LEVELS:
         if (
-          parameters.inputBlack !== undefined &&
-          (parameters.inputBlack < 0 || parameters.inputBlack > 255)
+          (parameters as any).inputBlack !== undefined &&
+          ((parameters as any).inputBlack < 0 || (parameters as any).inputBlack > 255)
         ) {
           return {
             success: false,
@@ -151,8 +149,8 @@ export class EffectNode implements IEffectNode {
           }
         }
         if (
-          parameters.inputWhite !== undefined &&
-          (parameters.inputWhite < 0 || parameters.inputWhite > 255)
+          (parameters as any).inputWhite !== undefined &&
+          ((parameters as any).inputWhite < 0 || (parameters as any).inputWhite > 255)
         ) {
           return {
             success: false,

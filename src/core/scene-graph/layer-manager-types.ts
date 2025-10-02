@@ -3,7 +3,10 @@
  * @author @darianrosebrook
  */
 
-import { BlendMode } from './scene-graph-types'
+import { BlendMode, SceneNode, Transform } from '@/types'
+
+// Re-export types for convenience
+export { BlendMode, SceneNode, Transform }
 
 /**
  * Layer mask definition

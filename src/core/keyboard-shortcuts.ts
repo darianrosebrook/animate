@@ -156,7 +156,7 @@ export class KeyboardShortcutsManager {
       try {
         await shortcut.action(event)
       } catch (error) {
-        logger.error('Error executing custom shortcut action:', error)
+        logger.error('Error executing custom shortcut action:', error as Error)
       }
     }
 
@@ -175,7 +175,7 @@ export class KeyboardShortcutsManager {
       try {
         listener(event)
       } catch (error) {
-        logger.error('Error in keyboard shortcut listener:', error)
+        logger.error('Error in keyboard shortcut listener:', error as Error)
       }
     })
   }
@@ -544,7 +544,7 @@ export class KeyboardShortcutsManager {
         this.importConfiguration(config)
       }
     } catch (error) {
-      logger.warn('Failed to load keyboard shortcuts configuration:', error)
+      logger.warn('Failed to load keyboard shortcuts configuration:', error as any)
     }
   }
 
@@ -556,7 +556,7 @@ export class KeyboardShortcutsManager {
       const config = this.exportConfiguration()
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config))
     } catch (error) {
-      logger.warn('Failed to save keyboard shortcuts configuration:', error)
+      logger.warn('Failed to save keyboard shortcuts configuration:', error as any)
     }
   }
 
@@ -572,7 +572,7 @@ export class KeyboardShortcutsManager {
       meta?: boolean
     }
   ): string {
-    const parts = []
+    const parts: string[] = []
 
     if (modifiers?.ctrl) parts.push('ctrl')
     if (modifiers?.alt) parts.push('alt')

@@ -509,7 +509,7 @@ export class WebGPUContext {
         maxComputeWorkgroupSizeZ: 64,
         maxComputeWorkgroupsPerDimension: 65535,
       },
-    } as GPUDevice
+    } as unknown as GPUDevice
   }
 
   /**
@@ -560,7 +560,7 @@ export class WebGPUContext {
           device: 'Mock Device',
           description: 'Mock GPU Adapter for Testing',
         }),
-    } as GPUAdapter
+    } as unknown as GPUAdapter
   }
 
   /**
@@ -703,7 +703,7 @@ export class WebGPUContext {
       popDebugGroup: () => {},
       insertDebugMarker: () => {},
       finish: () => this.createMockCommandBuffer(),
-    } as GPUCommandEncoder
+    } as unknown as GPUCommandEncoder
   }
 
   /**
@@ -734,7 +734,7 @@ export class WebGPUContext {
       pushDebugGroup: () => {},
       popDebugGroup: () => {},
       end: () => {},
-    } as GPURenderPassEncoder
+    } as unknown as GPURenderPassEncoder
   }
 
   /**
@@ -756,7 +756,7 @@ export class WebGPUContext {
       end: () => {},
       dispatchWorkgroups: () => {},
       dispatchWorkgroupsIndirect: () => {},
-    } as GPUComputePassEncoder
+    } as unknown as GPUComputePassEncoder
   }
 
   /**
@@ -787,7 +787,7 @@ export class WebGPUContext {
       pushDebugGroup: () => {},
       popDebugGroup: () => {},
       finish: () => this.createMockRenderBundle(),
-    } as GPURenderBundleEncoder
+    } as unknown as GPURenderBundleEncoder
   }
 
   /**
@@ -831,6 +831,6 @@ export class WebGPUContext {
       writeTexture: () => {},
       copyExternalImageToTexture: () => {},
       onSubmittedWorkDone: () => Promise.resolve(),
-    } as GPUQueue
+    } as unknown as GPUQueue
   }
 }
