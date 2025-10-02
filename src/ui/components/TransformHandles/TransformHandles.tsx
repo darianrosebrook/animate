@@ -19,6 +19,10 @@ export interface TransformHandlesProps {
   hasSelection: boolean
   /** Mouse down handler for transform handles */
   onHandleMouseDown: (e: React.MouseEvent, handleType: string) => void
+  /** Keyboard handler for accessibility */
+  onKeyDown?: (e: React.KeyboardEvent, handleType: string) => void
+  /** Currently focused handle for keyboard navigation */
+  focusedHandle?: string | null
 }
 
 /**
@@ -42,6 +46,8 @@ export function TransformHandles({
   unionBounds,
   hasSelection,
   onHandleMouseDown,
+  onKeyDown,
+  focusedHandle = null,
 }: TransformHandlesProps) {
   if (!unionBounds || !hasSelection) {
     return null
@@ -49,6 +55,24 @@ export function TransformHandles({
 
   const width = unionBounds.maxX - unionBounds.minX
   const height = unionBounds.maxY - unionBounds.minY
+
+  const createHandle = (
+    type: string,
+    position: string,
+    style: React.CSSProperties,
+    ariaLabel: string
+  ) => (
+    <div
+      className={`transform-handle ${type} ${position} ${focusedHandle === `${type} ${position}` ? 'focused' : ''}`}
+      style={style}
+      onMouseDown={(e) => onHandleMouseDown(e, `${type} ${position}`)}
+      onKeyDown={onKeyDown ? (e) => onKeyDown(e, `${type} ${position}`) : undefined}
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      aria-describedby="transform-handles-description"
+    />
+  )
 
   return (
     <div
@@ -62,50 +86,26 @@ export function TransformHandles({
         pointerEvents: 'none',
         zIndex: 1001,
       }}
+      role="group"
+      aria-label="Transform handles for selected elements"
     >
+      {/* Hidden description for screen readers */}
+      <div id="transform-handles-description" className="sr-only">
+        Use transform handles to resize or scale selected elements. 
+        Press arrow keys to adjust, Enter to confirm, Escape to cancel.
+      </div>
+
       {/* Corner handles */}
-      <div
-        className="transform-handle corner top-left"
-        style={{ left: -4, top: -4 }}
-        onMouseDown={(e) => onHandleMouseDown(e, 'corner top-left')}
-      />
-      <div
-        className="transform-handle corner top-right"
-        style={{ right: -4, top: -4 }}
-        onMouseDown={(e) => onHandleMouseDown(e, 'corner top-right')}
-      />
-      <div
-        className="transform-handle corner bottom-left"
-        style={{ left: -4, bottom: -4 }}
-        onMouseDown={(e) => onHandleMouseDown(e, 'corner bottom-left')}
-      />
-      <div
-        className="transform-handle corner bottom-right"
-        style={{ right: -4, bottom: -4 }}
-        onMouseDown={(e) => onHandleMouseDown(e, 'corner bottom-right')}
-      />
+      {createHandle('corner', 'top-left', { left: -4, top: -4 }, 'Top-left corner handle: Scale from top-left')}
+      {createHandle('corner', 'top-right', { right: -4, top: -4 }, 'Top-right corner handle: Scale from top-right')}
+      {createHandle('corner', 'bottom-left', { left: -4, bottom: -4 }, 'Bottom-left corner handle: Scale from bottom-left')}
+      {createHandle('corner', 'bottom-right', { right: -4, bottom: -4 }, 'Bottom-right corner handle: Scale from bottom-right')}
 
       {/* Edge handles */}
-      <div
-        className="transform-handle edge top"
-        style={{ left: '50%', top: -4, transform: 'translateX(-50%)' }}
-        onMouseDown={(e) => onHandleMouseDown(e, 'edge top')}
-      />
-      <div
-        className="transform-handle edge bottom"
-        style={{ left: '50%', bottom: -4, transform: 'translateX(-50%)' }}
-        onMouseDown={(e) => onHandleMouseDown(e, 'edge bottom')}
-      />
-      <div
-        className="transform-handle edge left"
-        style={{ left: -4, top: '50%', transform: 'translateY(-50%)' }}
-        onMouseDown={(e) => onHandleMouseDown(e, 'edge left')}
-      />
-      <div
-        className="transform-handle edge right"
-        style={{ right: -4, top: '50%', transform: 'translateY(-50%)' }}
-        onMouseDown={(e) => onHandleMouseDown(e, 'edge right')}
-      />
+      {createHandle('edge', 'top', { left: '50%', top: -4, transform: 'translateX(-50%)' }, 'Top edge handle: Resize vertically from top')}
+      {createHandle('edge', 'bottom', { left: '50%', bottom: -4, transform: 'translateX(-50%)' }, 'Bottom edge handle: Resize vertically from bottom')}
+      {createHandle('edge', 'left', { left: -4, top: '50%', transform: 'translateY(-50%)' }, 'Left edge handle: Resize horizontally from left')}
+      {createHandle('edge', 'right', { right: -4, top: '50%', transform: 'translateY(-50%)' }, 'Right edge handle: Resize horizontally from right')}
     </div>
   )
 }

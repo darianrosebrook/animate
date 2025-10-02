@@ -19,6 +19,8 @@ export interface SelectionBoxProps {
   unionBounds: Rectangle | null
   /** Whether selection is currently being dragged */
   isDragging: boolean
+  /** Number of selected elements for accessibility announcement */
+  selectedCount?: number
 }
 
 /**
@@ -42,6 +44,7 @@ export function SelectionBox({
   dragSelectionBox,
   unionBounds,
   isDragging,
+  selectedCount = 0,
 }: SelectionBoxProps) {
   return (
     <>
@@ -60,6 +63,9 @@ export function SelectionBox({
             pointerEvents: 'none',
             zIndex: 1000,
           }}
+          role="region"
+          aria-label={`Selection bounds containing ${selectedCount} ${selectedCount === 1 ? 'element' : 'elements'}`}
+          aria-live="polite"
         />
       )}
 
@@ -78,6 +84,9 @@ export function SelectionBox({
             pointerEvents: 'none',
             zIndex: 999,
           }}
+          role="region"
+          aria-label="Drag selection area"
+          aria-live="assertive"
         />
       )}
     </>

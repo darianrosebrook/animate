@@ -57,3 +57,51 @@
   cursor: ew-resize;
 }
 
+/* Keyboard focus styles for accessibility */
+.transform-handle:focus {
+  outline: 2px solid #ffa500;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(255, 165, 0, 0.3);
+  z-index: 2;
+}
+
+.transform-handle.focused {
+  background: #ffa500;
+  border-color: #ff8c00;
+  box-shadow: 0 0 0 4px rgba(255, 165, 0, 0.3);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .transform-handle {
+    border-width: 3px;
+  }
+  
+  .transform-handle:focus {
+    outline-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .transform-handle {
+    transition: none;
+  }
+  
+  .transform-handle:hover {
+    transform: none;
+  }
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
