@@ -108,7 +108,7 @@ describe('useCanvasPanZoom', () => {
       result.current.handleHandToolMove(mockEvent)
     })
 
-    expect(mockSetPan).toHaveBeenCalledWith({ x: 50, y: 50 })
+    expect(mockOnPan).toHaveBeenCalledWith({ x: 50, y: 50 })
   })
 
   it('should handle hand tool up event', () => {

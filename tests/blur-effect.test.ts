@@ -20,43 +20,29 @@ import {
   BlendMode,
 } from '../src/types/effects'
 
-// Mock WebGPU objects
+// Simplified WebGPU mocks to prevent test hanging
 const mockGPUTexture = {
-  createView: vi.fn(() => ({ label: 'Mock Texture View' })),
+  createView: vi.fn(() => ({})),
   width: 1920,
   height: 1080,
-  format: 'rgba8unorm' as const,
+  format: 'rgba8unorm',
   destroy: vi.fn(),
-  usage: 0,
-  dimension: '2d' as const,
-  mipLevelCount: 1,
-  sampleCount: 1,
 }
 
 const mockGPUBuffer = {
-  label: 'Mock Buffer',
-  size: 32,
-  usage: 0,
-  mapState: 'unmapped' as const,
   destroy: vi.fn(),
 }
 
-const mockGPUShaderModule = {
-  label: 'Mock Shader Module',
-}
+const mockGPUShaderModule = {}
 
-const mockGPUBindGroupLayout = {
-  label: 'Mock Bind Group Layout',
-}
+const mockGPUBindGroupLayout = {}
 
 const mockGPUPipelineLayout = {
-  label: 'Mock Pipeline Layout',
-  bindGroupLayouts: [mockGPUBindGroupLayout],
+  bindGroupLayouts: [],
 }
 
 const mockGPUComputePipeline = {
-  label: 'Mock Compute Pipeline',
-  getBindGroupLayout: vi.fn(() => mockGPUBindGroupLayout),
+  getBindGroupLayout: vi.fn(() => ({})),
 }
 
 const mockGPUCommandEncoder = {
@@ -66,13 +52,13 @@ const mockGPUCommandEncoder = {
     dispatchWorkgroups: vi.fn(),
     end: vi.fn(),
   })),
-  finish: vi.fn(() => ({ label: 'Mock Command Buffer' })),
+  finish: vi.fn(() => ({})),
 }
 
 const mockGPUDevice = {
   createBuffer: vi.fn(() => mockGPUBuffer),
   createTexture: vi.fn(() => mockGPUTexture),
-  createSampler: vi.fn(() => ({ label: 'Mock Sampler' })),
+  createSampler: vi.fn(() => ({})),
   createShaderModule: vi.fn(() => mockGPUShaderModule),
   createBindGroupLayout: vi.fn(() => mockGPUBindGroupLayout),
   createPipelineLayout: vi.fn(() => mockGPUPipelineLayout),
@@ -81,50 +67,18 @@ const mockGPUDevice = {
   queue: {
     writeBuffer: vi.fn(),
     submit: vi.fn(),
-    onSubmittedWorkDone: vi.fn(() => Promise.resolve()),
-  },
-  lost: false,
-  features: new Set(),
-  limits: {
-    maxTextureDimension1D: 8192,
-    maxTextureDimension2D: 8192,
-    maxTextureDimension3D: 2048,
-    maxTextureArrayLayers: 256,
-    maxBindGroups: 4,
-    maxBindingsPerBindGroup: 640,
-    maxDynamicUniformBuffersPerPipelineLayout: 8,
-    maxDynamicStorageBuffersPerPipelineLayout: 4,
-    maxSampledTexturesPerShaderStage: 16,
-    maxSamplersPerShaderStage: 16,
-    maxStorageBuffersPerShaderStage: 8,
-    maxStorageTexturesPerShaderStage: 4,
-    maxUniformBuffersPerShaderStage: 12,
-    maxUniformBufferBindingSize: 65536,
-    maxStorageBufferBindingSize: 134217728,
-    maxVertexBuffers: 8,
-    maxVertexAttributes: 16,
-    maxVertexBufferArrayStride: 2048,
-    maxInterStageShaderComponents: 64,
-    maxComputeInvocationsPerWorkgroup: 256,
-    maxComputeWorkgroupSizeX: 256,
-    maxComputeWorkgroupSizeY: 256,
-    maxComputeWorkgroupSizeZ: 64,
-    maxComputeWorkgroupsPerDimension: 65535,
   },
 }
 
-// Create a proper WebGPUContext mock that works with the actual implementation
+// Simplified WebGPUContext mock
 const mockWebGPUContext = {
   getDevice: vi.fn(() => mockGPUDevice),
   isWebGPUSupported: vi.fn(() => true),
-  getAdapterInfo: vi.fn(() => ({
-    vendor: 'Mock Vendor',
-    architecture: 'Mock Architecture',
-  })),
+  getAdapterInfo: vi.fn(() => ({ vendor: 'Mock', architecture: 'Mock' })),
   initialize: vi.fn(() => Promise.resolve({ success: true, data: true })),
   getContext: vi.fn(() => null),
   getCanvas: vi.fn(() => null),
-  getFormat: vi.fn(() => 'bgra8unorm' as const),
+  getFormat: vi.fn(() => 'bgra8unorm'),
   createBuffer: vi.fn(() => null),
   createTexture: vi.fn(() => null),
   createSampler: vi.fn(() => null),
@@ -135,7 +89,7 @@ const mockWebGPUContext = {
   submitCommands: vi.fn(),
   resize: vi.fn(),
   getSize: vi.fn(() => ({ width: 1920, height: 1080 })),
-  getAspectRatio: vi.fn(() => 16 / 9),
+  getAspectRatio: vi.fn(() => 1.777),
   getResolution: vi.fn(() => ({ width: 1920, height: 1080 })),
   destroy: vi.fn(),
 } as any

@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { usePenTool } from '../../src/ui/hooks/usePenTool'
-import { ToolType, NodeType } from '../../src/types'
+import { ToolType } from '../../src/types'
 
 // Mock the canvasToWorld utility
 vi.mock('../../src/ui/canvas/selection-utils', () => ({
@@ -18,16 +18,10 @@ vi.mock('../../src/ui/canvas/selection-utils', () => ({
 }))
 
 describe('usePenTool', () => {
-  let mockOnPathCreate: ReturnType<typeof vi.fn>
-  let mockOnPathUpdate: ReturnType<typeof vi.fn>
-  let mockOnPathComplete: ReturnType<typeof vi.fn>
-  let mockOnSelectionChange: ReturnType<typeof vi.fn>
+  let mockOnLayerUpdate: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
-    mockOnPathCreate = vi.fn()
-    mockOnPathUpdate = vi.fn()
-    mockOnPathComplete = vi.fn()
-    mockOnSelectionChange = vi.fn()
+    mockOnLayerUpdate = vi.fn()
   })
 
   it('should initialize with default pen tool state', () => {
@@ -37,21 +31,13 @@ describe('usePenTool', () => {
         zoom: 1,
         pan: { x: 0, y: 0 },
         activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
+        onLayerUpdate: mockOnLayerUpdate,
       })
     )
 
-    expect(result.current.isDrawing).toBe(false)
-    expect(result.current.currentPath).toEqual([])
-    expect(result.current.previewPoint).toBe(null)
-    expect(result.current.isClosingPath).toBe(false)
-    expect(result.current.editingPathId).toBe(null)
-    expect(result.current.editingControlPoint).toBe(null)
-    expect(result.current.isDraggingControlPoint).toBe(false)
+    expect(result.current.penToolState.isDrawing).toBe(false)
+    expect(result.current.penToolState.currentPath).toEqual([])
+    expect(result.current.penToolState.previewPoint).toBe(null)
   })
 
   it('should return correct hook structure', () => {
@@ -61,372 +47,123 @@ describe('usePenTool', () => {
         zoom: 1,
         pan: { x: 0, y: 0 },
         activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
+        onLayerUpdate: mockOnLayerUpdate,
       })
     )
 
-    expect(result.current).toHaveProperty('isDrawing')
-    expect(result.current).toHaveProperty('currentPath')
-    expect(result.current).toHaveProperty('previewPoint')
-    expect(result.current).toHaveProperty('isClosingPath')
-    expect(result.current).toHaveProperty('editingPathId')
-    expect(result.current).toHaveProperty('editingControlPoint')
-    expect(result.current).toHaveProperty('isDraggingControlPoint')
-    expect(result.current).toHaveProperty('startDrawing')
-    expect(result.current).toHaveProperty('continueDrawing')
-    expect(result.current).toHaveProperty('finishDrawing')
-    expect(result.current).toHaveProperty('cancelDrawing')
-    expect(result.current).toHaveProperty('handlePointClick')
-    expect(result.current).toHaveProperty('handleControlPointDrag')
-    expect(result.current).toHaveProperty('generateSVGPath')
-    expect(result.current).toHaveProperty('getPathBounds')
+    expect(result.current.penToolState).toBeDefined()
+    expect(typeof result.current.handlePenToolDown).toBe('function')
+    expect(typeof result.current.handlePenToolMove).toBe('function')
+    expect(typeof result.current.handlePenToolUp).toBe('function')
+    expect(typeof result.current.generateSVGPathFromPoints).toBe('function')
   })
 
-  it('should start drawing when startDrawing is called', () => {
+  it('should generate SVG path from points correctly', () => {
     const { result } = renderHook(() =>
       usePenTool({
         scene: null,
         zoom: 1,
         pan: { x: 0, y: 0 },
         activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
-      })
-    )
-
-    const point = { x: 100, y: 150 }
-
-    act(() => {
-      result.current.startDrawing(point)
-    })
-
-    expect(result.current.isDrawing).toBe(true)
-    expect(result.current.currentPath).toEqual([point])
-    expect(result.current.previewPoint).toBe(null)
-  })
-
-  it('should continue drawing when continueDrawing is called', () => {
-    const { result } = renderHook(() =>
-      usePenTool({
-        scene: null,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
-      })
-    )
-
-    const point1 = { x: 100, y: 150 }
-    const point2 = { x: 200, y: 250 }
-
-    act(() => {
-      result.current.startDrawing(point1)
-      result.current.continueDrawing(point2)
-    })
-
-    expect(result.current.isDrawing).toBe(true)
-    expect(result.current.currentPath).toEqual([point1, point2])
-  })
-
-  it('should finish drawing when finishDrawing is called', () => {
-    const { result } = renderHook(() =>
-      usePenTool({
-        scene: null,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
-      })
-    )
-
-    const point1 = { x: 100, y: 150 }
-    const point2 = { x: 200, y: 250 }
-
-    act(() => {
-      result.current.startDrawing(point1)
-      result.current.continueDrawing(point2)
-      result.current.finishDrawing()
-    })
-
-    expect(result.current.isDrawing).toBe(false)
-    expect(result.current.currentPath).toEqual([])
-    expect(mockOnPathComplete).toHaveBeenCalledWith([point1, point2])
-  })
-
-  it('should cancel drawing when cancelDrawing is called', () => {
-    const { result } = renderHook(() =>
-      usePenTool({
-        scene: null,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
-      })
-    )
-
-    const point = { x: 100, y: 150 }
-
-    act(() => {
-      result.current.startDrawing(point)
-      result.current.cancelDrawing()
-    })
-
-    expect(result.current.isDrawing).toBe(false)
-    expect(result.current.currentPath).toEqual([])
-    expect(mockOnPathComplete).not.toHaveBeenCalled()
-  })
-
-  it('should generate SVG path correctly', () => {
-    const { result } = renderHook(() =>
-      usePenTool({
-        scene: null,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
+        onLayerUpdate: mockOnLayerUpdate,
       })
     )
 
     const points = [
-      { x: 100, y: 150 },
-      { x: 200, y: 250 },
-      { x: 300, y: 100 },
+      { x: 0, y: 0 },
+      { x: 100, y: 0 },
+      { x: 100, y: 100 },
     ]
 
-    let svgPath: string
-    act(() => {
-      svgPath = result.current.generateSVGPath(points)
-    })
-
-    expect(svgPath).toBe('M 100 150 L 200 250 L 300 100')
+    const path = result.current.generateSVGPathFromPoints(points)
+    expect(path).toContain('M 0 0')
+    expect(path).toContain('Q 100 0 100 100')
   })
 
-  it('should generate SVG path for single point', () => {
+  it('should handle pen tool mouse down', () => {
     const { result } = renderHook(() =>
       usePenTool({
         scene: null,
         zoom: 1,
         pan: { x: 0, y: 0 },
         activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
+        onLayerUpdate: mockOnLayerUpdate,
       })
     )
 
-    const points = [{ x: 100, y: 150 }]
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      clientX: 100,
+      clientY: 200,
+    } as unknown as React.MouseEvent
 
-    let svgPath: string
     act(() => {
-      svgPath = result.current.generateSVGPath(points)
+      result.current.handlePenToolDown(mockEvent, { x: 100, y: 200 })
     })
 
-    expect(svgPath).toBe('M 100 150')
+    expect(result.current.penToolState.isDrawing).toBe(true)
   })
 
-  it('should generate SVG path for empty points', () => {
+  it('should handle pen tool mouse move', () => {
     const { result } = renderHook(() =>
       usePenTool({
         scene: null,
         zoom: 1,
         pan: { x: 0, y: 0 },
         activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
+        onLayerUpdate: mockOnLayerUpdate,
       })
     )
 
-    let svgPath: string
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      clientX: 150,
+      clientY: 250,
+    } as unknown as React.MouseEvent
+
+    // Start drawing first
     act(() => {
-      svgPath = result.current.generateSVGPath([])
+      result.current.handlePenToolDown(mockEvent, { x: 150, y: 250 })
     })
 
-    expect(svgPath).toBe('')
+    // Then move
+    act(() => {
+      result.current.handlePenToolMove(mockEvent, { x: 150, y: 250 })
+    })
+
+    expect(result.current.penToolState.currentPath.length).toBeGreaterThan(0)
   })
 
-  it('should calculate path bounds correctly', () => {
+  it('should handle pen tool mouse up', () => {
     const { result } = renderHook(() =>
       usePenTool({
         scene: null,
         zoom: 1,
         pan: { x: 0, y: 0 },
         activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
+        onLayerUpdate: mockOnLayerUpdate,
       })
     )
 
-    const points = [
-      { x: 100, y: 150 },
-      { x: 200, y: 250 },
-      { x: 300, y: 100 },
-    ]
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      clientX: 100,
+      clientY: 200,
+    } as unknown as React.MouseEvent
 
-    let bounds: { minX: number; minY: number; maxX: number; maxY: number }
+    // Start drawing
     act(() => {
-      bounds = result.current.getPathBounds(points)
+      result.current.handlePenToolDown(mockEvent, { x: 100, y: 200 })
     })
 
-    expect(bounds).toEqual({
-      minX: 100,
-      minY: 100,
-      maxX: 300,
-      maxY: 250,
-    })
-  })
-
-  it('should handle empty points in bounds calculation', () => {
-    const { result } = renderHook(() =>
-      usePenTool({
-        scene: null,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
-      })
-    )
-
-    let bounds: { minX: number; minY: number; maxX: number; maxY: number }
+    // Finish drawing
     act(() => {
-      bounds = result.current.getPathBounds([])
+      result.current.handlePenToolUp(mockEvent)
     })
 
-    expect(bounds).toEqual({
-      minX: 0,
-      minY: 0,
-      maxX: 0,
-      maxY: 0,
-    })
-  })
-
-  it('should handle point click when not drawing', () => {
-    const { result } = renderHook(() =>
-      usePenTool({
-        scene: null,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
-      })
-    )
-
-    const point = { x: 100, y: 150 }
-
-    act(() => {
-      result.current.handlePointClick(point)
-    })
-
-    expect(result.current.isDrawing).toBe(true)
-    expect(result.current.currentPath).toEqual([point])
-  })
-
-  it('should handle point click when drawing (close path)', () => {
-    const { result } = renderHook(() =>
-      usePenTool({
-        scene: null,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
-      })
-    )
-
-    const point1 = { x: 100, y: 150 }
-    const point2 = { x: 200, y: 250 }
-
-    act(() => {
-      result.current.startDrawing(point1)
-      result.current.continueDrawing(point2)
-      result.current.handlePointClick(point1) // Click on first point to close
-    })
-
-    expect(result.current.isDrawing).toBe(false)
-    expect(result.current.isClosingPath).toBe(true)
-    expect(mockOnPathComplete).toHaveBeenCalledWith([point1, point2, point1])
-  })
-
-  it('should handle control point drag', () => {
-    const { result } = renderHook(() =>
-      usePenTool({
-        scene: null,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
-      })
-    )
-
-    act(() => {
-      result.current.handleControlPointDrag(0, { x: 110, y: 160 })
-    })
-
-    expect(result.current.editingControlPoint).toBe(0)
-    expect(result.current.isDraggingControlPoint).toBe(true)
-  })
-
-  it('should cleanup on unmount', () => {
-    const { unmount } = renderHook(() =>
-      usePenTool({
-        scene: null,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        activeTool: ToolType.Pen,
-        selectedLayers: [],
-        onPathCreate: mockOnPathCreate,
-        onPathUpdate: mockOnPathUpdate,
-        onPathComplete: mockOnPathComplete,
-        onSelectionChange: mockOnSelectionChange,
-      })
-    )
-
-    // Should not throw any errors on unmount
-    expect(() => unmount()).not.toThrow()
+    expect(result.current.penToolState.isDrawing).toBe(false)
   })
 })

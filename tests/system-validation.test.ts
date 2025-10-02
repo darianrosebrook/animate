@@ -17,7 +17,7 @@ import {
 } from '../src/core/validation/performance-monitor'
 import { ErrorDetector } from '../src/core/validation/error-detector'
 
-describe.skip('System-Wide Validation and Performance Testing', () => {
+describe('System-Wide Validation and Performance Testing', () => {
   let webgpuContext: WebGPUContext
   let batchRenderer: BatchRenderer
   let effectsSystem: EffectsSystem
