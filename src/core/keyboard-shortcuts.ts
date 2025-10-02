@@ -3,8 +3,8 @@
  * @author @darianrosebrook
  */
 
-import {
 import { logger } from '@/core/logging/logger'
+import {
   KeyboardShortcut,
   KeyboardShortcutMap,
   ShortcutCategory,

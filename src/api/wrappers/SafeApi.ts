@@ -4,8 +4,8 @@
  * @author @darianrosebrook
  */
 
-import type {
 import { logger } from '@/core/logging/logger'
+import type {
   SceneGraphAPI,
   TimelineAPI,
   RenderingAPI,

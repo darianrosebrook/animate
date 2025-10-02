@@ -4,8 +4,8 @@
  */
 
 import { Result } from '@/types'
-import {
 import { logger } from '@/core/logging/logger'
+import {
   CollaborationSystem as ICollaborationSystem,
   Document,
   User,

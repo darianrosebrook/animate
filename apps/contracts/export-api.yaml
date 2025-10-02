@@ -1,0 +1,584 @@
+openapi: 3.0.3
+info:
+  title: Animator Export API
+  description: Professional video export and encoding capabilities
+  version: 1.0.0
+  contact:
+    name: Animator API Support
+    email: api-support@animator.dev
+
+servers:
+  - url: https://api.animator.dev/v1
+    description: Production server
+  - url: http://localhost:3000/v1
+    description: Development server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /export/jobs:
+    post:
+      summary: Create export job
+      description: Create a new video export job with specified format and quality settings
+      tags:
+        - Export Jobs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExportJobRequest'
+      responses:
+        '201':
+          description: Export job created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJob'
+        '400':
+          description: Invalid export configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+        '429':
+          description: Too many concurrent export jobs
+
+    get:
+      summary: List export jobs
+      description: Get list of export jobs for the current user
+      tags:
+        - Export Jobs
+      parameters:
+        - name: status
+          in: query
+          description: Filter by job status
+          schema:
+            type: string
+            enum: [queued, running, completed, failed, cancelled]
+        - name: limit
+          in: query
+          description: Maximum number of jobs to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of jobs to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: List of export jobs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJobList'
+        '401':
+          description: Unauthorized
+
+  /export/jobs/{jobId}:
+    get:
+      summary: Get export job details
+      description: Get detailed information about a specific export job
+      tags:
+        - Export Jobs
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Unique identifier of the export job
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Export job details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJob'
+        '404':
+          description: Export job not found
+        '401':
+          description: Unauthorized
+
+    delete:
+      summary: Cancel export job
+      description: Cancel a running or queued export job
+      tags:
+        - Export Jobs
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Unique identifier of the export job
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Export job cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJob'
+        '404':
+          description: Export job not found
+        '409':
+          description: Cannot cancel completed or failed job
+        '401':
+          description: Unauthorized
+
+  /export/jobs/{jobId}/progress:
+    get:
+      summary: Get export progress
+      description: Get real-time progress information for an export job
+      tags:
+        - Export Jobs
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Unique identifier of the export job
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current export progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportProgress'
+        '404':
+          description: Export job not found
+        '401':
+          description: Unauthorized
+
+  /export/jobs/{jobId}/result:
+    get:
+      summary: Download export result
+      description: Download the completed export file
+      tags:
+        - Export Jobs
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Unique identifier of the export job
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Export file
+          content:
+            video/mp4:
+              schema:
+                type: string
+                format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Export job not found or not completed
+        '401':
+          description: Unauthorized
+        '410':
+          description: Export result expired or deleted
+
+  /export/formats:
+    get:
+      summary: Get supported export formats
+      description: Get list of all supported export formats and their capabilities
+      tags:
+        - Export Formats
+      responses:
+        '200':
+          description: List of supported export formats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportFormatList'
+
+  /export/presets:
+    get:
+      summary: Get export presets
+      description: Get predefined export presets for common use cases
+      tags:
+        - Export Presets
+      responses:
+        '200':
+          description: List of export presets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportPresetList'
+
+    post:
+      summary: Create export preset
+      description: Create a custom export preset
+      tags:
+        - Export Presets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExportPresetRequest'
+      responses:
+        '201':
+          description: Export preset created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportPreset'
+        '400':
+          description: Invalid preset configuration
+        '401':
+          description: Unauthorized
+
+  /export/hardware:
+    get:
+      summary: Get hardware acceleration status
+      description: Get information about available hardware acceleration capabilities
+      tags:
+        - Hardware Acceleration
+      responses:
+        '200':
+          description: Hardware acceleration information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HardwareAcceleration'
+
+components:
+  schemas:
+    CreateExportJobRequest:
+      type: object
+      required:
+        - compositionId
+        - format
+        - quality
+      properties:
+        compositionId:
+          type: string
+          description: ID of the composition to export
+        format:
+          $ref: '#/components/schemas/ExportFormat'
+        quality:
+          $ref: '#/components/schemas/ExportQuality'
+        destination:
+          type: string
+          description: Optional custom destination path
+        range:
+          $ref: '#/components/schemas/ExportRange'
+        options:
+          $ref: '#/components/schemas/ExportOptions'
+
+    ExportJob:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique job identifier
+        compositionId:
+          type: string
+          description: ID of the source composition
+        format:
+          $ref: '#/components/schemas/ExportFormat'
+        quality:
+          $ref: '#/components/schemas/ExportQuality'
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+        progress:
+          $ref: '#/components/schemas/ExportProgress'
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        error:
+          $ref: '#/components/schemas/ExportError'
+        hardwareAcceleration:
+          $ref: '#/components/schemas/HardwareAcceleration'
+        estimatedDuration:
+          type: number
+          description: Estimated total duration in seconds
+        fileSize:
+          type: number
+          description: Final file size in bytes (when completed)
+
+    ExportJobList:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportJob'
+        total:
+          type: integer
+          description: Total number of jobs
+        hasMore:
+          type: boolean
+          description: Whether there are more jobs available
+
+    ExportProgress:
+      type: object
+      properties:
+        currentFrame:
+          type: integer
+          description: Current frame being processed
+        totalFrames:
+          type: integer
+          description: Total number of frames to process
+        currentPhase:
+          type: string
+          enum: [initializing, encoding, finalizing, completed, failed]
+        phaseProgress:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Progress within current phase (0-1)
+        estimatedTimeRemaining:
+          type: number
+          description: Estimated seconds remaining
+        bytesProcessed:
+          type: number
+          description: Bytes processed so far
+        encodingSpeed:
+          type: number
+          description: Current encoding speed in fps
+
+    ExportFormat:
+      type: object
+      required:
+        - container
+        - codec
+      properties:
+        container:
+          type: string
+          enum: [mp4, mov, webm, avi]
+          description: Output container format
+        codec:
+          type: string
+          enum: [h264, h265, av1, vp9, prores]
+          description: Video codec to use
+        audioCodec:
+          type: string
+          enum: [aac, mp3, opus, flac]
+          description: Audio codec (optional)
+        resolution:
+          $ref: '#/components/schemas/Resolution'
+        frameRate:
+          type: number
+          description: Target frame rate
+        pixelFormat:
+          type: string
+          enum: [yuv420p, yuv422p, yuv444p, rgb24]
+          description: Pixel format for encoding
+
+    ExportQuality:
+      type: string
+      enum: [low, medium, high, lossless]
+      description: Quality preset affecting bitrate and processing
+
+    ExportRange:
+      type: object
+      properties:
+        startFrame:
+          type: integer
+          minimum: 0
+          description: Starting frame number
+        endFrame:
+          type: integer
+          minimum: 0
+          description: Ending frame number (inclusive)
+        duration:
+          type: number
+          description: Duration in seconds (alternative to endFrame)
+
+    ExportOptions:
+      type: object
+      properties:
+        priority:
+          type: string
+          enum: [low, normal, high]
+          default: normal
+        hardwareAcceleration:
+          type: boolean
+          default: true
+        twoPass:
+          type: boolean
+          default: false
+          description: Enable two-pass encoding for better quality
+        customBitrate:
+          type: number
+          description: Custom bitrate in bits per second
+        qualityValidation:
+          type: boolean
+          default: true
+          description: Enable perceptual quality validation
+
+    ExportError:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code for programmatic handling
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error context
+        retryable:
+          type: boolean
+          description: Whether the operation can be retried
+
+    HardwareAcceleration:
+      type: object
+      properties:
+        available:
+          type: boolean
+        type:
+          type: string
+          enum: [webgpu, webcodecs, software]
+        capabilities:
+          $ref: '#/components/schemas/HardwareCapabilities'
+
+    HardwareCapabilities:
+      type: object
+      properties:
+        maxTextureSize:
+          type: integer
+          description: Maximum texture dimension
+        maxBufferSize:
+          type: integer
+          description: Maximum buffer size in bytes
+        maxComputeWorkgroupsPerDimension:
+          type: integer
+          description: Maximum compute workgroups per dimension
+        supportedCodecs:
+          type: array
+          items:
+            type: string
+          description: List of supported codecs
+
+    Resolution:
+      type: object
+      required:
+        - width
+        - height
+      properties:
+        width:
+          type: integer
+          minimum: 1
+          maximum: 8192
+        height:
+          type: integer
+          minimum: 1
+          maximum: 8192
+        aspectRatio:
+          type: number
+          description: Width/height ratio
+
+    ExportFormatList:
+      type: object
+      properties:
+        formats:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportFormat'
+        recommended:
+          type: array
+          items:
+            type: string
+          description: Recommended formats for common use cases
+
+    ExportPreset:
+      type: object
+      required:
+        - id
+        - name
+        - format
+        - quality
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [web, social, broadcast, archive]
+        format:
+          $ref: '#/components/schemas/ExportFormat'
+        quality:
+          $ref: '#/components/schemas/ExportQuality'
+        options:
+          $ref: '#/components/schemas/ExportOptions'
+
+    ExportPresetList:
+      type: object
+      properties:
+        presets:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportPreset'
+
+    CreateExportPresetRequest:
+      type: object
+      required:
+        - name
+        - format
+        - quality
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        category:
+          type: string
+          enum: [web, social, broadcast, archive]
+        format:
+          $ref: '#/components/schemas/ExportFormat'
+        quality:
+          $ref: '#/components/schemas/ExportQuality'
+        options:
+          $ref: '#/components/schemas/ExportOptions'
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

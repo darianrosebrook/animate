@@ -11,8 +11,8 @@ import {
   TrackType,
   PluginSourceType,
 } from '@/types'
-import {
 import { logger } from '@/core/logging/logger'
+import {
   TemplateCategory,
   InterpolationMode,
   NodeType,
@@ -418,7 +418,7 @@ export async function createTitleSequenceExample(): Promise<void> {
 
     logger.info('Title sequence created successfully!')
   } catch (error) {
-    logger.error('Error creating title sequence:', error)
+         logger.error('Error creating title sequence:', error as Error)
   }
 }
 
@@ -493,7 +493,7 @@ export async function collaborationExample(): Promise<void> {
     // TODO: Implement unsubscribe functionality
     // _unsubscribe()
   } catch (error) {
-    logger.error('Collaboration example failed:', error)
+     logger.error('Collaboration example failed:', error as Error)
   }
 }
 
@@ -634,7 +634,7 @@ export async function advancedRenderingExample(): Promise<void> {
       `Rendered ${renderResult.data.frames.length} frames in ${renderResult.data.duration}ms each`
     )
   } catch (error) {
-    logger.error('Advanced rendering example failed:', error)
+     logger.error('Advanced rendering example failed:', error as Error)
   }
 }
 
@@ -711,7 +711,7 @@ export async function pluginDevelopmentExample(): Promise<void> {
     //   logger.error('Failed to apply glow effect:', result.result)
     // }
   } catch (error) {
-    logger.error('Plugin development example failed:', error)
+     logger.error('Plugin development example failed:', error as Error)
   }
 }
 
@@ -805,7 +805,7 @@ export async function audioReactiveExample(): Promise<void> {
 
     logger.info('Audio-reactive animation started!')
   } catch (error) {
-    logger.error('Audio-reactive example failed:', error)
+     logger.error('Audio-reactive example failed:', error as Error)
   }
 }
 
@@ -899,7 +899,7 @@ export async function batchRenderingExample(): Promise<void> {
       }
     })
   } catch (error) {
-    logger.error('Batch rendering example failed:', error)
+     logger.error('Batch rendering example failed:', error as Error)
   }
 }
 
@@ -1147,7 +1147,7 @@ export async function performanceMonitoringExample(): Promise<void> {
       logger.info('⚠️  Frame times exceed 22ms threshold')
     }
   } catch (error) {
-    logger.error('Performance monitoring example failed:', error)
+     logger.error('Performance monitoring example failed:', error as Error)
   }
 }
 
@@ -1340,7 +1340,7 @@ export async function runAllExamples(): Promise<void> {
 
     logger.info('\n🎉 All examples completed successfully!')
   } catch (error) {
-    logger.error('Failed to run examples:', error)
+     logger.error('Failed to run examples:', error as Error)
   }
 }
 

@@ -4,8 +4,8 @@
  */
 
 import { Result } from '@/types'
-import {
 import { logger } from '@/core/logging/logger'
+import {
   LibrarySystem as ILibrarySystem,
   Library,
   Collection,
@@ -674,10 +674,193 @@ export class LibrarySystem implements ILibrarySystem {
   }
 
   private matchesSearch(asset: Asset, query: LibrarySearch): boolean {
-    // Simple search implementation - would be more sophisticated in practice
+    // Enhanced search implementation with full-text search
     const searchText =
-      `${asset.name} ${asset.description} ${asset.tags?.join(' ')}`.toLowerCase()
-    return searchText.includes(query.text?.toLowerCase() || '')
+      `${asset.name} ${asset.description} ${asset.tags?.join(' ')} ${asset.metadata?.keywords || ''}`.toLowerCase()
+
+    // Text search
+    if (query.text && !searchText.includes(query.text.toLowerCase())) {
+      return false
+    }
+
+    // Type filter
+    if (
+      query.assetTypes &&
+      query.assetTypes.length > 0 &&
+      !query.assetTypes.includes(asset.type)
+    ) {
+      return false
+    }
+
+    // Tag filter
+    if (query.tags && query.tags.length > 0) {
+      const assetTags = asset.tags || []
+      const hasMatchingTag = query.tags.some((tag) => assetTags.includes(tag))
+      if (!hasMatchingTag) {
+        return false
+      }
+    }
+
+    // Date range filter
+    if (query.dateRange) {
+      const assetDate = new Date(asset.createdAt)
+      if (query.dateRange.start && assetDate < query.dateRange.start) {
+        return false
+      }
+      if (query.dateRange.end && assetDate > query.dateRange.end) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  private applyAdvancedFilters(assets: Asset[], query: LibrarySearch): Asset[] {
+    let filtered = assets
+
+    // Size filter
+    if (query.fileSize) {
+      filtered = filtered.filter((asset) => {
+        const size = asset.metadata?.fileSize || 0
+        if (query.fileSize!.min && size < query.fileSize!.min) return false
+        if (query.fileSize!.max && size > query.fileSize!.max) return false
+        return true
+      })
+    }
+
+    // Custom metadata filters
+    if (query.metadataFilters) {
+      filtered = filtered.filter((asset) => {
+        for (const [key, value] of Object.entries(query.metadataFilters!)) {
+          if (asset.metadata?.[key] !== value) {
+            return false
+          }
+        }
+        return true
+      })
+    }
+
+    return filtered
+  }
+
+  private async applySmartCollectionFilter(
+    assets: Asset[],
+    criteria: any
+  ): Promise<Asset[]> {
+    // AI-powered filtering based on usage patterns, content analysis, etc.
+    // This is a simplified implementation
+    return assets.filter((asset) => {
+      // Example smart filtering logic
+      if (criteria.recentlyUsed) {
+        const lastUsed = asset.metadata?.lastAccessed
+        if (lastUsed) {
+          const daysSinceUsed =
+            (Date.now() - new Date(lastUsed).getTime()) / (1000 * 60 * 60 * 24)
+          return daysSinceUsed <= 7 // Used in last 7 days
+        }
+      }
+
+      if (criteria.highQuality) {
+        return asset.metadata?.quality === 'high'
+      }
+
+      return true
+    })
+  }
+
+  private compareAssetData(
+    oldData: any,
+    newData: any
+  ): Array<{
+    property: string
+    oldValue: any
+    newValue: any
+    type: 'added' | 'removed' | 'modified'
+  }> {
+    const differences: Array<{
+      property: string
+      oldValue: any
+      newValue: any
+      type: 'added' | 'removed' | 'modified'
+    }> = []
+
+    // Compare properties (simplified implementation)
+    const allKeys = new Set([...Object.keys(oldData), ...Object.keys(newData)])
+
+    for (const key of allKeys) {
+      const oldValue = oldData[key]
+      const newValue = newData[key]
+
+      if (oldValue === undefined) {
+        differences.push({ property: key, oldValue, newValue, type: 'added' })
+      } else if (newValue === undefined) {
+        differences.push({ property: key, oldValue, newValue, type: 'removed' })
+      } else if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+        differences.push({
+          property: key,
+          oldValue,
+          newValue,
+          type: 'modified',
+        })
+      }
+    }
+
+    return differences
+  }
+
+  private findAssetCollection(assetId: string): Collection | null {
+    for (const collection of this.collections.values()) {
+      if (collection.assets.includes(assetId)) {
+        return collection
+      }
+    }
+    return null
+  }
+
+  private async populateSmartCollection(
+    collectionId: string,
+    criteria: any
+  ): Promise<void> {
+    const collection = this.collections.get(collectionId)
+    if (!collection) return
+
+    // Find assets matching criteria
+    const matchingAssets: string[] = []
+
+    for (const asset of this.assets.values()) {
+      if (this.evaluateSmartCriteria(asset, criteria)) {
+        matchingAssets.push(asset.id)
+      }
+    }
+
+    collection.assets = matchingAssets
+    collection.metadata.lastEvaluated = new Date()
+  }
+
+  private evaluateSmartCriteria(asset: Asset, criteria: any): boolean {
+    // Evaluate asset against smart collection criteria
+    if (criteria.assetTypes && !criteria.assetTypes.includes(asset.type)) {
+      return false
+    }
+
+    if (criteria.tags && criteria.tags.length > 0) {
+      const assetTags = asset.tags || []
+      if (!criteria.tags.some((tag: string) => assetTags.includes(tag))) {
+        return false
+      }
+    }
+
+    if (criteria.dateRange) {
+      const assetDate = new Date(asset.createdAt)
+      if (criteria.dateRange.start && assetDate < criteria.dateRange.start) {
+        return false
+      }
+      if (criteria.dateRange.end && assetDate > criteria.dateRange.end) {
+        return false
+      }
+    }
+
+    return true
   }
 
   private sortAssets(

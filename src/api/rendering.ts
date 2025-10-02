@@ -779,7 +779,7 @@ export enum TextureFilterMode {
  * Basic rendering implementation using WebGPU
  */
 export class Renderer implements RenderingAPI {
-  private _webgpuContext: WebGPUContext
+  private _webgpuContext!: WebGPUContext
   private viewports: Map<string, Viewport> = new Map()
   private nextViewportId = 1
 
@@ -932,7 +932,7 @@ export class Renderer implements RenderingAPI {
         projection: 'perspective' as ProjectionType,
       },
       isPlaying: false,
-      frameRate: options?.frameRate || 30,
+      frameRate: 30,
       size: { width: options?.width || 1920, height: options?.height || 1080 },
       settings: {
         pixelRatio: 1,

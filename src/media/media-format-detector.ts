@@ -4,8 +4,8 @@
  */
 
 import { Result } from '@/types'
-import {
 import { logger } from '@/core/logging/logger'
+import {
   MediaFormatDetector as IMediaFormatDetector,
   MediaType,
   MediaMetadata,

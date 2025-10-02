@@ -11,6 +11,22 @@ import {
   EffectCategory,
   EffectParameterType,
 } from './effects-types'
+import {
+  waveDistortionEffect,
+  rippleDistortionEffect,
+  displacementMapEffect,
+  lensDistortionEffect,
+  chromaticAberrationEffect,
+} from './distortion-effects'
+import {
+  linearWipeTransition,
+  radialWipeTransition,
+  clockWipeTransition,
+  slideTransition,
+  zoomTransition,
+  morphTransition,
+  patternWipeTransition,
+} from './transition-effects'
 
 /**
  * Built-in effects library with professional GPU-accelerated effects
@@ -76,6 +92,25 @@ export class EffectsLibrary implements IEffectLibrary {
   }
 
   private initializeBuiltInEffects(): void {
+    // Register advanced distortion effects
+    this.effectTypes.set(waveDistortionEffect.name, waveDistortionEffect)
+    this.effectTypes.set(rippleDistortionEffect.name, rippleDistortionEffect)
+    this.effectTypes.set(displacementMapEffect.name, displacementMapEffect)
+    this.effectTypes.set(lensDistortionEffect.name, lensDistortionEffect)
+    this.effectTypes.set(
+      chromaticAberrationEffect.name,
+      chromaticAberrationEffect
+    )
+
+    // Register advanced transition effects
+    this.effectTypes.set(linearWipeTransition.name, linearWipeTransition)
+    this.effectTypes.set(radialWipeTransition.name, radialWipeTransition)
+    this.effectTypes.set(clockWipeTransition.name, clockWipeTransition)
+    this.effectTypes.set(slideTransition.name, slideTransition)
+    this.effectTypes.set(zoomTransition.name, zoomTransition)
+    this.effectTypes.set(morphTransition.name, morphTransition)
+    this.effectTypes.set(patternWipeTransition.name, patternWipeTransition)
+
     // Glow Effect
     this.effectTypes.set('glow', {
       name: 'glow',

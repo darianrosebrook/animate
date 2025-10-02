@@ -5,8 +5,8 @@
 
 import { Result, Time } from '@/types'
 import { WebGPUContext } from '../core/renderer/webgpu-context'
-import {
 import { logger } from '@/core/logging/logger'
+import {
   ExportSystem as IExportSystem,
   ExportFormat,
   ExportQuality,
@@ -19,9 +19,17 @@ import { logger } from '@/core/logging/logger'
   ProgressTracker,
   ExportPipeline,
   ExportOptions,
-  VideoEncoder,
-  AudioEncoder,
+  WebCodecsVideoEncoder,
+  WebCodecsAudioEncoder,
 } from './export-types'
+import {
+  WebCodecsVideoEncoderImpl,
+  CodecCapabilityDetector,
+} from './webcodecs-video-encoder'
+import {
+  WebCodecsAudioEncoderImpl,
+  AudioCodecCapabilityDetector,
+} from './webcodecs-audio-encoder'
 
 /**
  * Core export system implementation with hardware acceleration
@@ -297,9 +305,19 @@ export class ExportSystem implements IExportSystem {
         }
       }
 
+      // Detect WebCodecs capabilities
+      const [videoCapabilities, audioCapabilities] = await Promise.all([
+        CodecCapabilityDetector.detectCapabilities(),
+        AudioCodecCapabilityDetector.detectCapabilities(),
+      ])
+
+      const hasHardwareAcceleration =
+        videoCapabilities.some((cap) => cap.hardwareAccelerated) ||
+        audioCapabilities.some((cap) => cap.hardwareAccelerated)
+
       const hardwareAcceleration: HardwareAcceleration = {
-        available: true,
-        type: 'webgpu',
+        available: hasHardwareAcceleration,
+        type: hasHardwareAcceleration ? 'webcodecs' : 'software',
         capabilities: {
           maxTextureSize: device.limits.maxTextureDimension2D,
           maxBufferSize: device.limits.maxBufferSize,
@@ -307,14 +325,13 @@ export class ExportSystem implements IExportSystem {
             device.limits.maxComputeWorkgroupsPerDimension,
         },
         performance: {
-          estimatedEncodingSpeed: 10, // 10x software encoding
-          memoryUsage: 512, // MB
+          estimatedEncodingSpeed: hasHardwareAcceleration ? 10 : 1, // 10x if hardware accelerated
+          memoryUsage: hasHardwareAcceleration ? 512 : 1024, // MB
         },
       }
 
       logger.info(
-        '✅ Hardware acceleration initialized:',
-        hardwareAcceleration.type
+        `✅ Hardware acceleration initialized: ${hardwareAcceleration.type} (${videoCapabilities.length} video codecs, ${audioCapabilities.length} audio codecs)`
       )
       return { success: true, data: hardwareAcceleration }
     } catch (error) {
@@ -416,12 +433,12 @@ class ExportPipelineImpl implements ExportPipeline {
 }
 
 /**
- * Export worker implementation
+ * Export worker implementation with WebCodecs
  */
 class ExportWorkerImpl implements ExportWorker {
   private currentJob: ExportJob | null = null
-  private videoEncoder: VideoEncoder | null = null
-  private audioEncoder: AudioEncoder | null = null
+  private videoEncoder: WebCodecsVideoEncoder | null = null
+  private audioEncoder: WebCodecsAudioEncoder | null = null
   private workerId: number
 
   constructor(
@@ -435,13 +452,18 @@ class ExportWorkerImpl implements ExportWorker {
     try {
       logger.info(`🔧 Initializing export worker ${this.workerId}`)
 
-      // Initialize encoders
-      if ('VideoEncoder' in window) {
-        this.videoEncoder = new VideoEncoderImpl(this.webgpuContext)
+      // Initialize video encoder if WebCodecs supported
+      if ('VideoEncoder' in globalThis) {
+        this.videoEncoder = new WebCodecsVideoEncoderImpl(this.webgpuContext)
+      } else {
+        logger.warn('⚠️ VideoEncoder not supported, using software fallback')
       }
 
-      if ('AudioEncoder' in window) {
-        this.audioEncoder = new AudioEncoderImpl()
+      // Initialize audio encoder if WebCodecs supported
+      if ('AudioEncoder' in globalThis) {
+        this.audioEncoder = new WebCodecsAudioEncoderImpl()
+      } else {
+        logger.warn('⚠️ AudioEncoder not supported, audio will be omitted')
       }
 
       return { success: true, data: true }
@@ -879,401 +901,5 @@ class ProgressTrackerImpl implements ProgressTracker {
 
   removeProgressListener(jobId: string): void {
     this.progressCallbacks.delete(jobId)
-  }
-}
-
-/**
- * Video encoder implementation
- */
-class VideoEncoderImpl implements VideoEncoder {
-  private encoder: any = null
-  private config: any = null
-  private encodedChunks: EncodedVideoChunk[] = []
-
-  constructor(private webgpuContext: WebGPUContext) {}
-
-  async initialize(job: ExportJob): Promise<Result<boolean>> {
-    try {
-      if (!('VideoEncoder' in window)) {
-        return {
-          success: false,
-          error: {
-            code: 'WEBCODECS_NOT_SUPPORTED',
-            message: 'WebCodecs VideoEncoder not supported',
-          },
-        }
-      }
-
-      this.encoder = new VideoEncoder({
-        output: (chunk: EncodedVideoChunk) => {
-          this.encodedChunks.push(chunk)
-        },
-        error: (error: any) => {
-          logger.error('VideoEncoder error:', error)
-        },
-      })
-
-      // Configure encoder based on export format
-      this.config = this.getEncoderConfig(job)
-      await this.encoder.configure(this.config)
-
-      logger.info(`🎥 Video encoder initialized for ${job.format.container}`)
-      return { success: true, data: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'ENCODER_INIT_ERROR',
-          message: `Failed to initialize video encoder: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  async encodeFrame(texture: GPUTexture, time: Time): Promise<Result<boolean>> {
-    try {
-      if (!this.encoder) {
-        return {
-          success: false,
-          error: {
-            code: 'ENCODER_NOT_INITIALIZED',
-            message: 'Video encoder not initialized',
-          },
-        }
-      }
-
-      // Convert GPU texture to VideoFrame
-      const frame = this.textureToVideoFrame(texture, time)
-      if (!frame) {
-        return {
-          success: false,
-          error: {
-            code: 'FRAME_CONVERSION_ERROR',
-            message: 'Failed to convert texture to video frame',
-          },
-        }
-      }
-
-      // Encode the frame
-      this.encoder.encode(frame, { keyFrame: false })
-      frame.close()
-
-      return { success: true, data: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'FRAME_ENCODING_ERROR',
-          message: `Failed to encode frame: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  async finalize(): Promise<Result<boolean>> {
-    try {
-      if (!this.encoder) {
-        return {
-          success: false,
-          error: {
-            code: 'ENCODER_NOT_INITIALIZED',
-            message: 'Video encoder not initialized',
-          },
-        }
-      }
-
-      // Signal end of stream
-      await this.encoder.flush()
-
-      logger.info(
-        `✅ Video encoding finalized: ${this.encodedChunks.length} chunks`
-      )
-      return { success: true, data: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'FINALIZE_ERROR',
-          message: `Failed to finalize video encoding: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  async getEncodedData(): Promise<Result<Blob>> {
-    try {
-      // Generate blob from encoded chunks
-      const mimeType = this.getMimeType()
-      const blob = new Blob(this.encodedChunks, { type: mimeType })
-
-      return { success: true, data: blob }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'BLOB_GENERATION_ERROR',
-          message: `Failed to generate encoded blob: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  async stop(): Promise<Result<boolean>> {
-    try {
-      if (this.encoder) {
-        this.encoder.close()
-        this.encoder = null
-      }
-      this.encodedChunks = []
-      return { success: true, data: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'STOP_ERROR',
-          message: `Failed to stop video encoder: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  private getEncoderConfig(job: ExportJob): any {
-    // Configure encoder based on export format and quality
-    const baseConfig = {
-      codec: this.getCodecForFormat(job.format),
-      width: job.composition.resolution?.width || 1920,
-      height: job.composition.resolution?.height || 1080,
-      framerate: job.composition.frameRate || 30,
-      bitrate: this.getBitrateForQuality(job.quality),
-    }
-
-    return baseConfig
-  }
-
-  private getCodecForFormat(format: ExportFormat): string {
-    switch (format.codec) {
-      case 'h264':
-        return 'avc1.42E01E' // H.264 Main Profile
-      case 'h265':
-        return 'hvc1.1.6.L93.90' // H.265 Main Profile
-      case 'vp9':
-        return 'vp09.00.10.08'
-      case 'av1':
-        return 'av01.0.04M.08'
-      default:
-        return 'avc1.42E01E'
-    }
-  }
-
-  private getBitrateForQuality(quality: ExportQuality): number {
-    switch (quality) {
-      case 'low':
-        return 2_000_000 // 2 Mbps
-      case 'medium':
-        return 5_000_000 // 5 Mbps
-      case 'high':
-        return 10_000_000 // 10 Mbps
-      case 'lossless':
-        return 50_000_000 // 50 Mbps
-      default:
-        return 5_000_000
-    }
-  }
-
-  private textureToVideoFrame(_texture: GPUTexture, _time: Time): any {
-    // Convert GPU texture to VideoFrame
-    // This is a simplified implementation - would need proper GPU->CPU conversion
-    return null
-  }
-
-  private getMimeType(): string {
-    return 'video/mp4' // Simplified
-  }
-
-  destroy(): void {
-    this.stop()
-  }
-}
-
-/**
- * Audio encoder implementation
- */
-class AudioEncoderImpl implements AudioEncoder {
-  private encoder: any = null
-  private encodedChunks: EncodedAudioChunk[] = []
-
-  async initialize(_job: ExportJob): Promise<Result<boolean>> {
-    try {
-      if (!('AudioEncoder' in window)) {
-        return {
-          success: false,
-          error: {
-            code: 'WEBCODECS_NOT_SUPPORTED',
-            message: 'WebCodecs AudioEncoder not supported',
-          },
-        }
-      }
-
-      this.encoder = new AudioEncoder({
-        output: (chunk: EncodedAudioChunk) => {
-          this.encodedChunks.push(chunk)
-        },
-        error: (error: any) => {
-          logger.error('AudioEncoder error:', error)
-        },
-      })
-
-      // Configure encoder
-      await this.encoder.configure({
-        codec: 'mp4a.40.2', // AAC LC
-        sampleRate: 48000,
-        numberOfChannels: 2,
-        bitrate: 128000,
-      })
-
-      logger.info('🎵 Audio encoder initialized')
-      return { success: true, data: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'AUDIO_ENCODER_INIT_ERROR',
-          message: `Failed to initialize audio encoder: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  async encodeSamples(
-    samples: Float32Array[],
-    time: Time
-  ): Promise<Result<boolean>> {
-    try {
-      if (!this.encoder) {
-        return {
-          success: false,
-          error: {
-            code: 'ENCODER_NOT_INITIALIZED',
-            message: 'Audio encoder not initialized',
-          },
-        }
-      }
-
-      // Convert samples to AudioData
-      // This is simplified - would need proper audio buffer creation
-      const audioData = new AudioData({
-        format: 'f32-planar',
-        sampleRate: 48000,
-        numberOfFrames: samples[0]?.length || 0,
-        numberOfChannels: samples.length,
-        timestamp: time * 1000000, // Convert to microseconds
-        data: this.interleaveSamples(samples),
-      })
-
-      this.encoder.encode(audioData)
-      audioData.close()
-
-      return { success: true, data: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'AUDIO_ENCODING_ERROR',
-          message: `Failed to encode audio samples: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  async finalize(): Promise<Result<boolean>> {
-    try {
-      if (!this.encoder) {
-        return {
-          success: false,
-          error: {
-            code: 'ENCODER_NOT_INITIALIZED',
-            message: 'Audio encoder not initialized',
-          },
-        }
-      }
-
-      await this.encoder.flush()
-      logger.info(
-        `✅ Audio encoding finalized: ${this.encodedChunks.length} chunks`
-      )
-      return { success: true, data: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'AUDIO_FINALIZE_ERROR',
-          message: `Failed to finalize audio encoding: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  async getEncodedData(): Promise<Result<Blob>> {
-    try {
-      const blob = new Blob(this.encodedChunks, { type: 'audio/mp4' })
-      return { success: true, data: blob }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'AUDIO_BLOB_ERROR',
-          message: `Failed to generate audio blob: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  async stop(): Promise<Result<boolean>> {
-    try {
-      if (this.encoder) {
-        this.encoder.close()
-        this.encoder = null
-      }
-      this.encodedChunks = []
-      return { success: true, data: true }
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 'AUDIO_STOP_ERROR',
-          message: `Failed to stop audio encoder: ${error}`,
-          stack: error instanceof Error ? error.stack : undefined,
-        },
-      }
-    }
-  }
-
-  private interleaveSamples(samples: Float32Array[]): ArrayBuffer {
-    // Interleave multi-channel audio samples
-    // Simplified implementation
-    const length = samples[0]?.length || 0
-    const channels = samples.length
-    const interleaved = new Float32Array(length * channels)
-
-    for (let i = 0; i < length; i++) {
-      for (let ch = 0; ch < channels; ch++) {
-        interleaved[i * channels + ch] = samples[ch]?.[i] || 0
-      }
-    }
-
-    return interleaved.buffer
-  }
-
-  destroy(): void {
-    this.stop()
   }
 }

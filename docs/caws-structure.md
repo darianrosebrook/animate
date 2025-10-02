@@ -277,3 +277,5 @@ node .caws/validate.js --schemas
 ---
 
 *This structure document serves as the single source of truth for the Animator project's CAWS file organization and should be updated whenever the structure evolves.*
+
+

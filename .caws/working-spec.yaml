@@ -1,55 +1,96 @@
-id: EFFECTS-001
-title: "Implement GPU-Accelerated Effects System with Real-time Performance"
+id: PLUGIN-1
+title: "Complete Plugin System Implementation - Sandboxed Architecture, SDK, and Marketplace"
 risk_tier: 2
 mode: feature
 change_budget:
-  max_files: 25
-  max_loc: 1500
+  max_files: 35
+  max_loc: 2000
 blast_radius:
-  modules: ["effects", "renderer", "timeline", "gpu"]
+  modules: ["plugins", "sandbox", "marketplace", "api-surface", "sdk"]
   data_migration: false
-operational_rollback_slo: "15m"
+operational_rollback_slo: "30m"
 threats:
-  - "GPU shader compilation could fail on different hardware"
-  - "Effect performance regression could impact timeline playback"
-  - "Memory leaks in GPU resources during effect composition"
+  - "Plugin sandbox security vulnerabilities"
+  - "Plugin performance impact on main application"
+  - "API surface complexity overwhelming developers"
+  - "Marketplace ecosystem management challenges"
 scope:
-  in: ["effect node architecture", "GPU shader framework", "core visual effects (glow, blur, color correction)", "timeline integration", "real-time preview"]
-  out: ["advanced particle effects", "3D effects", "custom shader editor", "effect marketplace"]
+  in:
+    - "plugin system architecture and sandboxing"
+    - "plugin API surface for all Animator functionality"
+    - "plugin development SDK and tools"
+    - "plugin marketplace with discovery and distribution"
+    - "plugin security and permission system"
+  out:
+    - "3D rendering capabilities"
+    - "audio editing features"
+    - "advanced color management systems"
+    - "core application performance optimizations"
 invariants:
-  - "Effects maintain deterministic output across all supported GPUs"
-  - "Real-time effect preview updates within 16ms response time"
-  - "Effect parameters preserve alpha channel and layer blending modes"
-  - "Performance impact ≤5% on existing compositions with similar effects"
+  - "Plugin sandbox maintains complete isolation from main application"
+  - "Plugin API surface provides consistent access to all Animator functionality"
+  - "Plugin marketplace enables secure distribution and discovery"
+  - "Plugin development tools maintain developer productivity and safety"
 acceptance:
   - id: A1
-    given: "composition with 50+ layers including text, shapes, and media"
-    when: "apply glow effect with intensity=0.8, radius=20, color=#FF6B35"
-    then: "glow renders correctly in real-time preview; exported ProRes matches preview within ΔE < 1.0"
+    given: "plugin with complex effects and UI components"
+    when: "plugin runs in sandboxed iframe environment"
+    then: "plugin executes safely with <5% performance overhead and maintains security isolation"
   - id: A2
-    given: "glow effect applied to layer with alpha transparency"
-    when: "scrub timeline at 60fps"
-    then: "smooth playback without frame drops; alpha compositing preserved"
+    given: "developer creating custom effect plugin"
+    when: "using plugin SDK and development tools"
+    then: "plugin development workflow is smooth with hot reload and comprehensive debugging"
   - id: A3
-    given: "glow effect with extreme parameters (radius=100, intensity=2.0)"
-    when: "render at 4K resolution"
-    then: "graceful fallback to software rendering if GPU memory insufficient"
+    given: "plugin marketplace with 100+ plugins"
+    when: "user searches, installs, and manages plugins"
+    then: "plugin discovery and management works seamlessly with proper security validation"
   - id: A4
-    given: "multiple effects applied to same layer (glow + blur + color correction)"
-    when: "adjust effect parameters in real-time"
-    then: "all effects compose correctly; performance maintains 60fps"
+    given: "plugin requiring scene graph and effect system access"
+    when: "plugin makes API calls to Animator functionality"
+    then: "API calls execute correctly with proper type safety and error handling"
 non_functional:
-  a11y: ["effect parameters support keyboard navigation", "screen reader announcements for effect changes", "reduced motion support for motion effects"]
-  perf: { render_thread_ms: 8, memory_mb: 256, gpu_memory_mb: 512 }
-  security: ["shader inputs sanitized", "GPU memory bounds checked", "no resource leaks in effect lifecycle"]
+  a11y:
+    - "export progress accessible to screen readers"
+    - "layer management operations keyboard accessible"
+    - "asset workflow tools support keyboard navigation"
+    - "effect parameter controls properly labeled for accessibility"
+  perf:
+    api_p95_ms: 100
+    lcp_ms: 2000
+    export_encoding_fps: 30
+  security:
+    - "export file validation prevents malicious content"
+    - "asset upload sanitization and virus scanning"
+    - "layer data validation prevents injection attacks"
+    - "shader code validation for GPU security"
 contracts:
   - type: openapi
-    path: "apps/contracts/scene-graph-api.yaml#/effects/glow"
+    path: "apps/contracts/scene-graph-api.yaml#/layers/management"
   - type: openapi
-    path: "apps/contracts/timeline-api.yaml#/preview-updates"
+    path: "apps/contracts/export-api.yaml#/formats/encoding"
+  - type: openapi
+    path: "apps/contracts/effects-api.yaml#/advanced/distortions"
+  - type: openapi
+    path: "apps/contracts/library-api.yaml#/workflows/batch"
 observability:
-  logs: ["glow_effect.render_time", "glow_effect.parameter_change", "glow_effect.gpu_memory_usage"]
-  metrics: ["glow_effect_success_rate", "glow_effect_avg_render_time", "glow_effect_memory_peak"]
-  traces: ["glow_effect span with layer_id, parameters, render_context"]
+  logs:
+    - "export_system.performance_metrics"
+    - "effects_system.render_times"
+    - "layer_management.operation_durations"
+    - "asset_workflow.audit_events"
+  metrics:
+    - "export_success_rate"
+    - "effects_performance_score"
+    - "layer_operation_throughput"
+    - "asset_search_response_time"
+  traces:
+    - "export_encoding_span"
+    - "effect_rendering_span"
+    - "layer_compositing_span"
+    - "asset_operation_span"
 migrations: []
-rollback: ["feature flag kill-switch; shader cache invalidation; parameter reset to defaults"]
+rollback:
+  - "feature flags for all new systems"
+  - "export format fallback to software encoding"
+  - "layer management graceful degradation"
+  - "asset workflow compatibility mode"

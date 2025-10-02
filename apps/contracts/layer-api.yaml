@@ -1,0 +1,700 @@
+openapi: 3.0.3
+info:
+  title: Animator Layer Management API
+  description: Advanced layer grouping, masking, and blending capabilities
+  version: 1.0.0
+  contact:
+    name: Animator API Support
+    email: api-support@animator.dev
+
+servers:
+  - url: https://api.animator.dev/v1
+    description: Production server
+  - url: http://localhost:3000/v1
+    description: Development server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /compositions/{compositionId}/layers:
+    post:
+      summary: Create layer
+      description: Create a new layer in the specified composition
+      tags:
+        - Layers
+      parameters:
+        - name: compositionId
+          in: path
+          required: true
+          description: ID of the composition
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLayerRequest'
+      responses:
+        '201':
+          description: Layer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Layer'
+        '400':
+          description: Invalid layer configuration
+        '401':
+          description: Unauthorized
+        '404':
+          description: Composition not found
+
+    get:
+      summary: List layers
+      description: Get all layers in the specified composition
+      tags:
+        - Layers
+      parameters:
+        - name: compositionId
+          in: path
+          required: true
+          description: ID of the composition
+          schema:
+            type: string
+        - name: includeChildren
+          in: query
+          description: Include child layers in hierarchy
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of layers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerList'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Composition not found
+
+  /compositions/{compositionId}/layers/{layerId}:
+    get:
+      summary: Get layer details
+      description: Get detailed information about a specific layer
+      tags:
+        - Layers
+      parameters:
+        - name: compositionId
+          in: path
+          required: true
+          description: ID of the composition
+          schema:
+            type: string
+        - name: layerId
+          in: path
+          required: true
+          description: ID of the layer
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Layer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Layer'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Layer not found
+
+    put:
+      summary: Update layer
+      description: Update layer properties and configuration
+      tags:
+        - Layers
+      parameters:
+        - name: compositionId
+          in: path
+          required: true
+          description: ID of the composition
+          schema:
+            type: string
+        - name: layerId
+          in: path
+          required: true
+          description: ID of the layer
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLayerRequest'
+      responses:
+        '200':
+          description: Layer updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Layer'
+        '400':
+          description: Invalid update configuration
+        '401':
+          description: Unauthorized
+        '404':
+          description: Layer not found
+        '409':
+          description: Update conflicts with existing layer constraints
+
+    delete:
+      summary: Delete layer
+      description: Delete a layer and all its children
+      tags:
+        - Layers
+      parameters:
+        - name: compositionId
+          in: path
+          required: true
+          description: ID of the composition
+          schema:
+            type: string
+        - name: layerId
+          in: path
+          required: true
+          description: ID of the layer
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Layer deleted successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Layer not found
+        '409':
+          description: Cannot delete layer with active constraints
+
+  /compositions/{compositionId}/layers/{layerId}/group:
+    post:
+      summary: Create group from layers
+      description: Create a new group containing the specified layers
+      tags:
+        - Layer Groups
+      parameters:
+        - name: compositionId
+          in: path
+          required: true
+          description: ID of the composition
+          schema:
+            type: string
+        - name: layerId
+          in: path
+          required: true
+          description: ID of the parent layer to group
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGroupRequest'
+      responses:
+        '201':
+          description: Group created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerGroup'
+        '400':
+          description: Invalid group configuration
+        '401':
+          description: Unauthorized
+        '404':
+          description: Parent layer not found
+
+  /compositions/{compositionId}/layers/{layerId}/mask:
+    post:
+      summary: Add layer mask
+      description: Add a mask to the specified layer
+      tags:
+        - Layer Masks
+      parameters:
+        - name: compositionId
+          in: path
+          required: true
+          description: ID of the composition
+          schema:
+            type: string
+        - name: layerId
+          in: path
+          required: true
+          description: ID of the layer to mask
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMaskRequest'
+      responses:
+        '201':
+          description: Mask added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerMask'
+        '400':
+          description: Invalid mask configuration
+        '401':
+          description: Unauthorized
+        '404':
+          description: Layer not found
+
+  /compositions/{compositionId}/layers/{layerId}/constraints:
+    post:
+      summary: Add layer constraint
+      description: Add a constraint to the specified layer
+      tags:
+        - Layer Constraints
+      parameters:
+        - name: compositionId
+          in: path
+          required: true
+          description: ID of the composition
+          schema:
+            type: string
+        - name: layerId
+          in: path
+          required: true
+          description: ID of the layer to constrain
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConstraintRequest'
+      responses:
+        '201':
+          description: Constraint added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerConstraint'
+        '400':
+          description: Invalid constraint configuration
+        '401':
+          description: Unauthorized
+        '404':
+          description: Layer not found
+
+  /compositions/{compositionId}/blending-modes:
+    get:
+      summary: Get available blending modes
+      description: Get list of all supported blending modes
+      tags:
+        - Blending Modes
+      parameters:
+        - name: compositionId
+          in: path
+          required: true
+          description: ID of the composition
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of blending modes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlendingModeList'
+
+components:
+  schemas:
+    CreateLayerRequest:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        type:
+          type: string
+          enum: [shape, text, image, video, audio, group]
+        parentId:
+          type: string
+          description: ID of parent layer (for hierarchy)
+        position:
+          $ref: '#/components/schemas/Point'
+        size:
+          $ref: '#/components/schemas/Size'
+        rotation:
+          type: number
+          description: Rotation in degrees
+        opacity:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 1
+        blendingMode:
+          type: string
+          enum: [normal, multiply, screen, overlay, darken, lighten, color-dodge, color-burn, hard-light, soft-light, difference, exclusion, hue, saturation, color, luminosity]
+        visible:
+          type: boolean
+          default: true
+        locked:
+          type: boolean
+          default: false
+
+    UpdateLayerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        position:
+          $ref: '#/components/schemas/Point'
+        size:
+          $ref: '#/components/schemas/Size'
+        rotation:
+          type: number
+          description: Rotation in degrees
+        opacity:
+          type: number
+          minimum: 0
+          maximum: 1
+        blendingMode:
+          type: string
+          enum: [normal, multiply, screen, overlay, darken, lighten, color-dodge, color-burn, hard-light, soft-light, difference, exclusion, hue, saturation, color, luminosity]
+        visible:
+          type: boolean
+        locked:
+          type: boolean
+        properties:
+          type: object
+          description: Layer-specific properties (shape path, text content, etc.)
+
+    Layer:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - compositionId
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [shape, text, image, video, audio, group]
+        compositionId:
+          type: string
+        parentId:
+          type: string
+          nullable: true
+        children:
+          type: array
+          items:
+            type: string
+          description: Child layer IDs
+        position:
+          $ref: '#/components/schemas/Point'
+        size:
+          $ref: '#/components/schemas/Size'
+        rotation:
+          type: number
+          description: Rotation in degrees
+        scale:
+          $ref: '#/components/schemas/Scale'
+        opacity:
+          type: number
+          minimum: 0
+          maximum: 1
+        blendingMode:
+          type: string
+          enum: [normal, multiply, screen, overlay, darken, lighten, color-dodge, color-burn, hard-light, soft-light, difference, exclusion, hue, saturation, color, luminosity]
+        visible:
+          type: boolean
+        locked:
+          type: boolean
+        masks:
+          type: array
+          items:
+            $ref: '#/components/schemas/LayerMask'
+        constraints:
+          type: array
+          items:
+            $ref: '#/components/schemas/LayerConstraint'
+        effects:
+          type: array
+          items:
+            type: string
+          description: Applied effect IDs
+        properties:
+          type: object
+          description: Layer-specific properties
+        metadata:
+          type: object
+          description: Additional layer metadata
+
+    LayerList:
+      type: object
+      properties:
+        layers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Layer'
+        total:
+          type: integer
+        hierarchy:
+          type: object
+          description: Layer hierarchy structure
+
+    LayerGroup:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - layerIds
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [group]
+        layerIds:
+          type: array
+          items:
+            type: string
+          description: IDs of layers in this group
+        collapsed:
+          type: boolean
+          default: false
+        transformShared:
+          type: boolean
+          default: true
+          description: Whether child layers share group transforms
+
+    CreateGroupRequest:
+      type: object
+      required:
+        - name
+        - layerIds
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        layerIds:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        collapsed:
+          type: boolean
+          default: false
+        transformShared:
+          type: boolean
+          default: true
+
+    LayerMask:
+      type: object
+      required:
+        - id
+        - type
+        - inverted
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [shape, luminance, alpha]
+        path:
+          type: array
+          items:
+            $ref: '#/components/schemas/Point'
+          description: Mask shape vertices
+        feather:
+          type: number
+          minimum: 0
+          default: 0
+          description: Mask edge feather in pixels
+        opacity:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 1
+        inverted:
+          type: boolean
+          default: false
+        expansion:
+          type: number
+          default: 0
+          description: Mask expansion/contraction
+
+    CreateMaskRequest:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [shape, luminance, alpha]
+        path:
+          type: array
+          items:
+            $ref: '#/components/schemas/Point'
+        feather:
+          type: number
+          minimum: 0
+          default: 0
+        opacity:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 1
+        inverted:
+          type: boolean
+          default: false
+
+    LayerConstraint:
+      type: object
+      required:
+        - id
+        - type
+        - targetId
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [position, scale, rotation, distance, angle]
+        targetId:
+          type: string
+          description: ID of target layer for constraint
+        offset:
+          $ref: '#/components/schemas/Vector3'
+        influence:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 1
+          description: How strongly the constraint affects the layer
+
+    CreateConstraintRequest:
+      type: object
+      required:
+        - type
+        - targetId
+      properties:
+        type:
+          type: string
+          enum: [position, scale, rotation, distance, angle]
+        targetId:
+          type: string
+        offset:
+          $ref: '#/components/schemas/Vector3'
+        influence:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 1
+
+    BlendingModeList:
+      type: object
+      properties:
+        modes:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlendingModeInfo'
+
+    BlendingModeInfo:
+      type: object
+      required:
+        - id
+        - name
+        - category
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [basic, darken, lighten, contrast, component, composite]
+
+    Point:
+      type: object
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+
+    Size:
+      type: object
+      required:
+        - width
+        - height
+      properties:
+        width:
+          type: number
+          minimum: 0
+        height:
+          type: number
+          minimum: 0
+
+    Scale:
+      type: object
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: number
+          minimum: 0
+        y:
+          type: number
+          minimum: 0
+
+    Vector3:
+      type: object
+      required:
+        - x
+        - y
+        - z
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        z:
+          type: number
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

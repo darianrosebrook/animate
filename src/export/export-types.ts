@@ -5,6 +5,78 @@
 
 import { Result, Time } from '@/types'
 
+// WebCodecs API types for TypeScript support
+declare global {
+  interface VideoEncoderInit {
+    output: (chunk: EncodedVideoChunk) => void
+    error: (error: Error) => void
+  }
+
+  interface VideoEncoderEncodeOptions {
+    keyFrame?: boolean
+  }
+
+  interface VideoEncoderConfig {
+    codec: string
+    width: number
+    height: number
+    bitrate?: number
+    framerate?: number
+    latencyMode?: 'quality' | 'realtime'
+  }
+
+  interface AudioEncoderInit {
+    output: (chunk: EncodedAudioChunk) => void
+    error: (error: Error) => void
+  }
+
+  interface AudioEncoderConfig {
+    codec: string
+    sampleRate: number
+    numberOfChannels: number
+    bitrate?: number
+  }
+
+  interface EncodedVideoChunk {
+    type: 'key' | 'delta'
+    timestamp: number
+    duration?: number
+    byteLength: number
+    data: ArrayBuffer
+  }
+
+  interface EncodedAudioChunk {
+    type: 'key' | 'delta'
+    timestamp: number
+    duration?: number
+    byteLength: number
+    data: ArrayBuffer
+  }
+
+  interface VideoFrame {
+    readonly format?: string
+    readonly codedWidth: number
+    readonly codedHeight: number
+    readonly timestamp: number
+    readonly duration?: number
+    readonly visibleRect?: DOMRectReadOnly
+    readonly displayWidth: number
+    readonly displayHeight: number
+    close(): void
+  }
+
+  interface AudioData {
+    readonly format: string
+    readonly sampleRate: number
+    readonly numberOfFrames: number
+    readonly numberOfChannels: number
+    readonly duration: number
+    readonly timestamp: number
+    readonly data: ArrayBuffer
+    close(): void
+  }
+}
+
 /**
  * Export format definitions
  */
@@ -191,27 +263,91 @@ export interface ExportPipeline {
 }
 
 /**
- * Video encoder interface
+ * WebCodecs Video Encoder wrapper
  */
-export interface VideoEncoder {
+export interface WebCodecsVideoEncoder {
   initialize(job: ExportJob): Promise<Result<boolean>>
   encodeFrame(texture: GPUTexture, time: Time): Promise<Result<boolean>>
   finalize(): Promise<Result<boolean>>
   getEncodedData(): Promise<Result<Blob>>
   stop(): Promise<Result<boolean>>
   destroy(): void
+  getEncoder(): globalThis.VideoEncoder | null
 }
 
 /**
- * Audio encoder interface
+ * WebCodecs Audio Encoder wrapper
  */
-export interface AudioEncoder {
+export interface WebCodecsAudioEncoder {
   initialize(job: ExportJob): Promise<Result<boolean>>
   encodeSamples(samples: Float32Array[], time: Time): Promise<Result<boolean>>
   finalize(): Promise<Result<boolean>>
   getEncodedData(): Promise<Result<Blob>>
   stop(): Promise<Result<boolean>>
   destroy(): void
+  getEncoder(): globalThis.AudioEncoder | null
+}
+
+/**
+ * Format-specific encoder interface
+ */
+export interface FormatEncoder {
+  initialize(job: ExportJob): Promise<Result<boolean>>
+  encodeFrame(texture: GPUTexture, time: Time): Promise<Result<boolean>>
+  finalize(): Promise<Result<boolean>>
+  getEncodedData(): Promise<Result<Blob>>
+  stop(): Promise<Result<boolean>>
+  destroy(): void
+  getMimeType(): string
+  getFileExtension(): string
+}
+
+/**
+ * Hardware-accelerated encoder
+ */
+export interface HardwareEncoder extends FormatEncoder {
+  getAccelerationType(): 'webgpu' | 'webcodecs' | 'software'
+  getPerformanceMetrics(): {
+    encodingSpeed: number
+    memoryUsage: number
+    qualityScore: number
+  }
+}
+
+/**
+ * Quality metrics for export validation
+ */
+export interface QualityMetrics {
+  ssim: number // Structural Similarity Index (0-1)
+  psnr: number // Peak Signal-to-Noise Ratio (dB)
+  bitrate: number // Actual bitrate achieved
+  fileSize: number // Final file size in bytes
+  encodingTime: number // Total encoding time in seconds
+  frameDrops: number // Number of frames that couldn't be encoded
+}
+
+/**
+ * Codec capability information
+ */
+export interface CodecCapability {
+  codec: string
+  container: string
+  hardwareAccelerated: boolean
+  maxResolution: { width: number; height: number }
+  maxFrameRate: number
+  supportedProfiles: string[]
+  qualityPresets: ExportQuality[]
+}
+
+/**
+ * Export validation result
+ */
+export interface ExportValidation {
+  valid: boolean
+  quality: 'poor' | 'acceptable' | 'good' | 'excellent'
+  issues: string[]
+  suggestions: string[]
+  metrics: QualityMetrics
 }
 
 /**

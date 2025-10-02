@@ -294,6 +294,7 @@ export class SceneGraph {
       rotation: 0,
       scale: { x: 1, y: 1 },
       opacity: 1,
+      anchorPoint: { x: 0, y: 0 },
     }
 
     // Apply keyframe interpolation for animated properties
