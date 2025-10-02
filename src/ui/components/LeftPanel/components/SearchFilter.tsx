@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { Search, Filter, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { NodeType } from '@/types'
 
 interface FilterState {
@@ -49,7 +49,7 @@ export function SearchFilter({
     })
   }
 
-  const toggleStatusFilter = (status: string) => {
+  const _toggleStatusFilter = (status: string) => {
     const newStatusFilters = new Set(filterState.statusFilters)
     if (newStatusFilters.has(status)) {
       newStatusFilters.delete(status)

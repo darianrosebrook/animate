@@ -22,7 +22,6 @@ import {
   ChevronUp,
 } from 'lucide-react'
 import {
-  Tool,
   ToolType,
   ToolCategory,
   ToolGroup,

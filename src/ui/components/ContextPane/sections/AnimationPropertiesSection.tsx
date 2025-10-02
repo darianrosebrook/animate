@@ -20,9 +20,9 @@ interface AnimationPropertiesSectionProps {
 }
 
 export function AnimationPropertiesSection({
-  layer,
-  onUpdate,
-  onPopoverOpen,
+  _layer,
+  _onUpdate,
+  _onPopoverOpen,
   isCollapsed,
   onToggleCollapse,
 }: AnimationPropertiesSectionProps) {

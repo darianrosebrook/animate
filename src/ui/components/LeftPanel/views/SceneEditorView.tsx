@@ -7,20 +7,8 @@ import React, { useState, useCallback, useMemo } from 'react'
 import {
   ChevronRight,
   ChevronDown,
-  Eye,
-  EyeOff,
-  Lock,
-  Unlock,
   MoreHorizontal,
-  Copy,
-  Trash2,
-  Edit3,
-  Move,
   Folder,
-  FolderOpen,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
 } from 'lucide-react'
 import { Scene, SceneNode, NodeType } from '@/types'
 
@@ -37,6 +25,8 @@ interface SceneEditorViewProps {
     target: HTMLElement,
     data?: any
   ) => void
+  onLayerRename?: (layerId: string, newName: string) => void
+  onLayerZoomToFit?: (layerIds: string[]) => void
   getLayerIcon: (type: NodeType) => React.ReactNode
   getLayerBadge: (layer: SceneNode) => any[]
   getFilteredLayers: (scene: Scene) => SceneNode[]
@@ -52,11 +42,13 @@ export function SceneEditorView({
   scene,
   selectedLayers,
   onLayerSelect,
-  onLayerUpdate,
-  onLayerDelete,
+  _onLayerUpdate,
+  _onLayerDelete,
   onLayerReorder,
   onLayerReparent,
   onContextMenu,
+  onLayerRename,
+  onLayerZoomToFit,
   getLayerIcon,
   getLayerBadge,
   getFilteredLayers,
@@ -67,6 +59,60 @@ export function SceneEditorView({
     layerId: string | null
     position: 'before' | 'inside' | 'after'
   }>({ layerId: null, position: 'before' })
+  const [renamingLayerId, setRenamingLayerId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [lastClickTime, setLastClickTime] = useState(0)
+
+  // Double-click handlers
+  const handleLayerDoubleClick = useCallback(
+    (node: LayerTreeNode, clickTarget: 'icon' | 'name') => {
+      const now = Date.now()
+      const timeSinceLastClick = now - lastClickTime
+
+      // Reset last click time
+      setLastClickTime(now)
+
+      // If it's a double-click (within 300ms)
+      if (timeSinceLastClick < 300) {
+        if (clickTarget === 'icon' && onLayerZoomToFit) {
+          // Zoom to fit selected layer(s)
+          onLayerZoomToFit([node.id])
+        } else if (clickTarget === 'name' && onLayerRename) {
+          // Start renaming
+          setRenamingLayerId(node.id)
+          setRenameValue(node.name)
+        }
+      }
+    },
+    [lastClickTime, onLayerZoomToFit, onLayerRename]
+  )
+
+  const handleRenameSubmit = useCallback(
+    (layerId: string) => {
+      if (onLayerRename && renameValue.trim()) {
+        onLayerRename(layerId, renameValue.trim())
+      }
+      setRenamingLayerId(null)
+      setRenameValue('')
+    },
+    [renameValue, onLayerRename]
+  )
+
+  const handleRenameCancel = useCallback(() => {
+    setRenamingLayerId(null)
+    setRenameValue('')
+  }, [])
+
+  const handleRenameKeyDown = useCallback(
+    (e: React.KeyboardEvent, layerId: string) => {
+      if (e.key === 'Enter') {
+        handleRenameSubmit(layerId)
+      } else if (e.key === 'Escape') {
+        handleRenameCancel()
+      }
+    },
+    [handleRenameSubmit, handleRenameCancel]
+  )
 
   // Build tree structure from flat layer list
   const layerTree = useMemo(() => {
@@ -239,7 +285,7 @@ export function SceneEditorView({
     return null
   }
 
-  const renderLayerNode = (node: LayerTreeNode, index: number) => {
+  const renderLayerNode = (node: LayerTreeNode, _index: number) => {
     const isSelected = selectedLayers.some((l) => l.id === node.id)
     const isDragged = node.id === draggedLayerId
     const isDragOver = dragOverInfo.layerId === node.id
@@ -277,11 +323,38 @@ export function SceneEditorView({
           )}
 
           {/* Layer Icon */}
-          <div className="layer-icon">{getLayerIcon(node.type)}</div>
+          <div
+            className="layer-icon"
+            onDoubleClick={() => handleLayerDoubleClick(node, 'icon')}
+            style={{ cursor: 'pointer' }}
+            title="Double-click to zoom to selection"
+          >
+            {getLayerIcon(node.type)}
+          </div>
 
           {/* Layer Info */}
           <div className="layer-info">
-            <div className="layer-name">{node.name}</div>
+            {renamingLayerId === node.id ? (
+              <input
+                type="text"
+                className="layer-rename-input"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                onBlur={() => handleRenameSubmit(node.id)}
+                onKeyDown={(e) => handleRenameKeyDown(e, node.id)}
+                autoFocus
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <div
+                className="layer-name"
+                onDoubleClick={() => handleLayerDoubleClick(node, 'name')}
+                style={{ cursor: 'pointer' }}
+                title="Double-click to rename"
+              >
+                {node.name}
+              </div>
+            )}
             <div className="layer-type">{node.type}</div>
           </div>
 
@@ -366,7 +439,7 @@ export function SceneEditorView({
         </div>
       ) : (
         <div className="layer-tree">
-          {layerTree.map((node, index) => renderLayerNode(node, index))}
+          {layerTree.map((node, _index) => renderLayerNode(node, _index))}
         </div>
       )}
     </div>

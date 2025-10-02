@@ -249,7 +249,7 @@ export class EffectsSystem implements IEffectSystem {
 
   private adaptQualityForPerformance(
     effect: EffectInstance,
-    inputTexture: GPUTexture
+    _inputTexture: GPUTexture
   ): EffectInstance {
     // Check recent performance metrics
     const recentMetrics = this.monitor.getOverallPerformance()

@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import {
-  Play,
-  Pause,
-  Square,
-  SkipBack,
-  SkipForward,
   ZoomIn,
   ZoomOut,
 } from 'lucide-react'
@@ -92,12 +87,12 @@ export function TimelinePanel({
   const timelineRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
-  const [isResizing, setIsResizing] = useState(false)
+  const [_isResizing, _setIsResizing] = useState(false)
   const [showCurveEditor, setShowCurveEditor] = useState(false)
 
   // Accessibility features
   const [reducedMotion, setReducedMotion] = useState(false)
-  const [keyboardNavigation, setKeyboardNavigation] = useState(false)
+  const [keyboardNavigation, _setKeyboardNavigation] = useState(false)
 
   // Check for reduced motion preference
   useEffect(() => {

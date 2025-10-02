@@ -734,30 +734,6 @@ export class Renderer {
   }
 
   /**
-   * Create bind group for a node
-   */
-  private createBindGroupForNode(
-    pipeline: GPURenderPipeline,
-    uniformBuffer: GPUBuffer
-  ): GPUBindGroup | null {
-    if (!this.webgpuContext.getDevice()) {
-      return null
-    }
-
-    return this.webgpuContext.getDevice()!.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        {
-          binding: 0,
-          resource: {
-            buffer: uniformBuffer,
-          },
-        },
-      ],
-    })
-  }
-
-  /**
    * Create uniform buffer for a node
    */
   private createUniformBufferForNode(node: any): GPUBuffer | null {

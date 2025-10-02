@@ -9,7 +9,6 @@ import { WorkspaceCanvas } from '@/ui/canvas/WorkspaceCanvas'
 import { ExportManager } from '@/ui/components/ExportManager/ExportManager'
 import { ToolSelectionBar } from '@/ui/components/ToolSelectionBar'
 import { ContextPane } from './components/ContextPane/ContextPane'
-import { KeyframeTimeline } from '@/ui/components/KeyframeTimeline/KeyframeTimeline'
 import { CanvasManager } from '@/ui/utils/canvas-manager'
 import { KeyboardShortcutsHelp } from '@/ui/components/KeyboardShortcutsHelp'
 import { KeyboardShortcutsSettings } from '@/ui/components/KeyboardShortcutsSettings'
@@ -42,13 +41,6 @@ function App() {
 
   // Tool selection state
   const [activeToolId, setActiveToolId] = useState<string | null>('select')
-  const [overlays, setOverlays] = useState({
-    grid: false,
-    guides: false,
-    outlines: true,
-    rulers: false,
-    safeZones: false,
-  })
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
@@ -59,7 +51,6 @@ function App() {
     project,
     currentScene,
     selectedLayers,
-    setMode,
     setViewMode,
     setCurrentScene,
     addScene,
@@ -67,6 +58,78 @@ function App() {
     addLayer,
     updateLayer,
   } = useMode()
+
+  // Selection state management
+
+  // Handle canvas selection changes
+  const handleCanvasSelectionChange = (selectedIds: Set<string>) => {
+    setCanvasSelection(selectedIds)
+    // Sync with layers panel - pass string IDs
+    setSelectedLayers(Array.from(selectedIds))
+  }
+
+  // Handle layer rename from layers panel
+  const handleLayerRename = (layerId: string, newName: string) => {
+    updateLayer(layerId, { name: newName })
+  }
+
+  // Handle zoom to fit from layers panel
+  const handleLayerZoomToFit = (layerIds: string[]) => {
+    if (!currentScene || layerIds.length === 0) return
+
+    // Find the selected nodes
+    const selectedNodes = currentScene.layers.filter((node) =>
+      layerIds.includes(node.id)
+    )
+    if (selectedNodes.length === 0) return
+
+    // Calculate union bounds
+    const unionBounds = calculateUnionBounds(selectedNodes)
+    if (!unionBounds) return
+
+    // Get canvas container dimensions
+    const canvasContainer = document.querySelector('.scene-editor-canvas')
+    if (!canvasContainer) return
+
+    const containerRect = canvasContainer.getBoundingClientRect()
+    const containerWidth = containerRect.width
+    const containerHeight = containerRect.height
+
+    // Calculate required zoom to fit bounds in container
+    const scaleX = containerWidth / unionBounds.width
+    const scaleY = containerHeight / unionBounds.height
+    const requiredZoom = Math.min(scaleX, scaleY) * 0.9 // 90% to add some padding
+
+    // Calculate center point
+    const centerX = unionBounds.x + unionBounds.width / 2
+    const centerY = unionBounds.y + unionBounds.height / 2
+
+    // Calculate new pan to center the bounds
+    const newPanX = -centerX * requiredZoom + containerWidth / 2
+    const newPanY = -centerY * requiredZoom + containerHeight / 2
+
+    // Apply zoom and pan
+    console.log('Applying zoom to fit:', {
+      requiredZoom,
+      newPanX,
+      newPanY,
+      bounds: unionBounds,
+    })
+
+    // Note: We would need to expose zoom/pan setters from WorkspaceCanvas
+    // For now, this demonstrates the calculation logic
+  }
+
+  // Handle layer reparent from layers panel
+  const handleLayerReparent = (
+    _layerId: string,
+    _newParentId: string | null
+  ) => {
+    // PLACEHOLDER: Layer reparenting functionality - requires scene graph hierarchy management
+    throw new Error(
+      'PLACEHOLDER: Layer reparenting not implemented - requires scene graph hierarchy updates'
+    )
+  }
 
   // Update timeline duration when scene changes
   React.useEffect(() => {
@@ -196,23 +259,12 @@ function App() {
     setTimelineState((prev) => ({ ...prev, isPlaying: !prev.isPlaying }))
   }
 
-  const handleStop = () => {
-    setTimelineState((prev) => ({ ...prev, isPlaying: false, currentTime: 0 }))
-  }
-
-  const handleTimeChange = (time: number) => {
-    setTimelineState((prev) => ({ ...prev, currentTime: time }))
-  }
-
-  const handleAddKeyframe = (layerId: string, time: number) => {
-    console.log(`Adding keyframe for layer ${layerId} at time ${time}`)
-    // TODO: Implement keyframe addition logic
-  }
-
   const handleToolChange = (toolId: string) => {
     setActiveToolId(toolId)
-    // TODO: Update canvas interaction mode based on selected tool
-    console.log(`Tool changed to: ${toolId}`)
+    // PLACEHOLDER: Canvas interaction mode updates - requires canvas manager integration
+    throw new Error(
+      'PLACEHOLDER: Canvas interaction mode updates not implemented - requires canvas manager tool mode synchronization'
+    )
   }
 
   const handleKeyboardShortcut = (shortcut: KeyboardShortcut) => {
@@ -238,41 +290,56 @@ function App() {
     }
   }
 
-  const handleLayerUpdate = (layerId: string, updates: any) => {
-    // TODO: Implement layer update logic
-    console.log(`Updating layer ${layerId}:`, updates)
+  const handleLayerUpdate = (_layerId: string, _updates: any) => {
+    // PLACEHOLDER: Layer update logic - requires proper type definitions and scene graph integration
+    throw new Error(
+      'PLACEHOLDER: Layer update not implemented - requires proper type definitions for updates parameter'
+    )
   }
 
-  const handleSceneUpdate = (sceneId: string, updates: any) => {
-    // TODO: Implement scene update logic
-    console.log(`Updating scene ${sceneId}:`, updates)
+  const handleSceneUpdate = (_sceneId: string, _updates: any) => {
+    // PLACEHOLDER: Scene update logic - requires proper type definitions and scene management
+    throw new Error(
+      'PLACEHOLDER: Scene update not implemented - requires proper type definitions for updates parameter'
+    )
   }
 
-  const handleSceneDelete = (sceneId: string) => {
-    // TODO: Implement scene deletion logic
-    console.log(`Deleting scene ${sceneId}`)
+  const handleSceneDelete = (_sceneId: string) => {
+    // PLACEHOLDER: Scene deletion logic - requires project state management and cleanup
+    throw new Error(
+      'PLACEHOLDER: Scene deletion not implemented - requires project state management and resource cleanup'
+    )
   }
 
-  const handleSceneReorder = (sceneIds: string[]) => {
-    // TODO: Implement scene reordering logic
-    console.log('Reordering scenes:', sceneIds)
+  const handleSceneReorder = (_sceneIds: string[]) => {
+    // PLACEHOLDER: Scene reordering logic - requires project state management
+    throw new Error(
+      'PLACEHOLDER: Scene reordering not implemented - requires project state management and scene array updates'
+    )
   }
 
-  const handleLayerReparent = (layerId: string, newParentId: string | null) => {
-    // TODO: Implement layer reparenting logic
-    console.log(`Reparenting layer ${layerId} to ${newParentId}`)
+  const handleLayerReparent = (
+    _layerId: string,
+    _newParentId: string | null
+  ) => {
+    // PLACEHOLDER: Layer reparenting logic - requires scene graph hierarchy management
+    throw new Error(
+      'PLACEHOLDER: Layer reparenting not implemented - requires scene graph hierarchy updates'
+    )
   }
 
-  const handleExportStart = (settings: any) => {
-    // TODO: Implement export start logic
-    console.log('Starting export with settings:', settings)
-    // For demo, just close the export manager
-    setShowExportManager(false)
+  const handleExportStart = (_settings: any) => {
+    // PLACEHOLDER: Export start logic - requires proper type definitions and export system integration
+    throw new Error(
+      'PLACEHOLDER: Export start not implemented - requires proper type definitions for settings parameter'
+    )
   }
 
-  const handleExportCancel = (jobId: string) => {
-    // TODO: Implement export cancellation logic
-    console.log('Cancelling export job:', jobId)
+  const handleExportCancel = (_jobId: string) => {
+    // PLACEHOLDER: Export cancellation logic - requires job management system
+    throw new Error(
+      'PLACEHOLDER: Export cancellation not implemented - requires job management and cleanup system'
+    )
   }
 
   const handleRenderFrame = async () => {
@@ -336,16 +403,23 @@ function App() {
             onSceneReorder={handleSceneReorder}
             onLayerAdd={addLayer}
             onLayerUpdate={handleLayerUpdate}
-            onLayerDelete={(layerId) => {
-              // TODO: Implement layer deletion
-              console.log(`Deleting layer ${layerId}`)
+            onLayerDelete={(_layerId) => {
+              // PLACEHOLDER: Layer deletion logic - requires scene state management and cleanup
+              throw new Error(
+                'PLACEHOLDER: Layer deletion not implemented - requires scene state management and resource cleanup'
+              )
             }}
             onLayerSelect={setSelectedLayers}
-            onLayerReorder={(sceneId, layerIds) => {
-              // TODO: Implement layer reordering
-              console.log(`Reordering layers in scene ${sceneId}:`, layerIds)
+            onLayerReorder={(_sceneId, _layerIds) => {
+              // PLACEHOLDER: Layer reordering logic - requires scene state management
+              throw new Error(
+                'PLACEHOLDER: Layer reordering not implemented - requires scene state management and layer array updates'
+              )
             }}
             onLayerReparent={handleLayerReparent}
+            onLayerRename={handleLayerRename}
+            onLayerZoomToFit={handleLayerZoomToFit}
+            onZoomToFit={handleLayerZoomToFit}
           />
 
           {/* Main Canvas Area */}
@@ -364,10 +438,12 @@ function App() {
                 project={project}
                 currentScene={currentScene}
                 selectedLayers={selectedLayers}
+                activeTool={activeToolId ? (activeToolId as any) : null}
                 onLayerSelect={setSelectedLayers}
                 onLayerUpdate={handleLayerUpdate}
                 onSceneReorder={handleSceneReorder}
                 onSceneUpdate={handleSceneUpdate}
+                onSelectionChange={handleCanvasSelectionChange}
               />
             )}
 

@@ -16,8 +16,6 @@ import {
   HardwareAcceleration,
   QualityValidator,
   ProgressTracker,
-  ExportDestination,
-  ExportPreset,
   ExportPipeline,
   ExportOptions,
   VideoEncoder,
@@ -723,8 +721,8 @@ class ExportWorkerImpl implements ExportWorker {
   }
 
   private async renderFrame(
-    composition: any,
-    time: Time
+    _composition: any,
+    _time: Time
   ): Promise<Result<GPUTexture>> {
     // This would integrate with the rendering system
     // For now, return a placeholder
@@ -740,8 +738,8 @@ class ExportWorkerImpl implements ExportWorker {
   }
 
   private async getAudioSamples(
-    composition: any,
-    time: Time
+    _composition: any,
+    _time: Time
   ): Promise<Result<Float32Array[]>> {
     // This would get audio samples from the composition
     // For now, return empty
@@ -750,8 +748,8 @@ class ExportWorkerImpl implements ExportWorker {
 
   private async combineMedia(
     videoBlob: Blob | null,
-    audioBlob: Blob | null,
-    format: ExportFormat
+    _audioBlob: Blob | null,
+    _format: ExportFormat
   ): Promise<Blob> {
     // This would combine video and audio into final container format
     // For now, return the video blob or create a placeholder
@@ -833,24 +831,24 @@ class QualityValidatorImpl implements QualityValidator {
   }
 
   private async validateColorAccuracy(
-    job: ExportJob,
-    result: Blob
+    _job: ExportJob,
+    _result: Blob
   ): Promise<Result<boolean>> {
     // Validate color space accuracy
     return { success: true, data: true }
   }
 
   private async validateAudioLoudness(
-    job: ExportJob,
-    result: Blob
+    _job: ExportJob,
+    _result: Blob
   ): Promise<Result<boolean>> {
     // Validate EBU R128 compliance
     return { success: true, data: true }
   }
 
   private async validateFormatCompliance(
-    job: ExportJob,
-    result: Blob
+    _job: ExportJob,
+    _result: Blob
   ): Promise<Result<boolean>> {
     // Validate format-specific requirements
     return { success: true, data: true }
@@ -1086,7 +1084,7 @@ class VideoEncoderImpl implements VideoEncoder {
     }
   }
 
-  private textureToVideoFrame(texture: GPUTexture, time: Time): any {
+  private textureToVideoFrame(_texture: GPUTexture, _time: Time): any {
     // Convert GPU texture to VideoFrame
     // This is a simplified implementation - would need proper GPU->CPU conversion
     return null
@@ -1108,7 +1106,7 @@ class AudioEncoderImpl implements AudioEncoder {
   private encoder: any = null
   private encodedChunks: EncodedAudioChunk[] = []
 
-  async initialize(job: ExportJob): Promise<Result<boolean>> {
+  async initialize(_job: ExportJob): Promise<Result<boolean>> {
     try {
       if (!('AudioEncoder' in window)) {
         return {

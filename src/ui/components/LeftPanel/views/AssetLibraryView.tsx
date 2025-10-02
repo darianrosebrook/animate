@@ -8,26 +8,13 @@ import {
   Search,
   Plus,
   MoreHorizontal,
-  Download,
   Upload,
   Folder,
   FolderOpen,
   Image,
-  Video,
-  Mic,
-  Type,
-  FileText,
-  Zap,
   Play,
-  Monitor,
-  Square,
-  RefreshCw,
-  Settings,
-  Trash2,
-  Copy,
-  Edit3,
 } from 'lucide-react'
-import { Asset, Library, AssetType, LibraryType } from '@/types'
+import { Asset, Library, AssetType } from '@/types'
 
 interface AssetLibraryViewProps {
   assets: Asset[]
@@ -42,8 +29,8 @@ export function AssetLibraryView({
   assets,
   libraries,
   onAssetSelect,
-  onAssetAdd,
-  onLibraryConnect,
+  _onAssetAdd,
+  _onLibraryConnect,
   getAssetIcon,
 }: AssetLibraryViewProps) {
   const [selectedLibraryId, setSelectedLibraryId] = useState<string | null>(

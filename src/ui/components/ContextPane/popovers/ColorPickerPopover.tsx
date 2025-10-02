@@ -292,7 +292,7 @@ export function ColorPickerPopover({
                   min="0"
                   max="100"
                   value={50}
-                  onChange={(e) => {
+                  onChange={(_e) => {
                     // Simplified - in real implementation would calculate proper saturation
                   }}
                 />
@@ -305,7 +305,7 @@ export function ColorPickerPopover({
                   min="0"
                   max="100"
                   value={50}
-                  onChange={(e) => {
+                  onChange={(_e) => {
                     // Simplified - in real implementation would calculate proper lightness
                   }}
                 />

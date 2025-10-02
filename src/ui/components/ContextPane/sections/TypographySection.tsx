@@ -5,7 +5,6 @@
 
 import React from 'react'
 import {
-  Type,
   AlignLeft,
   AlignCenter,
   AlignRight,

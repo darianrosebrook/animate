@@ -392,4 +392,3 @@ export function validateGlowParameters(
 
   return { success: true, data: validParams }
 }
-

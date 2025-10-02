@@ -12,8 +12,6 @@ import type {
   Time,
   SceneState,
   NodeState,
-  Keyframe,
-  Transform,
 } from './animator-api'
 
 /**
@@ -202,8 +200,8 @@ export class SceneGraph {
 
   setKeyframe(
     nodeId: string,
-    propertyPath: string,
-    keyframe: Keyframe
+    _propertyPath: string,
+    _keyframe: Keyframe
   ): Promise<void> {
     const node = this.nodes.get(nodeId)
     if (!node) {

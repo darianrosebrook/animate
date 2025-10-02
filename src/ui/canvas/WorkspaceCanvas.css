@@ -36,3 +36,70 @@
   border-color: rgba(0, 122, 204, 0.9);
   color: white;
 }
+
+/* Selection Styles */
+.scene-node {
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.scene-node.selected {
+  outline: 2px solid #007acc;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 122, 204, 0.3);
+}
+
+.selection-bounds {
+  transition: all 0.1s ease;
+}
+
+.drag-selection {
+  animation: selectionPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes selectionPulse {
+  0% { opacity: 0.5; }
+  100% { opacity: 0.8; }
+}
+
+/* Transform handles */
+.transform-handles {
+  position: absolute;
+  pointer-events: none;
+}
+
+.transform-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #007acc;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+  transition: all 0.1s ease;
+}
+
+.transform-handle:hover {
+  background: #005a9e;
+  transform: scale(1.2);
+}
+
+.transform-handle:active {
+  background: #003d73;
+}
+
+.transform-handle.corner {
+  cursor: nw-resize;
+}
+
+.transform-handle.edge.top,
+.transform-handle.edge.bottom {
+  cursor: ns-resize;
+}
+
+.transform-handle.edge.left,
+.transform-handle.edge.right {
+  cursor: ew-resize;
+}

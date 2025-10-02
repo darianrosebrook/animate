@@ -337,7 +337,7 @@ export class BatchRenderer {
    */
   private createSingleTextBatch(
     key: string,
-    renderable: BatchRenderable
+    _renderable: BatchRenderable
   ): void {
     // Text batching with instanced rendering for performance
     const _device = this.webgpuContext.getDevice()!
@@ -1060,9 +1060,9 @@ export class BatchRenderer {
   /**
    * Get a buffer from the memory pool
    */
-  private getBufferFromPool(type: string, size: number): GPUBuffer | null {
+  private getBufferFromPool(type: string, _size: number): GPUBuffer | null {
     const pool = this.memoryPool.get(type) || []
-    const availableBuffer = pool.find((buffer) => {
+    const availableBuffer = pool.find((_buffer) => {
       // Check if buffer size matches (simplified)
       return true // Placeholder: in real impl, check buffer size
     })
@@ -1098,7 +1098,7 @@ export class BatchRenderer {
     for (const [key, buffers] of this.memoryPool) {
       this.memoryPool.set(
         key,
-        buffers.filter((buffer) => {
+        buffers.filter((_buffer) => {
           // Simple heuristic: keep buffers if they've been used recently
           // In a real implementation, track usage timestamps
           return Math.random() > 0.1 // Placeholder: randomly keep some buffers
@@ -1171,7 +1171,7 @@ export class BatchRenderer {
    */
   destroy(): void {
     // Clean up GPU resources
-    for (const [key, batches] of this.renderBatches) {
+    for (const [_key, batches] of this.renderBatches) {
       for (const batch of batches) {
         if (batch.vertexBuffer) batch.vertexBuffer.destroy()
         if (batch.indexBuffer) batch.indexBuffer.destroy()

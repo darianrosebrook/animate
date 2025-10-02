@@ -8,13 +8,9 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
-  AlignJustify,
   AlignStartVertical,
   AlignCenterVertical,
   AlignEndVertical,
-  Move,
-  RotateCw,
-  Scaling,
 } from 'lucide-react'
 import { SceneNode, Point2D } from '@/types'
 
@@ -33,7 +29,7 @@ interface PositionLayoutSectionProps {
 export function PositionLayoutSection({
   layer,
   onUpdate,
-  onPopoverOpen,
+  _onPopoverOpen,
   isCollapsed,
   onToggleCollapse,
 }: PositionLayoutSectionProps) {
@@ -69,9 +65,11 @@ export function PositionLayoutSection({
     })
   }
 
-  const handleAlignment = (alignment: string) => {
-    // TODO: Implement alignment logic based on canvas bounds
-    console.log(`Align ${alignment}`)
+  const handleAlignment = (_alignment: string) => {
+    // PLACEHOLDER: Alignment logic - requires canvas bounds calculation and node positioning
+    throw new Error(
+      'PLACEHOLDER: Alignment logic not implemented - requires canvas bounds calculation and node positioning system'
+    )
   }
 
   return (

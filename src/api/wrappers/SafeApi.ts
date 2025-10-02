@@ -11,10 +11,6 @@ import type {
   CollaborationAPI,
   PluginAPI,
   AnimatorAPI,
-  Document,
-  AnimatorSettings,
-  SystemInfo,
-  AnimatorCapabilities,
 } from '../animator-api'
 
 /**
@@ -766,7 +762,7 @@ class SafeSceneGraphWrapper implements SafeSceneGraphAPI {
   async createNode(
     type: string,
     parentId?: string,
-    name?: string
+    _name?: string
   ): Promise<SafeNode> {
     this.checkPermission('sceneGraph.create')
 
@@ -916,7 +912,7 @@ class SafeSceneGraphWrapper implements SafeSceneGraphAPI {
     }
   }
 
-  async selectNodes(nodeIds: string[]): Promise<void> {
+  async selectNodes(_nodeIds: string[]): Promise<void> {
     this.checkPermission('sceneGraph.update')
 
     try {
@@ -1278,7 +1274,7 @@ class SafeTimelineWrapper implements SafeTimelineAPI {
     return sanitized
   }
 
-  async getTracks(timelineId: string): Promise<SafeTrack[]> {
+  async getTracks(_timelineId: string): Promise<SafeTrack[]> {
     this.checkPermission('timeline.read')
 
     try {
@@ -1542,7 +1538,7 @@ class SafeCollaborationWrapper implements SafeCollaborationAPI {
   }
 
   async getSession(
-    sessionId: string
+    _sessionId: string
   ): Promise<SafeCollaborationSession | null> {
     this.checkPermission('collaboration.read')
 
@@ -1576,7 +1572,7 @@ class SafeCollaborationWrapper implements SafeCollaborationAPI {
     }
   }
 
-  async getParticipants(sessionId: string): Promise<SafeParticipant[]> {
+  async getParticipants(_sessionId: string): Promise<SafeParticipant[]> {
     this.checkPermission('collaboration.read')
 
     try {

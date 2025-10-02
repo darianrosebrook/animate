@@ -16,9 +16,9 @@ interface TriggersSectionProps {
 }
 
 export function TriggersSection({
-  layer,
-  scene,
-  onUpdate,
+  _layer,
+  _scene,
+  _onUpdate,
   isCollapsed,
   onToggleCollapse,
 }: TriggersSectionProps) {

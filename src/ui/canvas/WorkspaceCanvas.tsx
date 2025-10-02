@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo, useState, useCallback } from 'react'
-import { Project, Scene, SceneNode, ViewMode } from '@/types'
+import { Project, Scene, SceneNode, ViewMode, ToolType } from '@/types'
 import { SceneEditorCanvas } from './scene/SceneEditorCanvas'
 import { StoryboardCanvas } from './storyboard/StoryboardCanvas'
 import './WorkspaceCanvas.css'
@@ -13,10 +13,15 @@ export interface WorkspaceCanvasProps {
   project: Project
   currentScene: Scene | null
   selectedLayers: SceneNode[]
+  activeTool: ToolType | null
   onLayerSelect: (layerIds: string[]) => void
   onLayerUpdate: (layerId: string, updates: Partial<SceneNode>) => void
   onSceneReorder: (sceneIds: string[]) => void
   onSceneUpdate: (sceneId: string, updates: Partial<Scene>) => void
+  onSelectionChange?: (selectedIds: Set<string>) => void
+  onZoomToFit?: (layerIds: string[]) => void
+  setZoom?: (zoom: number) => void
+  setPan?: (pan: { x: number; y: number }) => void
   className?: string
 }
 
@@ -24,10 +29,15 @@ export function WorkspaceCanvas({
   project,
   currentScene,
   selectedLayers,
+  activeTool,
   onLayerSelect,
   onLayerUpdate,
   onSceneReorder,
   onSceneUpdate,
+  onSelectionChange,
+  onZoomToFit,
+  setZoom,
+  setPan,
   className = '',
 }: WorkspaceCanvasProps) {
   // Shared overlay visibility state
@@ -45,7 +55,7 @@ export function WorkspaceCanvas({
 
   // Zoom state
   const [zoom, setZoom] = useState(1)
-  const handleZoom = useCallback((delta: number) => {
+  const _handleZoom = useCallback((delta: number) => {
     setZoom((z) => Math.max(0.05, Math.min(8, z * (1 + delta))))
   }, [])
 
@@ -68,17 +78,23 @@ export function WorkspaceCanvas({
         project={project}
         scene={currentScene}
         selectedLayers={selectedLayers}
+        activeTool={activeTool}
         overlays={overlays}
         zoom={zoom}
         onZoom={setZoom}
         onLayerSelect={onLayerSelect}
         onLayerUpdate={onLayerUpdate}
+        onSelectionChange={onSelectionChange}
+        onZoomToFit={onZoomToFit}
+        setZoom={setZoom}
+        setPan={setPan}
       />
     )
   }, [
     project,
     currentScene,
     selectedLayers,
+    activeTool,
     overlays,
     zoom,
     onLayerSelect,

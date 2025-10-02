@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, AnimatorError } from '@/types'
+import { Result } from '@/types'
 
 /**
  * Comprehensive error detection and validation system
@@ -222,7 +222,7 @@ export class ErrorDetector {
   }
 
   private async validateWebGPUContext(
-    component: ValidationTarget
+    _component: ValidationTarget
   ): Promise<boolean> {
     // Check if WebGPU is available and properly initialized
     if (typeof navigator === 'undefined' || !('gpu' in navigator)) {
@@ -238,7 +238,7 @@ export class ErrorDetector {
   }
 
   private async validateMemoryPool(
-    component: ValidationTarget
+    _component: ValidationTarget
   ): Promise<boolean> {
     // Check memory pool for leaks and proper cleanup
     // This would integrate with actual memory pool validation
@@ -246,7 +246,7 @@ export class ErrorDetector {
   }
 
   private async validateRenderPipeline(
-    component: ValidationTarget
+    _component: ValidationTarget
   ): Promise<boolean> {
     // Check render pipeline compilation and execution
     // This would integrate with actual rendering validation
@@ -254,7 +254,7 @@ export class ErrorDetector {
   }
 
   private async validateEffectsSystem(
-    component: ValidationTarget
+    _component: ValidationTarget
   ): Promise<boolean> {
     // Check effects system for proper initialization and functionality
     // This would integrate with actual effects validation

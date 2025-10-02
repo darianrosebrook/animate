@@ -143,7 +143,7 @@ export class ExecutionContext {
             message: error.message,
             stack: error.stack,
             executionId: executionId
-          };
+          }
         }
 
         // Return result if no explicit return
@@ -324,7 +324,7 @@ class ApiProxy {
     // Create proxy for each available API
     this.availableApis.forEach((apiName) => {
       if (this.permissions.includes(apiName)) {
-        ;(proxy as any)[apiName] = this.createApiProxy(apiName)
+        (proxy as any)[apiName] = this.createApiProxy(apiName)
       }
     })
 

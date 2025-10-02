@@ -122,8 +122,10 @@ export function TimelineTrack({
           label: 'Copy Keyframe',
           icon: <Copy size={14} />,
           action: () => {
-            // TODO: Implement keyframe copying to clipboard
-            console.log('Copy keyframe:', keyframe.id)
+            // PLACEHOLDER: Keyframe copying logic - requires clipboard management system
+            throw new Error(
+              'PLACEHOLDER: Keyframe copying not implemented - requires clipboard management system integration'
+            )
           },
         },
         {
@@ -131,8 +133,10 @@ export function TimelineTrack({
           label: 'Paste Keyframe',
           icon: <Plus size={14} />,
           action: () => {
-            // TODO: Implement keyframe pasting from clipboard
-            console.log('Paste keyframe at time:', keyframe.time)
+            // PLACEHOLDER: Keyframe pasting logic - requires clipboard management system
+            throw new Error(
+              'PLACEHOLDER: Keyframe pasting not implemented - requires clipboard management system integration'
+            )
           },
         },
         {
@@ -146,8 +150,10 @@ export function TimelineTrack({
           label: 'Duplicate Keyframe',
           icon: <Copy size={14} />,
           action: () => {
-            // TODO: Implement keyframe duplication
-            console.log('Duplicate keyframe:', keyframe.id)
+            // PLACEHOLDER: Keyframe duplication logic - requires timeline state management
+            throw new Error(
+              'PLACEHOLDER: Keyframe duplication not implemented - requires timeline state management and keyframe creation'
+            )
           },
         },
       ]
@@ -186,8 +192,10 @@ export function TimelineTrack({
           label: 'Rename Track',
           icon: <Edit3 size={14} />,
           action: () => {
-            // TODO: Implement track renaming
-            console.log('Rename track:', track.id)
+            // PLACEHOLDER: Track renaming logic - requires track state management
+            throw new Error(
+              'PLACEHOLDER: Track renaming not implemented - requires track state management and validation'
+            )
           },
         },
         {
@@ -195,8 +203,10 @@ export function TimelineTrack({
           label: 'Delete Track',
           icon: <Trash2 size={14} />,
           action: () => {
-            // TODO: Implement track deletion with confirmation
-            console.log('Delete track:', track.id)
+            // PLACEHOLDER: Track deletion logic - requires timeline state management and cleanup
+            throw new Error(
+              'PLACEHOLDER: Track deletion not implemented - requires timeline state management and resource cleanup'
+            )
           },
         },
         {
@@ -204,8 +214,10 @@ export function TimelineTrack({
           label: 'Duplicate Track',
           icon: <Copy size={14} />,
           action: () => {
-            // TODO: Implement track duplication
-            console.log('Duplicate track:', track.id)
+            // PLACEHOLDER: Track duplication logic - requires timeline state management
+            throw new Error(
+              'PLACEHOLDER: Track duplication not implemented - requires timeline state management and track creation'
+            )
           },
         },
         {
@@ -213,8 +225,10 @@ export function TimelineTrack({
           label: 'Add Keyframe',
           icon: <Plus size={14} />,
           action: () => {
-            // TODO: Implement adding keyframe at current time
-            console.log('Add keyframe to track:', track.id)
+            // PLACEHOLDER: Keyframe addition logic - requires timeline state management
+            throw new Error(
+              'PLACEHOLDER: Keyframe addition not implemented - requires timeline state management and keyframe creation'
+            )
           },
         },
       ]
@@ -228,7 +242,7 @@ export function TimelineTrack({
     [track.id]
   )
 
-  // TODO: Use selectedKeyframes for keyframe selection functionality
+  // PLACEHOLDER: Selected keyframes functionality - requires timeline selection state management
   // const _selectedKeyframes = track.keyframes.filter((k) =>
   //   timeline.selectedKeyframes.has(k.id)
   // )

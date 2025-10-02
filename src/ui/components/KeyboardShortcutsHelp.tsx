@@ -21,7 +21,7 @@ export function KeyboardShortcutsHelp({
   onClose,
 }: KeyboardShortcutsHelpProps) {
   const { getAllShortcuts } = useKeyboardShortcuts()
-  // TODO: Use getShortcutsHelp for help functionality
+  // PLACEHOLDER: Keyboard shortcuts help functionality - requires shortcuts help system
   // const { getShortcutsHelp } = useKeyboardShortcuts()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<

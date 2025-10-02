@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { Settings, Palette } from 'lucide-react'
+import { Palette } from 'lucide-react'
 import { Scene } from '@/types'
 
 interface SceneSettingsSectionProps {

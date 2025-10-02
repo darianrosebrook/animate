@@ -4,35 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react'
-import {
-  MoreHorizontal,
-  Copy,
-  RotateCcw,
-  Eye,
-  EyeOff,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
-  Type as TypeIcon,
-  Palette,
-  Sparkles,
-  Timer,
-  Zap,
-  Settings,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react'
-import {
-  UIMode,
-  SceneNode,
-  Scene,
-  NodeType,
-  PropertyMap,
-  Point2D,
-  Color,
-  BlendMode,
-} from '@/types'
+import { UIMode, SceneNode, Scene, NodeType, Color } from '@/types'
 import { HeaderSection } from './sections/HeaderSection'
 import { PositionLayoutSection } from './sections/PositionLayoutSection'
 import { AppearanceSection } from './sections/AppearanceSection'
@@ -159,7 +131,7 @@ export function ContextPane({
           <ColorPickerPopover
             target={popover.target}
             initialColor={popover.data}
-            onColorChange={(color: Color) => {
+            onColorChange={(_color: Color) => {
               // Handle color change
               handlePopoverClose()
             }}
@@ -171,7 +143,7 @@ export function ContextPane({
           <GradientEditorPopover
             target={popover.target}
             initialGradient={popover.data}
-            onGradientChange={(gradient: any) => {
+            onGradientChange={(_gradient: any) => {
               // Handle gradient change
               handlePopoverClose()
             }}
@@ -183,7 +155,7 @@ export function ContextPane({
           <CurveEditorPopover
             target={popover.target}
             initialCurve={popover.data}
-            onCurveChange={(curve: any) => {
+            onCurveChange={(_curve: any) => {
               // Handle curve change
               handlePopoverClose()
             }}

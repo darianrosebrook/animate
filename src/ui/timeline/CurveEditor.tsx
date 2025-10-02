@@ -30,7 +30,7 @@ export function CurveEditor({
   height,
   onPointsChange,
   onPointAdd,
-  // TODO: Use onPointRemove and onPointUpdate for curve editing
+  // PLACEHOLDER: Curve point editing functionality - requires curve editing system
   // onPointRemove,
   // onPointUpdate,
   className = '',

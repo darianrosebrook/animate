@@ -6,10 +6,6 @@
 import React, { useState, useCallback } from 'react'
 import {
   Download,
-  Settings,
-  Play,
-  Pause,
-  Square,
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -18,7 +14,6 @@ import {
   Monitor,
   HardDrive,
   Clock,
-  Zap,
   RefreshCw,
 } from 'lucide-react'
 import {
@@ -41,7 +36,7 @@ interface ExportManagerProps {
 }
 
 export function ExportManager({
-  project,
+  _project,
   currentScene,
   isOpen,
   onClose,
@@ -56,7 +51,7 @@ export function ExportManager({
     quality: 'high' as ExportQuality,
     resolution: { width: 1920, height: 1080 },
     frameRate: 30,
-    colorSpace: 'sRGB' as any, // TODO: Fix ColorSpace enum usage
+    colorSpace: 'sRGB' as any, // PLACEHOLDER: Fix ColorSpace enum usage - requires proper ColorSpace type definition
     includeAudio: true,
     compression: CompressionLevel.Balanced,
   })
@@ -85,7 +80,7 @@ export function ExportManager({
     [onExportCancel]
   )
 
-  const formatDuration = (seconds: number) => {
+  const _formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = Math.floor(seconds % 60)
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
@@ -108,7 +103,7 @@ export function ExportManager({
     }
   }
 
-  const getQualityLabel = (quality: string) => {
+  const _getQualityLabel = (quality: string) => {
     switch (quality) {
       case 'low':
         return 'Low (Fast)'

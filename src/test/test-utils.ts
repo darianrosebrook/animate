@@ -3,8 +3,6 @@
  * @author @darianrosebrook
  */
 
-import { Result } from '@/types'
-
 /**
  * Test utilities for performance monitoring and validation
  */
@@ -33,6 +31,313 @@ export class TestUtils {
 
     // Fallback estimation
     return 0
+  }
+
+  /**
+   * Create cross-platform test scene for GPU compatibility testing
+   */
+  static createCrossPlatformTestScene(): any {
+    return {
+      layers: [
+        {
+          id: 'platform-test-rect',
+          type: 'rectangle',
+          position: { x: 100, y: 100 },
+          size: { width: 200, height: 150 },
+          fill: { r: 0.8, g: 0.2, b: 0.3, a: 1.0 },
+        },
+        {
+          id: 'platform-test-circle',
+          type: 'circle',
+          position: { x: 400, y: 200 },
+          radius: 75,
+          fill: { r: 0.2, g: 0.8, b: 0.9, a: 0.8 },
+        },
+        {
+          id: 'platform-test-text',
+          type: 'text',
+          position: { x: 50, y: 400 },
+          text: 'Cross-Platform Test',
+          fontSize: 32,
+          fill: { r: 1.0, g: 1.0, b: 1.0, a: 1.0 },
+        },
+      ],
+      effects: [
+        {
+          type: 'glow',
+          intensity: 1.0,
+          radius: 10,
+          color: { r: 1.0, g: 0.8, b: 0.2, a: 1.0 },
+        },
+      ],
+      resolution: { width: 800, height: 600 },
+      frameRate: 30,
+      platformTargets: ['nvidia', 'amd', 'intel', 'apple'],
+    }
+  }
+
+  /**
+   * Create scene with multiple effects for performance testing
+   */
+  static createSceneWithMultipleEffects(effectCount: number = 5): any {
+    const effects = []
+    const effectTypes = [
+      'glow',
+      'blur',
+      'color-correction',
+      'motion-blur',
+      'sharpen',
+    ]
+
+    for (let i = 0; i < effectCount; i++) {
+      effects.push({
+        type: effectTypes[i % effectTypes.length],
+        intensity: 0.5 + Math.random() * 1.0,
+        radius: i === 0 ? 15 : 5 + Math.random() * 10, // Glow effect gets larger radius
+        samples: i === 3 ? 8 : 4, // Motion blur gets more samples
+      })
+    }
+
+    return {
+      layers: [
+        {
+          id: 'multi-effect-layer',
+          type: 'rectangle',
+          position: { x: 400, y: 300 },
+          size: { width: 300, height: 200 },
+          fill: { r: 0.6, g: 0.4, b: 0.8, a: 1.0 },
+          effects,
+        },
+      ],
+      resolution: { width: 1920, height: 1080 },
+      frameRate: 60,
+    }
+  }
+
+  /**
+   * Create test scene with multiple effects (alias for createSceneWithMultipleEffects)
+   */
+  static createTestSceneWithMultipleEffects(effectCount: number = 5): any {
+    return this.createSceneWithMultipleEffects(effectCount)
+  }
+
+  /**
+   * Create scene with effects for basic testing
+   */
+  static createSceneWithEffects(): any {
+    return {
+      layers: [
+        {
+          id: 'effect-test-layer',
+          type: 'rectangle',
+          position: { x: 500, y: 400 },
+          size: { width: 200, height: 100 },
+          fill: { r: 0.9, g: 0.3, b: 0.1, a: 1.0 },
+          effects: [
+            {
+              type: 'glow',
+              intensity: 1.2,
+              radius: 12,
+            },
+            {
+              type: 'blur',
+              intensity: 0.8,
+              radius: 6,
+            },
+          ],
+        },
+      ],
+      resolution: { width: 1280, height: 720 },
+      frameRate: 30,
+    }
+  }
+
+  /**
+   * Create scene with disposable effects for cleanup testing
+   */
+  static createSceneWithDisposableEffects(): any {
+    return {
+      layers: [
+        {
+          id: 'disposable-layer',
+          type: 'circle',
+          position: { x: 300, y: 200 },
+          radius: 80,
+          fill: { r: 0.4, g: 0.7, b: 0.9, a: 1.0 },
+          effects: [
+            {
+              type: 'glow',
+              intensity: 1.0,
+              radius: 8,
+            },
+          ],
+        },
+      ],
+      resolution: { width: 800, height: 600 },
+      frameRate: 30,
+    }
+  }
+
+  /**
+   * Create scene with repeated effects for caching testing
+   */
+  static createSceneWithRepeatedEffects(): any {
+    return {
+      layers: [
+        {
+          id: 'repeated-layer-1',
+          type: 'rectangle',
+          position: { x: 200, y: 150 },
+          size: { width: 150, height: 100 },
+          fill: { r: 0.8, g: 0.5, b: 0.2, a: 1.0 },
+          effects: [
+            {
+              type: 'glow',
+              intensity: 1.0,
+              radius: 10,
+            },
+          ],
+        },
+        {
+          id: 'repeated-layer-2',
+          type: 'rectangle',
+          position: { x: 500, y: 150 },
+          size: { width: 150, height: 100 },
+          fill: { r: 0.2, g: 0.8, b: 0.5, a: 1.0 },
+          effects: [
+            {
+              type: 'glow',
+              intensity: 1.0,
+              radius: 10,
+            },
+          ],
+        },
+      ],
+      resolution: { width: 800, height: 600 },
+      frameRate: 30,
+    }
+  }
+
+  /**
+   * Create scene with animated effects for parameter testing
+   */
+  static createSceneWithAnimatedEffects(): any {
+    return {
+      layers: [
+        {
+          id: 'animated-layer',
+          type: 'circle',
+          position: { x: 400, y: 300 },
+          radius: 60,
+          fill: { r: 0.9, g: 0.6, b: 0.3, a: 1.0 },
+          effects: [
+            {
+              type: 'glow',
+              intensity: 1.0,
+              radius: 15,
+            },
+          ],
+        },
+      ],
+      resolution: { width: 800, height: 600 },
+      frameRate: 30,
+    }
+  }
+
+  /**
+   * Create scene with resource-intensive effects for memory testing
+   */
+  static createSceneWithResourceIntensiveEffects(): any {
+    const effects = []
+    for (let i = 0; i < 8; i++) {
+      effects.push({
+        type: i % 2 === 0 ? 'glow' : 'blur',
+        intensity: 1.0 + Math.random() * 1.5,
+        radius: 10 + Math.random() * 25,
+      })
+    }
+
+    return {
+      layers: [
+        {
+          id: 'resource-intensive-layer',
+          type: 'rectangle',
+          position: { x: 100, y: 100 },
+          size: { width: 600, height: 400 },
+          fill: { r: 0.7, g: 0.3, b: 0.8, a: 1.0 },
+          effects,
+        },
+      ],
+      resolution: { width: 1920, height: 1080 },
+      frameRate: 60,
+    }
+  }
+
+  /**
+   * Create scene for batch testing
+   */
+  static createSceneWithBatchTest(): any {
+    const layers = []
+    for (let i = 0; i < 10; i++) {
+      layers.push({
+        id: `batch-layer-${i}`,
+        type: i % 2 === 0 ? 'rectangle' : 'circle',
+        position: {
+          x: 100 + (i % 5) * 150,
+          y: 100 + Math.floor(i / 5) * 150,
+        },
+        size: i % 2 === 0 ? { width: 100, height: 100 } : undefined,
+        radius: i % 2 === 1 ? 50 : undefined,
+        fill: {
+          r: 0.2 + Math.random() * 0.8,
+          g: 0.2 + Math.random() * 0.8,
+          b: 0.2 + Math.random() * 0.8,
+          a: 0.8 + Math.random() * 0.2,
+        },
+      })
+    }
+
+    return {
+      layers,
+      resolution: { width: 800, height: 600 },
+      frameRate: 30,
+    }
+  }
+
+  /**
+   * Create scene for render order testing
+   */
+  static createSceneWithRenderOrderTest(): any {
+    return {
+      layers: [
+        {
+          id: 'background-layer',
+          type: 'rectangle',
+          position: { x: 0, y: 0 },
+          size: { width: 800, height: 600 },
+          fill: { r: 0.1, g: 0.1, b: 0.1, a: 1.0 },
+          zIndex: 0,
+        },
+        {
+          id: 'middle-layer',
+          type: 'circle',
+          position: { x: 400, y: 300 },
+          radius: 100,
+          fill: { r: 0.5, g: 0.8, b: 0.3, a: 0.9 },
+          zIndex: 1,
+        },
+        {
+          id: 'top-layer',
+          type: 'rectangle',
+          position: { x: 350, y: 250 },
+          size: { width: 100, height: 100 },
+          fill: { r: 0.9, g: 0.2, b: 0.4, a: 0.8 },
+          zIndex: 2,
+        },
+      ],
+      resolution: { width: 800, height: 600 },
+      frameRate: 30,
+    }
   }
 
   /**
@@ -636,7 +941,7 @@ export class PerformanceBenchmark {
   getAllMeasurements(): Map<string, PerformanceMeasurement> {
     const results = new Map<string, PerformanceMeasurement>()
 
-    for (const [name] of this.measurements) {
+    for (const name of Array.from(this.measurements.keys())) {
       try {
         results.set(name, this.endMeasurement(name))
       } catch (error) {

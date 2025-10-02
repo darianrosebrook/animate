@@ -3,13 +3,12 @@
  * @author @darianrosebrook
  */
 
-import { Result, Time, AnimatorError, Size2D } from '@/types'
+import { Result, Time } from '@/types'
 import { WebGPUContext } from '../core/renderer/webgpu-context'
 import {
   MediaSystem as IMediaSystem,
   MediaAsset,
   MediaType,
-  MediaMetadata,
   MediaImportOptions,
   MediaImportResult,
   MediaTimelineTrack,

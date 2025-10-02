@@ -247,7 +247,7 @@ export class AnimationCurve implements IAnimationCurve {
     const tt = t * t
     const ttt = tt * t
 
-    const x = uuu * p1.x + 3 * uu * t * p2.x + 3 * u * tt * p3.x + ttt * p4.x
+    const _x = uuu * p1.x + 3 * uu * t * p2.x + 3 * u * tt * p3.x + ttt * p4.x
     const y = uuu * p1.y + 3 * uu * t * p2.y + 3 * u * tt * p3.y + ttt * p4.y
 
     return y // Return the Y coordinate for timing curve evaluation

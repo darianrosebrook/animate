@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { MoreHorizontal, Copy, RotateCcw, Eye, EyeOff } from 'lucide-react'
+import { MoreHorizontal, Copy, RotateCcw, Eye } from 'lucide-react'
 
 interface ContextInfo {
   type: string

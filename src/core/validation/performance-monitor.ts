@@ -446,7 +446,7 @@ export class PerformanceValidator {
     const averageFrameTime =
       frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length
     const maxFrameTime = Math.max(...frameTimes)
-    const minFrameTime = Math.min(...frameTimes)
+    const _minFrameTime = Math.min(...frameTimes)
 
     // Calculate 95th percentile
     const sorted = [...frameTimes].sort((a, b) => a - b)

@@ -5,55 +5,13 @@
 
 import React, { useState, useCallback, useMemo } from 'react'
 import {
-  Search,
-  Plus,
-  MoreHorizontal,
-  Eye,
-  EyeOff,
-  Lock,
-  Unlock,
-  Copy,
-  Trash2,
-  Edit3,
-  ChevronRight,
-  ChevronDown,
-  Filter,
   Layers,
   Image,
   Type,
   Square,
-  Circle,
   Zap,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Pin,
-  Archive,
-  Move,
-  RotateCcw,
-  Settings,
-  Folder,
-  FolderOpen,
-  FileText,
-  Palette,
-  Camera,
-  Volume2,
-  Video,
-  Mic,
-  Link,
-  Star,
-  Tag,
 } from 'lucide-react'
-import {
-  Scene,
-  SceneNode,
-  NodeType,
-  ViewMode,
-  Project,
-  UIMode,
-  Point2D,
-  Color,
-} from '@/types'
+import { Scene, SceneNode, NodeType, ViewMode, Project, UIMode } from '@/types'
 import { StoryboardView } from './views/StoryboardView'
 import { SceneEditorView } from './views/SceneEditorView'
 import { AssetLibraryView } from './views/AssetLibraryView'
@@ -80,6 +38,9 @@ export interface LeftPanelProps {
   onLayerSelect: (layerIds: string[]) => void
   onLayerReorder: (sceneId: string, layerIds: string[]) => void
   onLayerReparent: (layerId: string, newParentId: string | null) => void
+  onLayerRename?: (layerId: string, newName: string) => void
+  onLayerZoomToFit?: (layerIds: string[]) => void
+  onZoomToFit?: (layerIds: string[]) => void
   className?: string
 }
 
@@ -96,7 +57,7 @@ export function LeftPanel({
   currentScene,
   selectedLayers,
   viewMode,
-  mode,
+  _mode,
   onViewModeChange,
   onSceneSelect,
   onSceneAdd,
@@ -109,6 +70,9 @@ export function LeftPanel({
   onLayerSelect,
   onLayerReorder,
   onLayerReparent,
+  _onLayerRename,
+  _onLayerZoomToFit,
+  _onZoomToFit,
   className = '',
 }: LeftPanelProps) {
   const [searchQuery, setSearchQuery] = useState('')
@@ -197,14 +161,6 @@ export function LeftPanel({
     },
     []
   )
-
-  const handleViewModeToggle = useCallback(() => {
-    const newMode =
-      viewMode === ViewMode.SceneByScene
-        ? ViewMode.Canvas
-        : ViewMode.SceneByScene
-    onViewModeChange(newMode)
-  }, [viewMode, onViewModeChange])
 
   const getLayerIcon = useCallback((type: NodeType) => {
     switch (type) {
@@ -560,17 +516,23 @@ export function LeftPanel({
           <AssetLibraryView
             assets={project.assets}
             libraries={project.libraries}
-            onAssetSelect={(assetId: string) => {
-              // TODO: Handle asset selection
-              console.log('Asset selected:', assetId)
+            onAssetSelect={(_assetId: string) => {
+              // PLACEHOLDER: Asset selection logic - requires asset management system
+              throw new Error(
+                'PLACEHOLDER: Asset selection not implemented - requires asset management system integration'
+              )
             }}
-            onAssetAdd={(asset: Asset) => {
-              // TODO: Handle asset addition
-              console.log('Asset added:', asset)
+            onAssetAdd={(_asset: Asset) => {
+              // PLACEHOLDER: Asset addition logic - requires asset management system
+              throw new Error(
+                'PLACEHOLDER: Asset addition not implemented - requires asset management system integration'
+              )
             }}
-            onLibraryConnect={(libraryId: string) => {
-              // TODO: Handle library connection
-              console.log('Library connected:', libraryId)
+            onLibraryConnect={(_libraryId: string) => {
+              // PLACEHOLDER: Library connection logic - requires library management system
+              throw new Error(
+                'PLACEHOLDER: Library connection not implemented - requires library management system integration'
+              )
             }}
             getAssetIcon={getAssetIcon}
           />

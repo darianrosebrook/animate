@@ -23,11 +23,11 @@ export interface StoryboardCanvasProps {
 
 export function StoryboardCanvas({
   project,
-  overlays,
+  _overlays,
   zoom,
   onZoom,
   onSceneReorder,
-  onSceneUpdate,
+  _onSceneUpdate,
 }: StoryboardCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [draggedId, setDraggedId] = useState<string | null>(null)

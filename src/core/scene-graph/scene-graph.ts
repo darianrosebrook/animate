@@ -516,7 +516,7 @@ export class SceneGraph {
     const ttt = tt * t
 
     // Calculate both x and y coordinates of the Bezier curve
-    const x = uuu * 0 + 3 * uu * t * p1x + 3 * u * tt * p2x + ttt * 1
+    const _x = uuu * 0 + 3 * uu * t * p1x + 3 * u * tt * p2x + ttt * 1
     const y = uuu * 0 + 3 * uu * t * p1y + 3 * u * tt * p2y + ttt * 1
 
     // For timing functions, we want to map input time (t) to output time (y)

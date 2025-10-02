@@ -790,7 +790,7 @@ export class Renderer implements RenderingAPI {
   async renderFrame(
     sceneGraph: any, // SceneGraph object
     time: Time,
-    options?: RenderOptions
+    _options?: RenderOptions
   ): Promise<RenderResult> {
     try {
       // Evaluate the scene graph at the given time

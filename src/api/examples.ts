@@ -944,9 +944,9 @@ export async function viewportExample(): Promise<void> {
   })
 
   // Start real-time preview
-  let isPlaying = false
-  let currentTime = 0
-  const frameRate = FRAME_RATE_PRESETS['60'] // TODO: Use HDTV_60 preset
+  let _isPlaying = false
+  let _currentTime = 0
+  const _frameRate = FRAME_RATE_PRESETS['60'] // TODO: Use HDTV_60 preset
 
   // TODO: Implement real-time preview animation
   // const animate = async () => {

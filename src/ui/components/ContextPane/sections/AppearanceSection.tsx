@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { Eye, EyeOff, Palette } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { SceneNode, BlendMode } from '@/types'
 
 interface AppearanceSectionProps {
@@ -22,7 +22,7 @@ interface AppearanceSectionProps {
 export function AppearanceSection({
   layer,
   onUpdate,
-  onPopoverOpen,
+  _onPopoverOpen,
   isCollapsed,
   onToggleCollapse,
 }: AppearanceSectionProps) {

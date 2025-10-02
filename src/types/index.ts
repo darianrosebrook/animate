@@ -59,6 +59,7 @@ export interface SceneNode {
   properties: PropertyMap
   children: SceneNode[]
   parent?: SceneNode
+  bounds?: Rectangle
 }
 
 export enum NodeType {
@@ -69,6 +70,7 @@ export enum NodeType {
   Effect = 'effect',
   Group = 'group',
   Camera = 'camera',
+  Path = 'path',
 }
 
 export interface BaseNode {
@@ -2056,10 +2058,10 @@ export interface PluginAPI {
 
 // Rendering types
 export interface Rectangle {
-  x: number
-  y: number
-  width: number
-  height: number
+  minX: number
+  minY: number
+  maxX: number
+  maxY: number
 }
 
 // Validation types

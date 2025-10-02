@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, Time } from '@/types'
+import { Result } from '@/types'
 import {
   CollaborationSystem as ICollaborationSystem,
   Document,
@@ -598,14 +598,14 @@ export class CollaborationSystem implements ICollaborationSystem {
     )
   }
 
-  private getPendingOperations(documentId: string): Operation[] {
+  private getPendingOperations(_documentId: string): Operation[] {
     // Get operations that haven't been acknowledged yet
     return [] // Simplified - would track pending operations
   }
 
   private async updateLocalDocument(
-    documentId: string,
-    operation: Operation
+    _documentId: string,
+    _operation: Operation
   ): Promise<void> {
     const document = this.documents.get(documentId)
     if (document) {
@@ -619,41 +619,41 @@ export class CollaborationSystem implements ICollaborationSystem {
   }
 
   private async mergeConflict(
-    conflict: any,
-    resolution: ConflictResolution
+    _conflict: any,
+    _resolution: ConflictResolution
   ): Promise<void> {
     // Implement merge conflict resolution
   }
 
   private async overrideConflict(
-    conflict: any,
-    resolution: ConflictResolution
+    _conflict: any,
+    _resolution: ConflictResolution
   ): Promise<void> {
     // Implement override conflict resolution
   }
 
   private async manualResolveConflict(
-    conflict: any,
-    resolution: ConflictResolution
+    _conflict: any,
+    _resolution: ConflictResolution
   ): Promise<void> {
     // Implement manual conflict resolution
   }
 
   private async fastForwardMerge(
-    document: Document,
-    branch: Branch
+    _document: Document,
+    _branch: Branch
   ): Promise<void> {
     // Implement fast-forward merge
   }
 
   private async threeWayMerge(
-    document: Document,
-    branch: Branch
+    _document: Document,
+    _branch: Branch
   ): Promise<void> {
     // Implement three-way merge
   }
 
-  private async manualMerge(document: Document, branch: Branch): Promise<void> {
+  private async manualMerge(_document: Document, _branch: Branch): Promise<void> {
     // Implement manual merge
   }
 
@@ -868,7 +868,7 @@ class CRDTDocumentImpl implements CRDTDocument {
 
     const key = path[path.length - 1]
     const value = operation.value
-    const oldValue = operation.oldValue
+    const _oldValue = operation.oldValue
 
     // CRDT update - only update if this operation is more recent
     if (
@@ -889,8 +889,8 @@ class CRDTDocumentImpl implements CRDTDocument {
 
   private applyMove(document: any, operation: Operation): any {
     // Move operation with CRDT path tracking
-    const fromPath = operation.path
-    const toPath = operation.value // New path
+    const _fromPath = operation.path
+    const _toPath = operation.value // New path
 
     // This would implement proper CRDT move semantics
     // For now, simplified implementation
@@ -935,7 +935,7 @@ class OperationalTransformImpl implements OperationalTransform {
     }
   }
 
-  private transformOperations(op1: Operation, op2: Operation): Operation {
+  private transformOperations(op1: Operation, _op2: Operation): Operation {
     // Simplified operational transform - would implement full OT rules
     return op1
   }
@@ -957,7 +957,7 @@ class WebRTCManagerImpl implements WebRTCManager {
     presence: Presence
   ) => void)[] = []
 
-  async initialize(user: User): Promise<Result<boolean>> {
+  async initialize(_user: User): Promise<Result<boolean>> {
     try {
       // Create peer connection
       this.peerConnection = new RTCPeerConnection({

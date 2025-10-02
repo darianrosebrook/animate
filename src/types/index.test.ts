@@ -101,6 +101,7 @@ describe('Scene Graph Types', () => {
     expect(NodeType.Effect).toBe('effect')
     expect(NodeType.Group).toBe('group')
     expect(NodeType.Camera).toBe('camera')
+    expect(NodeType.Path).toBe('path')
   })
 
   it('should define PropertyMap and PropertyValue types', () => {

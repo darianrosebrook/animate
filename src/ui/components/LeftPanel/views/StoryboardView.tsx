@@ -6,21 +6,7 @@
 import React, { useState, useCallback } from 'react'
 import {
   MoreHorizontal,
-  Eye,
-  EyeOff,
-  Lock,
-  Unlock,
-  Copy,
-  Trash2,
-  Edit3,
-  Clock,
-  AlertTriangle,
-  CheckCircle,
-  Pin,
-  Archive,
   Move,
-  Play,
-  Pause,
   Layers,
   Image,
 } from 'lucide-react'
@@ -47,11 +33,11 @@ export function StoryboardView({
   scenes,
   currentSceneId,
   onSceneSelect,
-  onSceneUpdate,
+  _onSceneUpdate,
   onSceneReorder,
   onContextMenu,
-  getLayerIcon,
-  getLayerBadge,
+  _getLayerIcon,
+  _getLayerBadge,
 }: StoryboardViewProps) {
   const [draggedSceneId, setDraggedSceneId] = useState<string | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)

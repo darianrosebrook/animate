@@ -3,7 +3,7 @@
  * @author @darianrosebrook
  */
 
-import { Result, Time } from '@/types'
+import { Result } from '@/types'
 import {
   LibrarySystem as ILibrarySystem,
   Library,
@@ -12,14 +12,12 @@ import {
   Version,
   Variable,
   GovernanceRule,
-  AccessControl,
   AuditLog,
   LibrarySearch,
   LibraryAnalytics,
   AssetMetadata,
   CollectionTemplate,
   LibraryPermissions,
-  AssetLifecycle,
 } from './library-types'
 
 /**
@@ -754,8 +752,8 @@ export class LibrarySystem implements ILibrarySystem {
   }
 
   private async checkRule(
-    library: Library,
-    rule: GovernanceRule
+    _library: Library,
+    _rule: GovernanceRule
   ): Promise<boolean> {
     // Simplified rule checking - would implement actual rule logic
     return true
