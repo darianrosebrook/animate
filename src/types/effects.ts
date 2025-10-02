@@ -154,6 +154,24 @@ export interface GlowParameters extends BaseEffectParameters {
   innerGlow?: boolean // Apply glow to inside of shape
 }
 
+export interface GaussianBlurParameters extends BaseEffectParameters {
+  radius: number // Blur radius (0 - 100 pixels)
+  sigma?: number // Gaussian sigma (auto-calculated if not provided)
+  quality: 'low' | 'medium' | 'high' | 'ultra' // Shader quality preset
+}
+
+export interface BoxBlurParameters extends BaseEffectParameters {
+  radius: number // Blur radius (0 - 50 pixels)
+  iterations?: number // Number of blur iterations (1-10)
+}
+
+export interface MotionBlurParameters extends BaseEffectParameters {
+  angle: number // Motion direction in degrees (0-360)
+  distance: number // Blur distance (0-200 pixels)
+  steps?: number // Number of samples (4-32)
+  shutterAngle?: number // Shutter angle for realistic motion blur (0-360)
+}
+
 /**
  * Brightness/Contrast effect parameters
  */
