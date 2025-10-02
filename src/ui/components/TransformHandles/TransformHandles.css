@@ -1,0 +1,59 @@
+/**
+ * TransformHandles styles
+ * @author @darianrosebrook
+ */
+
+.transform-handles {
+  box-sizing: border-box;
+}
+
+.transform-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border: 2px solid #007acc;
+  box-sizing: border-box;
+  pointer-events: all;
+  cursor: pointer;
+  transition: all 0.1s ease-out;
+}
+
+.transform-handle:hover {
+  background: #007acc;
+  transform: scale(1.2);
+}
+
+.transform-handle:active {
+  background: #005a9e;
+  border-color: #005a9e;
+}
+
+/* Corner handles with diagonal resize cursors */
+.transform-handle.corner.top-left {
+  cursor: nwse-resize;
+}
+
+.transform-handle.corner.top-right {
+  cursor: nesw-resize;
+}
+
+.transform-handle.corner.bottom-left {
+  cursor: nesw-resize;
+}
+
+.transform-handle.corner.bottom-right {
+  cursor: nwse-resize;
+}
+
+/* Edge handles with directional resize cursors */
+.transform-handle.edge.top,
+.transform-handle.edge.bottom {
+  cursor: ns-resize;
+}
+
+.transform-handle.edge.left,
+.transform-handle.edge.right {
+  cursor: ew-resize;
+}
+

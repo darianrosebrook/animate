@@ -1,0 +1,24 @@
+/**
+ * SelectionBox styles
+ * @author @darianrosebrook
+ */
+
+.selection-bounds {
+  box-sizing: border-box;
+  transition: all 0.1s ease-out;
+}
+
+.drag-selection {
+  box-sizing: border-box;
+  animation: marching-ants 0.5s linear infinite;
+}
+
+@keyframes marching-ants {
+  0% {
+    border-offset: 0;
+  }
+  100% {
+    border-offset: 8px;
+  }
+}
+

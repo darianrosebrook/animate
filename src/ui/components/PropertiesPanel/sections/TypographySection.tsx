@@ -6,7 +6,7 @@ interface TypographySectionProps {
   onUpdate: (updates: Partial<SceneNode>) => void
 }
 
-export function TypographySection({ layer }: TypographySectionProps) {
+export function TypographySection({ layer: _layer }: TypographySectionProps) {
   return (
     <div className="properties-section">
       <div className="section-header">
