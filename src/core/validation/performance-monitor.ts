@@ -4,6 +4,7 @@
  */
 
 import { Result } from '@/types'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Performance monitoring and bottleneck detection system
@@ -28,7 +29,7 @@ export class PerformanceMonitor {
     this.errorCounts.clear()
     this.bottlenecks = []
 
-    console.log('🔍 Performance monitoring started')
+    logger.info('🔍 Performance monitoring started')
   }
 
   /**
@@ -46,7 +47,7 @@ export class PerformanceMonitor {
       timestamp: new Date(),
     }
 
-    console.log('📊 Performance monitoring completed:', report)
+    logger.info('📊 Performance monitoring completed:', report)
     return report
   }
 

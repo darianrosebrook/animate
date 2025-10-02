@@ -5,6 +5,7 @@
  */
 
 import type {
+import { logger } from '@/core/logging/logger'
   SceneGraphAPI,
   TimelineAPI,
   RenderingAPI,
@@ -2483,7 +2484,7 @@ class SafeSystemWrapper implements SafeSystemAPI {
  */
 class SafeUtilsImpl implements SafeUtils {
   log(...args: any[]): void {
-    console.log('[API]', ...args)
+    logger.info('[API]', ...args)
   }
 
   generateId(): string {

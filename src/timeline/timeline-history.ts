@@ -6,6 +6,7 @@
 import { Result } from '@/types'
 import { TimelineHistory as ITimelineHistory } from './timeline-types'
 import { Timeline } from './timeline'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Timeline history implementation for undo/redo functionality
@@ -92,7 +93,7 @@ export class TimelineHistory implements ITimelineHistory {
         this.currentIndex--
       }
     } catch (error) {
-      console.error('Failed to push history state:', error)
+      logger.error('Failed to push history state:', error)
     }
   }
 

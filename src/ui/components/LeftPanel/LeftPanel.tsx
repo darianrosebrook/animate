@@ -4,13 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react'
-import {
-  Layers,
-  Image,
-  Type,
-  Square,
-  Zap,
-} from 'lucide-react'
+import { Layers, Image, Type, Square, Zap } from 'lucide-react'
 import { Scene, SceneNode, NodeType, ViewMode, Project, UIMode } from '@/types'
 import { StoryboardView } from './views/StoryboardView'
 import { SceneEditorView } from './views/SceneEditorView'

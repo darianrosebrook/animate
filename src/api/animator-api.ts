@@ -448,7 +448,7 @@ class PluginManager implements PluginAPI {
       }
 
       // Simplified execution - would need actual plugin runtime
-      console.log('Executing plugin with context:', context)
+      logger.info('Executing plugin with context:', context)
       return { result: 'Plugin executed successfully' }
     } catch (error) {
       throw new Error(`Failed to execute plugin: ${error}`)
@@ -466,10 +466,10 @@ class PluginManager implements PluginAPI {
       }
 
       // Simplified subscription - would need real event system
-      console.log('Subscribing to plugin events for:', pluginId)
+      logger.info('Subscribing to plugin events for:', pluginId)
       const unsubscribe = () => {
         // Cleanup subscription
-        console.log('Unsubscribing from plugin events for:', pluginId)
+        logger.info('Unsubscribing from plugin events for:', pluginId)
       }
 
       // Store callback for future use
@@ -487,6 +487,7 @@ class PluginManager implements PluginAPI {
 // Import and re-export additional types from effects and timeline
 import type { EffectType, BaseEffectParameters } from '../types/effects'
 import type { BlendMode } from './timeline'
+import { logger } from '@/core/logging/logger'
 
 export type { EffectType, BlendMode, BaseEffectParameters }
 

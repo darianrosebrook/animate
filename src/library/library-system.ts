@@ -5,6 +5,7 @@
 
 import { Result } from '@/types'
 import {
+import { logger } from '@/core/logging/logger'
   LibrarySystem as ILibrarySystem,
   Library,
   Collection,
@@ -33,7 +34,7 @@ export class LibrarySystem implements ILibrarySystem {
 
   async initialize(userId: string): Promise<Result<boolean>> {
     try {
-      console.log('🚀 Initializing library management system...')
+      logger.info('🚀 Initializing library management system...')
 
       this.currentUser = userId
 
@@ -46,7 +47,7 @@ export class LibrarySystem implements ILibrarySystem {
       // Initialize analytics
       await this.initializeAnalytics()
 
-      console.log('✅ Library management system initialized')
+      logger.info('✅ Library management system initialized')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -117,7 +118,7 @@ export class LibrarySystem implements ILibrarySystem {
         details: { name, description },
       })
 
-      console.log(`📚 Created library: ${name} (${libraryId})`)
+      logger.info(`📚 Created library: ${name} (${libraryId})`)
       return { success: true, data: library }
     } catch (error) {
       return {
@@ -191,7 +192,7 @@ export class LibrarySystem implements ILibrarySystem {
         details: { libraryId, name, description },
       })
 
-      console.log(`📁 Created collection: ${name} (${collectionId})`)
+      logger.info(`📁 Created collection: ${name} (${collectionId})`)
       return { success: true, data: collection }
     } catch (error) {
       return {
@@ -261,7 +262,7 @@ export class LibrarySystem implements ILibrarySystem {
         details: { collectionId, assetName: asset.name },
       })
 
-      console.log(`📦 Added asset: ${asset.name} (${versionedAsset.id})`)
+      logger.info(`📦 Added asset: ${asset.name} (${versionedAsset.id})`)
       return { success: true, data: versionedAsset }
     } catch (error) {
       return {
@@ -371,7 +372,7 @@ export class LibrarySystem implements ILibrarySystem {
         details: { collectionId, name, type },
       })
 
-      console.log(`🔧 Created variable: ${name} (${variableId})`)
+      logger.info(`🔧 Created variable: ${name} (${variableId})`)
       return { success: true, data: variable }
     } catch (error) {
       return {
@@ -541,7 +542,7 @@ export class LibrarySystem implements ILibrarySystem {
         details: { source: importData.source },
       })
 
-      console.log(`📥 Imported library: ${library.name}`)
+      logger.info(`📥 Imported library: ${library.name}`)
       return { success: true, data: library }
     } catch (error) {
       return {
@@ -641,7 +642,7 @@ export class LibrarySystem implements ILibrarySystem {
 
   private async initializeAnalytics(): Promise<void> {
     // Initialize analytics tracking
-    console.log('📊 Analytics system initialized')
+    logger.info('📊 Analytics system initialized')
   }
 
   private hasPermission(allowedUsers: string[], userId: string): boolean {
@@ -930,6 +931,6 @@ export class LibrarySystem implements ILibrarySystem {
     this.variables.clear()
     this.auditLogs = []
 
-    console.log('🧹 Library management system destroyed')
+    logger.info('🧹 Library management system destroyed')
   }
 }

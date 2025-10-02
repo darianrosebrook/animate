@@ -4,6 +4,7 @@
  */
 
 import { Result } from '@/types'
+import { logger } from '@/core/logging/logger'
 // TODO: Use AnimatorError for error handling
 // import { AnimatorError } from '@/types'
 
@@ -18,18 +19,18 @@ export class WebGPUContext {
   private format: GPUTextureFormat = 'bgra8unorm'
 
   constructor() {
-    console.log('WebGPUContext constructor called')
+    logger.info('WebGPUContext constructor called')
   }
 
   /**
    * Initialize WebGPU context with canvas
    */
   async initialize(canvas: HTMLCanvasElement): Promise<Result<boolean>> {
-    console.log('WebGPUContext.initialize called')
+    logger.info('WebGPUContext.initialize called')
     try {
-      console.log('About to check navigator.gpu')
+      logger.info('About to check navigator.gpu')
       // Check for WebGPU support
-      console.log('Checking WebGPU support, navigator.gpu:', !!navigator.gpu)
+      logger.info('Checking WebGPU support, navigator.gpu:', !!navigator.gpu)
       if (!navigator.gpu) {
         return {
           success: false,
@@ -94,11 +95,11 @@ export class WebGPUContext {
         alphaMode: 'premultiplied',
       })
 
-      console.log('✅ WebGPU context initialized successfully')
+      logger.info('✅ WebGPU context initialized successfully')
       // TODO: Add adapter and device name logging when available
-      // console.log(`   Adapter: ${this.adapter.name || 'Unknown'}`)
-      // console.log(`   Device: ${this.device.name || 'Unknown'}`)
-      console.log(`   Canvas Format: ${this.format}`)
+      // logger.info(`   Adapter: ${this.adapter.name || 'Unknown'}`)
+      // logger.info(`   Device: ${this.device.name || 'Unknown'}`)
+      logger.info(`   Canvas Format: ${this.format}`)
 
       return { success: true, data: true }
     } catch (error) {
@@ -150,7 +151,7 @@ export class WebGPUContext {
     label?: string
   ): GPUBuffer | null {
     if (!this.device) {
-      console.error('WebGPU device not initialized')
+      logger.error('WebGPU device not initialized')
       return null
     }
 
@@ -181,7 +182,7 @@ export class WebGPUContext {
     label?: string
   ): GPUTexture | null {
     if (!this.device) {
-      console.error('WebGPU device not initialized')
+      logger.error('WebGPU device not initialized')
       return null
     }
 
@@ -198,7 +199,7 @@ export class WebGPUContext {
    */
   createSampler(options: GPUSamplerDescriptor = {}): GPUSampler | null {
     if (!this.device) {
-      console.error('WebGPU device not initialized')
+      logger.error('WebGPU device not initialized')
       return null
     }
 
@@ -225,7 +226,7 @@ export class WebGPUContext {
     ]
   ): GPURenderPipeline | null {
     if (!this.device) {
-      console.error('WebGPU device not initialized')
+      logger.error('WebGPU device not initialized')
       return null
     }
 
@@ -266,7 +267,7 @@ export class WebGPUContext {
     entries: GPUBindGroupLayoutEntry[]
   ): GPUBindGroupLayout | null {
     if (!this.device) {
-      console.error('WebGPU device not initialized')
+      logger.error('WebGPU device not initialized')
       return null
     }
 
@@ -283,7 +284,7 @@ export class WebGPUContext {
     entries: GPUBindGroupEntry[]
   ): GPUBindGroup | null {
     if (!this.device) {
-      console.error('WebGPU device not initialized')
+      logger.error('WebGPU device not initialized')
       return null
     }
 
@@ -298,7 +299,7 @@ export class WebGPUContext {
    */
   createCommandEncoder(label?: string): GPUCommandEncoder | null {
     if (!this.device) {
-      console.error('WebGPU device not initialized')
+      logger.error('WebGPU device not initialized')
       return null
     }
 
@@ -312,7 +313,7 @@ export class WebGPUContext {
    */
   submitCommands(commands: GPUCommandBuffer[]): void {
     if (!this.device) {
-      console.error('WebGPU device not initialized')
+      logger.error('WebGPU device not initialized')
       return
     }
 
@@ -324,7 +325,7 @@ export class WebGPUContext {
    */
   resize(width: number, height: number): void {
     if (!this.canvas || !this.context) {
-      console.error('Canvas not initialized')
+      logger.error('Canvas not initialized')
       return
     }
 

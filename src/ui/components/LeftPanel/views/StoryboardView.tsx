@@ -4,12 +4,7 @@
  */
 
 import React, { useState, useCallback } from 'react'
-import {
-  MoreHorizontal,
-  Move,
-  Layers,
-  Image,
-} from 'lucide-react'
+import { MoreHorizontal, Move, Layers, Image } from 'lucide-react'
 import { Scene, NodeType, SceneNode } from '@/types'
 
 interface StoryboardViewProps {

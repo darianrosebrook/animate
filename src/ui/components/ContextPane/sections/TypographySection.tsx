@@ -4,12 +4,7 @@
  */
 
 import React from 'react'
-import {
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
-} from 'lucide-react'
+import { AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react'
 import { SceneNode, NodeType } from '@/types'
 
 interface TypographySectionProps {

@@ -5,6 +5,7 @@
 
 import { Result } from '@/types'
 import {
+import { logger } from '@/core/logging/logger'
   CollaborationSystem as ICollaborationSystem,
   Document,
   User,
@@ -46,7 +47,7 @@ export class CollaborationSystem implements ICollaborationSystem {
 
   async initialize(user: User): Promise<Result<boolean>> {
     try {
-      console.log('🚀 Initializing collaboration system...')
+      logger.info('🚀 Initializing collaboration system...')
 
       this.currentUser = user
 
@@ -62,7 +63,7 @@ export class CollaborationSystem implements ICollaborationSystem {
       // Set up event listeners
       this.setupEventListeners()
 
-      console.log('✅ Collaboration system initialized')
+      logger.info('✅ Collaboration system initialized')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -98,7 +99,7 @@ export class CollaborationSystem implements ICollaborationSystem {
       // Initialize CRDT for the document
       await this.crdtDocument.createDocument(documentId, document.content)
 
-      console.log(`📄 Created document: ${documentId}`)
+      logger.info(`📄 Created document: ${documentId}`)
       return { success: true, data: document }
     } catch (error) {
       return {
@@ -148,7 +149,7 @@ export class CollaborationSystem implements ICollaborationSystem {
 
       this.currentSession = session
 
-      console.log(`👥 Joined document ${documentId} as session ${sessionId}`)
+      logger.info(`👥 Joined document ${documentId} as session ${sessionId}`)
       return { success: true, data: session }
     } catch (error) {
       return {
@@ -175,7 +176,7 @@ export class CollaborationSystem implements ICollaborationSystem {
       this.sessions.delete(this.currentSession.id)
       this.currentSession = null
 
-      console.log('👋 Left document session')
+      logger.info('👋 Left document session')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -233,7 +234,7 @@ export class CollaborationSystem implements ICollaborationSystem {
         transformedOp.data
       )
 
-      console.log(`✏️ Applied operation: ${operation.type}`)
+      logger.info(`✏️ Applied operation: ${operation.type}`)
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -295,7 +296,7 @@ export class CollaborationSystem implements ICollaborationSystem {
       // Broadcast resolution
       await this.broadcastConflictResolution(documentId, conflictId, resolution)
 
-      console.log(`✅ Resolved conflict: ${conflictId}`)
+      logger.info(`✅ Resolved conflict: ${conflictId}`)
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -368,7 +369,7 @@ export class CollaborationSystem implements ICollaborationSystem {
       this.branches.set(branchId, branch)
       document.branches.push(branch)
 
-      console.log(`🌿 Created branch: ${name} (${branchId})`)
+      logger.info(`🌿 Created branch: ${name} (${branchId})`)
       return { success: true, data: branch }
     } catch (error) {
       return {
@@ -418,7 +419,7 @@ export class CollaborationSystem implements ICollaborationSystem {
       branch.isActive = false
       document.lastModified = new Date()
 
-      console.log(`🔀 Merged branch: ${branch.name}`)
+      logger.info(`🔀 Merged branch: ${branch.name}`)
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -542,7 +543,7 @@ export class CollaborationSystem implements ICollaborationSystem {
         await this.updateLocalDocument(documentId, transformedOp.data)
       }
     } catch (error) {
-      console.error('Failed to handle remote operation:', error)
+      logger.error('Failed to handle remote operation:', error)
     }
   }
 
@@ -653,7 +654,10 @@ export class CollaborationSystem implements ICollaborationSystem {
     // Implement three-way merge
   }
 
-  private async manualMerge(_document: Document, _branch: Branch): Promise<void> {
+  private async manualMerge(
+    _document: Document,
+    _branch: Branch
+  ): Promise<void> {
     // Implement manual merge
   }
 
@@ -668,7 +672,7 @@ export class CollaborationSystem implements ICollaborationSystem {
     this.sessions.clear()
     this.branches.clear()
 
-    console.log('🧹 Collaboration system destroyed')
+    logger.info('🧹 Collaboration system destroyed')
   }
 }
 
@@ -681,7 +685,7 @@ class CRDTDocumentImpl implements CRDTDocument {
 
   async initialize(): Promise<Result<boolean>> {
     try {
-      console.log('📄 CRDT document system initialized')
+      logger.info('📄 CRDT document system initialized')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -977,7 +981,7 @@ class WebRTCManagerImpl implements WebRTCManager {
         this.handleDataChannelMessage(event)
       }
 
-      console.log('📡 WebRTC initialized')
+      logger.info('📡 WebRTC initialized')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -994,7 +998,7 @@ class WebRTCManagerImpl implements WebRTCManager {
   async joinRoom(roomId: string): Promise<Result<boolean>> {
     try {
       this.currentRoom = roomId
-      console.log(`📡 Joined WebRTC room: ${roomId}`)
+      logger.info(`📡 Joined WebRTC room: ${roomId}`)
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -1017,7 +1021,7 @@ class WebRTCManagerImpl implements WebRTCManager {
       this.dataChannel = null
       this.currentRoom = null
 
-      console.log(`📡 Left WebRTC room: ${roomId}`)
+      logger.info(`📡 Left WebRTC room: ${roomId}`)
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -1132,7 +1136,7 @@ class WebRTCManagerImpl implements WebRTCManager {
           break
       }
     } catch (error) {
-      console.error('Failed to handle data channel message:', error)
+      logger.error('Failed to handle data channel message:', error)
     }
   }
 
@@ -1160,7 +1164,7 @@ class WebSocketManagerImpl implements WebSocketManager {
     try {
       // In a real implementation, this would connect to a WebSocket server
       // For now, we'll simulate the connection
-      console.log('🔌 WebSocket manager initialized')
+      logger.info('🔌 WebSocket manager initialized')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -1177,7 +1181,7 @@ class WebSocketManagerImpl implements WebSocketManager {
   async syncDocument(documentId: string): Promise<Result<boolean>> {
     try {
       // Sync document state with server
-      console.log(`🔄 Syncing document: ${documentId}`)
+      logger.info(`🔄 Syncing document: ${documentId}`)
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -1197,7 +1201,7 @@ class WebSocketManagerImpl implements WebSocketManager {
   ): Promise<Result<boolean>> {
     try {
       // Send operation to server for persistence
-      console.log(`📨 Sent operation to server: ${operation.type}`)
+      logger.info(`📨 Sent operation to server: ${operation.type}`)
       return { success: true, data: true }
     } catch (error) {
       return {

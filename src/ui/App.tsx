@@ -24,6 +24,7 @@ import './components/KeyboardShortcutsHelp.css'
 import './components/KeyboardShortcutsSettings.css'
 import './components/ToolSelectionBar/ToolSelectionBar.css'
 import './components/ContextPane/ContextPane.css'
+import { logger } from '@/core/logging/logger'
 
 function App() {
   const [_count, _setCount] = useState(0)
@@ -109,7 +110,7 @@ function App() {
     const newPanY = -centerY * requiredZoom + containerHeight / 2
 
     // Apply zoom and pan
-    console.log('Applying zoom to fit:', {
+    logger.info('Applying zoom to fit:', {
       requiredZoom,
       newPanX,
       newPanY,
@@ -197,7 +198,7 @@ function App() {
 
         await renderer?.renderFrame(sceneGraph, 0.0, context)
       } else {
-        console.error('Failed to initialize renderer:', result.error)
+        logger.error('Failed to initialize renderer:', result.error)
       }
     }
 
@@ -251,7 +252,7 @@ function App() {
         handlePlayPause()
         break
       default:
-        console.log('Keyboard shortcut:', shortcut.description)
+        logger.info('Keyboard shortcut:', shortcut.description)
     }
   })
 
@@ -285,7 +286,7 @@ function App() {
         setOverlays((prev) => ({ ...prev, safeZones: !prev.safeZones }))
         break
       default:
-        console.log(`Tool shortcut used: ${shortcut.description}`)
+        logger.info(`Tool shortcut used: ${shortcut.description}`)
         break
     }
   }

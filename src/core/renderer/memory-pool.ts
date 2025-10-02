@@ -5,6 +5,7 @@
 
 import { Result } from '@/types'
 import { WebGPUContext } from './webgpu-context'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Memory pool entry for tracking allocations
@@ -59,7 +60,7 @@ export class MemoryPool {
    */
   async initialize(): Promise<Result<boolean>> {
     try {
-      console.log(
+      logger.info(
         '💾 Memory pool initialized for efficient GPU resource management'
       )
       return { success: true, data: true }
@@ -188,7 +189,7 @@ export class MemoryPool {
     }
 
     if (cleanedCount > 0) {
-      console.log(
+      logger.info(
         `🧹 Memory pool cleanup: removed ${cleanedCount} unused buffers`
       )
     }
@@ -230,7 +231,7 @@ export class MemoryPool {
     const cleanedCount = initialCount - finalCount
 
     if (cleanedCount > 0) {
-      console.log(
+      logger.info(
         `🔧 Memory pool force cleanup: removed ${cleanedCount} buffers`
       )
     }

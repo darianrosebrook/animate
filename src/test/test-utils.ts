@@ -1,3 +1,4 @@
+import { logger } from '@/core/logging/logger'
 /**
  * @fileoverview Test Utilities for Comprehensive Testing
  * @author @darianrosebrook
@@ -1020,7 +1021,7 @@ export class TestAssertions {
     }
 
     if (avgUsage > maxMemoryMB * 0.8) {
-      console.warn(
+      logger.warn(
         `Memory usage approaching limit: ${avgUsage.toFixed(1)}MB / ${maxMemoryMB}MB`
       )
     }

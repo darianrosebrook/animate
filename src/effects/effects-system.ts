@@ -4,8 +4,7 @@
  */
 
 import { Result, Time } from '@/types'
-// TODO: Use Size2D for effects
-// import { Size2D } from '@/types'
+import { Size2D } from '@/types'
 import { WebGPUContext } from '../core/renderer/webgpu-context'
 import {
   EffectSystem as IEffectSystem,
@@ -22,14 +21,14 @@ import {
   BlendMode,
 } from './effects-types'
 import { EffectsLibrary } from './effects-library'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Core effects system implementation with GPU acceleration
  */
 export class EffectsSystem implements IEffectSystem {
-  // TODO: Initialize these properties properly
-  renderer!: EffectRenderer
-  composer!: EffectComposer
+  renderer: EffectRenderer
+  composer: EffectComposer
   library: EffectLibrary
   monitor: EffectPerformanceMonitor
   cache: EffectCache
@@ -46,11 +45,23 @@ export class EffectsSystem implements IEffectSystem {
     this.monitor = new EffectPerformanceMonitor()
     this.cache = new EffectCache()
     this.validator = new EffectValidator()
-    // Initialize components in initialize() method to avoid forward reference issues
+    
+    // Initialize components with proper error handling
+    this.renderer = new EffectRendererImpl(
+      this.webgpuContext,
+      this.library,
+      this.cache,
+      this.monitor
+    )
+    this.composer = new EffectComposerImpl(
+      this.webgpuContext,
+      this.renderer,
+      this.monitor
+    )
   }
 
   initialize(): Result<boolean> {
-    console.log('EffectsSystem.initialize called')
+    logger.info('EffectsSystem.initialize called')
     try {
       // Validate WebGPU context
       const device = this.webgpuContext.getDevice()
@@ -64,22 +75,11 @@ export class EffectsSystem implements IEffectSystem {
         }
       }
 
-      // Initialize components after class definitions are available
-      this.renderer = new EffectRendererImpl(
-        this.webgpuContext,
-        this.library,
-        this.cache,
-        this.monitor
-      )
-      this.composer = new EffectComposerImpl(
-        this.webgpuContext,
-        this.renderer,
-        this.monitor
-      )
+      // Components are already initialized in constructor
 
       // Effect renderer is ready to use
 
-      console.log('✅ Effects system initialized successfully')
+      logger.info('✅ Effects system initialized successfully')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -204,7 +204,7 @@ export class EffectsSystem implements IEffectSystem {
     // Clear cache
     this.cache.clear()
 
-    console.log('🧹 Effects system destroyed')
+    logger.info('🧹 Effects system destroyed')
   }
 
   private getDefaultParameters(
@@ -273,12 +273,12 @@ export class EffectsSystem implements IEffectSystem {
   // Accessibility support for motion effects
   enableReducedMotion(): void {
     this.reducedMotion = true
-    console.log('♿ Reduced motion enabled for accessibility')
+    logger.info('♿ Reduced motion enabled for accessibility')
   }
 
   disableReducedMotion(): void {
     this.reducedMotion = false
-    console.log('♿ Reduced motion disabled')
+    logger.info('♿ Reduced motion disabled')
   }
 
   isReducedMotionEnabled(): boolean {
@@ -366,7 +366,7 @@ class EffectRendererImpl implements EffectRenderer {
 
   initialize(): Result<boolean> {
     try {
-      console.log('🚀 Effect renderer initialized')
+      logger.info('🚀 Effect renderer initialized')
       return { success: true, data: true }
     } catch (error) {
       return {

@@ -5,6 +5,7 @@
 
 import { Result, Point2D, Size2D } from '@/types'
 import { WebGPUContext } from './webgpu-context'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Image properties for rendering
@@ -341,7 +342,7 @@ export class ImageRenderer {
         },
       })
 
-      console.log('✅ Image renderer initialized successfully')
+      logger.info('✅ Image renderer initialized successfully')
       return { success: true, data: true }
     } catch (error) {
       return {

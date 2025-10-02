@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import {
-  ZoomIn,
-  ZoomOut,
-} from 'lucide-react'
+import { ZoomIn, ZoomOut } from 'lucide-react'
 import { useTimelineContainer } from '../hooks/use-timeline-container'
 import { TimelineTrack } from './TimelineTrack'
 import { TimelineRuler } from './TimelineRuler'
@@ -11,6 +8,7 @@ import { TimelineControls } from './TimelineControls'
 import { CurveEditor } from './CurveEditor'
 import { DopeSheet } from './DopeSheet'
 import './TimelinePanel.css'
+import { logger } from '@/core/logging/logger'
 
 export interface TimelineKeyframe {
   id: string
@@ -331,7 +329,7 @@ export function TimelinePanel({
 
   const handleCurvePointAdd = useCallback((time: number, value: number) => {
     // This would add a new keyframe at the specified time/value
-    console.log('Add curve point:', time, value)
+    logger.info('Add curve point:', time, value)
   }, [])
 
   return (

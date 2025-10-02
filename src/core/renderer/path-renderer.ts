@@ -5,6 +5,7 @@
 
 import { Result, Point2D, Color } from '@/types'
 import { WebGPUContext } from './webgpu-context'
+import { logger } from '@/core/logging/logger'
 
 /**
  * SVG path command types
@@ -155,7 +156,7 @@ export class SVGPathRenderer {
         },
       })
 
-      console.log('✅ Path renderer initialized successfully')
+      logger.info('✅ Path renderer initialized successfully')
       return { success: true, data: true }
     } catch (error) {
       return {

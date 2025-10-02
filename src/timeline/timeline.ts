@@ -5,6 +5,7 @@
 
 import { Result, Time } from '@/types'
 import {
+import { logger } from '@/core/logging/logger'
   Timeline as ITimeline,
   TimelineTrack,
   Keyframe,
@@ -475,7 +476,7 @@ export class Timeline implements ITimeline {
       try {
         listener(event)
       } catch (error) {
-        console.error('Timeline event listener error:', error)
+        logger.error('Timeline event listener error:', error)
       }
     }
   }

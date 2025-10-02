@@ -5,6 +5,7 @@
  */
 
 import { SandboxConfig, ExecutionResult, ExecutionError } from './types'
+import { logger } from '@/core/logging/logger'
 
 // PLACEHOLDER: Import types once conflicts are resolved
 // import type { SandboxConfig, ExecutionResult, ExecutionError } from './types'
@@ -324,7 +325,7 @@ class ApiProxy {
     // Create proxy for each available API
     this.availableApis.forEach((apiName) => {
       if (this.permissions.includes(apiName)) {
-        (proxy as any)[apiName] = this.createApiProxy(apiName)
+        ;(proxy as any)[apiName] = this.createApiProxy(apiName)
       }
     })
 
@@ -344,7 +345,7 @@ class ApiProxy {
             return (...args: any[]) => {
               // PLACEHOLDER: In a real implementation, this would call the actual API
               // with proper error handling and validation
-              console.log(`API call: ${apiName}.${String(prop)}`, args)
+              logger.info(`API call: ${apiName}.${String(prop)}`, args)
               return Promise.resolve(null)
             }
           }

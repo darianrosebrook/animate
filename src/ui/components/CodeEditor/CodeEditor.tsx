@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
+import { logger } from '@/core/logging/logger'
 
 interface CodeEditorProps {
   value: string
@@ -111,7 +112,7 @@ export const CodeEditor = forwardRef<any, CodeEditorProps>(
 
           monacoRef.current = monaco
         } catch (error) {
-          console.error('Failed to initialize Monaco Editor:', error)
+          logger.error('Failed to initialize Monaco Editor:', error)
           // Fallback to simple textarea
           renderFallbackEditor()
         }

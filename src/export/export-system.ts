@@ -6,6 +6,7 @@
 import { Result, Time } from '@/types'
 import { WebGPUContext } from '../core/renderer/webgpu-context'
 import {
+import { logger } from '@/core/logging/logger'
   ExportSystem as IExportSystem,
   ExportFormat,
   ExportQuality,
@@ -40,12 +41,12 @@ export class ExportSystem implements IExportSystem {
 
   async initialize(): Promise<Result<boolean>> {
     try {
-      console.log('🚀 Initializing export system...')
+      logger.info('🚀 Initializing export system...')
 
       // Initialize hardware acceleration
       const hardwareResult = await this.initializeHardwareAcceleration()
       if (!hardwareResult.success) {
-        console.warn(
+        logger.warn(
           '⚠️ Hardware acceleration not available:',
           hardwareResult.error?.message
         )
@@ -59,7 +60,7 @@ export class ExportSystem implements IExportSystem {
         this.workers.push(worker)
       }
 
-      console.log(
+      logger.info(
         `✅ Export system initialized with ${this.workers.length} workers`
       )
       return { success: true, data: true }
@@ -107,7 +108,7 @@ export class ExportSystem implements IExportSystem {
       this.jobQueue.push(job)
       this.sortJobQueue()
 
-      console.log(`📤 Export job created: ${jobId}`)
+      logger.info(`📤 Export job created: ${jobId}`)
       return { success: true, data: job }
     } catch (error) {
       return {
@@ -161,7 +162,7 @@ export class ExportSystem implements IExportSystem {
         return result
       }
 
-      console.log(`🎬 Export started: ${jobId}`)
+      logger.info(`🎬 Export started: ${jobId}`)
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -200,7 +201,7 @@ export class ExportSystem implements IExportSystem {
 
       this.activeJobs.delete(jobId)
 
-      console.log(`🛑 Export cancelled: ${jobId}`)
+      logger.info(`🛑 Export cancelled: ${jobId}`)
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -267,7 +268,7 @@ export class ExportSystem implements IExportSystem {
       // Clean up
       this.activeJobs.delete(jobId)
 
-      console.log(`✅ Export completed: ${jobId}`)
+      logger.info(`✅ Export completed: ${jobId}`)
       return { success: true, data: result.data }
     } catch (error) {
       return {
@@ -311,7 +312,7 @@ export class ExportSystem implements IExportSystem {
         },
       }
 
-      console.log(
+      logger.info(
         '✅ Hardware acceleration initialized:',
         hardwareAcceleration.type
       )
@@ -374,7 +375,7 @@ export class ExportSystem implements IExportSystem {
     }
     this.workers = []
 
-    console.log('🧹 Export system destroyed')
+    logger.info('🧹 Export system destroyed')
   }
 }
 
@@ -432,7 +433,7 @@ class ExportWorkerImpl implements ExportWorker {
 
   async initialize(): Promise<Result<boolean>> {
     try {
-      console.log(`🔧 Initializing export worker ${this.workerId}`)
+      logger.info(`🔧 Initializing export worker ${this.workerId}`)
 
       // Initialize encoders
       if ('VideoEncoder' in window) {
@@ -460,7 +461,7 @@ class ExportWorkerImpl implements ExportWorker {
     try {
       this.currentJob = job
 
-      console.log(`🎬 Worker ${this.workerId} starting job ${job.id}`)
+      logger.info(`🎬 Worker ${this.workerId} starting job ${job.id}`)
 
       // Initialize encoders for this job
       if (this.videoEncoder) {
@@ -908,7 +909,7 @@ class VideoEncoderImpl implements VideoEncoder {
           this.encodedChunks.push(chunk)
         },
         error: (error: any) => {
-          console.error('VideoEncoder error:', error)
+          logger.error('VideoEncoder error:', error)
         },
       })
 
@@ -916,7 +917,7 @@ class VideoEncoderImpl implements VideoEncoder {
       this.config = this.getEncoderConfig(job)
       await this.encoder.configure(this.config)
 
-      console.log(`🎥 Video encoder initialized for ${job.format.container}`)
+      logger.info(`🎥 Video encoder initialized for ${job.format.container}`)
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -986,7 +987,7 @@ class VideoEncoderImpl implements VideoEncoder {
       // Signal end of stream
       await this.encoder.flush()
 
-      console.log(
+      logger.info(
         `✅ Video encoding finalized: ${this.encodedChunks.length} chunks`
       )
       return { success: true, data: true }
@@ -1123,7 +1124,7 @@ class AudioEncoderImpl implements AudioEncoder {
           this.encodedChunks.push(chunk)
         },
         error: (error: any) => {
-          console.error('AudioEncoder error:', error)
+          logger.error('AudioEncoder error:', error)
         },
       })
 
@@ -1135,7 +1136,7 @@ class AudioEncoderImpl implements AudioEncoder {
         bitrate: 128000,
       })
 
-      console.log('🎵 Audio encoder initialized')
+      logger.info('🎵 Audio encoder initialized')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -1204,7 +1205,7 @@ class AudioEncoderImpl implements AudioEncoder {
       }
 
       await this.encoder.flush()
-      console.log(
+      logger.info(
         `✅ Audio encoding finalized: ${this.encodedChunks.length} chunks`
       )
       return { success: true, data: true }

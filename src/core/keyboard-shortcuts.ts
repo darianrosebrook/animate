@@ -4,6 +4,7 @@
  */
 
 import {
+import { logger } from '@/core/logging/logger'
   KeyboardShortcut,
   KeyboardShortcutMap,
   ShortcutCategory,
@@ -155,7 +156,7 @@ export class KeyboardShortcutsManager {
       try {
         await shortcut.action(event)
       } catch (error) {
-        console.error('Error executing custom shortcut action:', error)
+        logger.error('Error executing custom shortcut action:', error)
       }
     }
 
@@ -174,7 +175,7 @@ export class KeyboardShortcutsManager {
       try {
         listener(event)
       } catch (error) {
-        console.error('Error in keyboard shortcut listener:', error)
+        logger.error('Error in keyboard shortcut listener:', error)
       }
     })
   }
@@ -543,7 +544,7 @@ export class KeyboardShortcutsManager {
         this.importConfiguration(config)
       }
     } catch (error) {
-      console.warn('Failed to load keyboard shortcuts configuration:', error)
+      logger.warn('Failed to load keyboard shortcuts configuration:', error)
     }
   }
 
@@ -555,7 +556,7 @@ export class KeyboardShortcutsManager {
       const config = this.exportConfiguration()
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config))
     } catch (error) {
-      console.warn('Failed to save keyboard shortcuts configuration:', error)
+      logger.warn('Failed to save keyboard shortcuts configuration:', error)
     }
   }
 

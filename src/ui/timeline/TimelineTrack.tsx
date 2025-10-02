@@ -19,6 +19,7 @@ import {
 } from './TimelinePanel'
 import { ContextMenu, ContextMenuItem } from '@/ui/components/ContextMenu'
 import './TimelineTrack.css'
+import { logger } from '@/core/logging/logger'
 
 export interface TimelineTrackProps {
   track: TimelineTrackType
@@ -60,7 +61,7 @@ export function TimelineTrack({
   const trackRef = useRef<HTMLDivElement>(null)
 
   //TODO: Handle isDragging, dragKeyframe, dragOffset, onKeyframeMove
-  console.warn(
+  logger.warn(
     'Unused variables: isDragging, dragKeyframe, dragOffset, onKeyframeMove',
     { isDragging, dragKeyframe, dragOffset, onKeyframeMove }
   )
@@ -379,7 +380,7 @@ export function TimelineTrack({
           onClose={() => setContextMenu(null)}
           onItemSelect={(item) => {
             // Handle menu item selection if needed
-            console.log('Selected menu item:', item.id)
+            logger.info('Selected menu item:', item.id)
           }}
         />
       )}

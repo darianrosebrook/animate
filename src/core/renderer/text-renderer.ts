@@ -5,6 +5,7 @@
 
 import { Result, Point2D, Size2D, Color } from '@/types'
 import { WebGPUContext } from './webgpu-context'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Font metrics interface
@@ -587,7 +588,7 @@ export class TextRenderer {
         },
       })
 
-      console.log('✅ Text renderer initialized successfully')
+      logger.info('✅ Text renderer initialized successfully')
       return { success: true, data: true }
     } catch (error) {
       return {

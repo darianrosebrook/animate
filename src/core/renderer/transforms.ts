@@ -4,6 +4,7 @@
  */
 
 import { Point2D, Size2D } from '@/types'
+import { logger } from '@/core/logging/logger'
 
 /**
  * 4x4 transform matrix for 2D operations
@@ -173,7 +174,7 @@ export class TransformUtils {
       matrix[10] * 0 +
       matrix[14] * 1
     // TODO: add z to the point
-    console.log('z', _z)
+    logger.info('z', _z)
     const w =
       matrix[3] * point.x +
       matrix[7] * point.y +

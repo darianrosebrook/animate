@@ -6,6 +6,7 @@
 import { Result } from '@/types'
 import { WebGPUContext } from './webgpu-context'
 import { TransformMatrix } from './transforms'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Batch renderable object interface
@@ -77,7 +78,7 @@ export class BatchRenderer {
    */
   async initialize(): Promise<Result<boolean>> {
     try {
-      console.log(
+      logger.info(
         '🚀 Batch renderer initialized for high-performance rendering'
       )
       return { success: true, data: true }
@@ -164,7 +165,7 @@ export class BatchRenderer {
         this.createImageBatch(key, renderables)
         break
       default:
-        console.warn(
+        logger.warn(
           `Unknown renderable type for batching: ${firstRenderable.type}`
         )
     }
@@ -538,7 +539,7 @@ export class BatchRenderer {
     // Check performance budget before creating new pipeline
     if (this.currentBatchCount > this.maxBatches * 0.8) {
       // Reduce pipeline complexity for performance
-      console.warn(
+      logger.warn(
         `Performance warning: High batch count (${this.currentBatchCount}), optimizing pipeline creation`
       )
     }

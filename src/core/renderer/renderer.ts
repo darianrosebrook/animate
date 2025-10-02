@@ -31,6 +31,7 @@ import {
   PerformanceMetrics,
 } from './batch-renderer'
 import { TransformUtils, Transform2D } from './transforms'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Main renderer that coordinates WebGPU rendering with the scene graph
@@ -74,7 +75,7 @@ export class Renderer {
     const fontData = this.createDefaultFontData() // Placeholder font data
     const textResult = await this.textRenderer.initialize(fontData)
     if (!textResult.success) {
-      console.warn('Text renderer initialization failed:', textResult.error)
+      logger.warn('Text renderer initialization failed:', textResult.error)
       this.textRenderer = null
     }
 
@@ -82,7 +83,7 @@ export class Renderer {
     this.imageRenderer = new ImageRenderer(this.webgpuContext)
     const imageResult = await this.imageRenderer.initialize()
     if (!imageResult.success) {
-      console.warn('Image renderer initialization failed:', imageResult.error)
+      logger.warn('Image renderer initialization failed:', imageResult.error)
       this.imageRenderer = null
     }
 
@@ -90,7 +91,7 @@ export class Renderer {
     this.pathRenderer = new SVGPathRenderer(this.webgpuContext)
     const pathResult = await this.pathRenderer.initialize()
     if (!pathResult.success) {
-      console.warn('Path renderer initialization failed:', pathResult.error)
+      logger.warn('Path renderer initialization failed:', pathResult.error)
       this.pathRenderer = null
     }
 
@@ -98,14 +99,14 @@ export class Renderer {
     this.batchRenderer = new BatchRenderer(this.webgpuContext)
     const batchResult = await this.batchRenderer.initialize()
     if (!batchResult.success) {
-      console.warn('Batch renderer initialization failed:', batchResult.error)
+      logger.warn('Batch renderer initialization failed:', batchResult.error)
       this.batchRenderer = null
     }
 
     // Create basic render pipelines
     this.createBasicPipelines()
 
-    console.log('✅ Renderer initialized successfully')
+    logger.info('✅ Renderer initialized successfully')
     return { success: true, data: true }
   }
 
@@ -114,7 +115,7 @@ export class Renderer {
    */
   private createBasicPipelines(): void {
     if (!this.webgpuContext.getDevice()) {
-      console.error('WebGPU device not available for pipeline creation')
+      logger.error('WebGPU device not available for pipeline creation')
       return
     }
 
@@ -238,7 +239,7 @@ export class Renderer {
    */
   private createBasicGeometryBuffers(): void {
     if (!this.webgpuContext.getDevice()) {
-      console.error('WebGPU device not available for buffer creation')
+      logger.error('WebGPU device not available for buffer creation')
       return
     }
 
@@ -442,13 +443,13 @@ export class Renderer {
       // Render all batches
       const metricsResult = this.batchRenderer.renderAllBatches(renderPass)
       if (!metricsResult.success) {
-        console.warn('Batch rendering failed:', metricsResult.error)
+        logger.warn('Batch rendering failed:', metricsResult.error)
         return null
       }
 
       return metricsResult.data
     } catch (error) {
-      console.warn('Batch rendering error:', error)
+      logger.warn('Batch rendering error:', error)
       return null
     }
   }
@@ -470,7 +471,7 @@ export class Renderer {
         context
       )
       if (!renderResult.success) {
-        console.warn(`Failed to render node ${node.id}:`, renderResult.error)
+        logger.warn(`Failed to render node ${node.id}:`, renderResult.error)
       }
     }
   }

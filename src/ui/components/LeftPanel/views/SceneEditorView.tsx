@@ -4,12 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react'
-import {
-  ChevronRight,
-  ChevronDown,
-  MoreHorizontal,
-  Folder,
-} from 'lucide-react'
+import { ChevronRight, ChevronDown, MoreHorizontal, Folder } from 'lucide-react'
 import { Scene, SceneNode, NodeType } from '@/types'
 
 interface SceneEditorViewProps {

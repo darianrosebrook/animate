@@ -22,6 +22,7 @@ import {
   VideoFrameData,
 } from './media-types'
 import { MediaFormatDetector } from './media-format-detector'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Core media pipeline system implementation
@@ -86,9 +87,9 @@ export class MediaSystem implements IMediaSystem {
       if ('VideoDecoder' in window && this.config.hardwareAcceleration) {
         try {
           this.videoDecoder = new VideoDecoderImpl()
-          console.log('✅ Hardware-accelerated video decoder initialized')
+          logger.info('✅ Hardware-accelerated video decoder initialized')
         } catch (error) {
-          console.warn(
+          logger.warn(
             '⚠️ Hardware video decoder not available, using software fallback'
           )
           this.videoDecoder = null
@@ -99,14 +100,14 @@ export class MediaSystem implements IMediaSystem {
       if ('AudioContext' in window || 'webkitAudioContext' in window) {
         try {
           this.audioAnalyzer = new AudioAnalyzerImpl()
-          console.log('✅ Audio analyzer initialized')
+          logger.info('✅ Audio analyzer initialized')
         } catch (error) {
-          console.warn('⚠️ Audio analyzer not available')
+          logger.warn('⚠️ Audio analyzer not available')
           this.audioAnalyzer = null
         }
       }
 
-      console.log('✅ Media pipeline system initialized successfully')
+      logger.info('✅ Media pipeline system initialized successfully')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -213,7 +214,7 @@ export class MediaSystem implements IMediaSystem {
       result.importTime = performance.now() - startTime
 
       // Log results
-      console.log(
+      logger.info(
         `📥 Media import completed: ${result.assets.length} assets, ${result.errors.length} errors, ${result.warnings.length} warnings`
       )
 
@@ -399,7 +400,7 @@ export class MediaSystem implements IMediaSystem {
 
       return audioBuffer
     } catch (error) {
-      console.error('Failed to load audio buffer:', error)
+      logger.error('Failed to load audio buffer:', error)
       return null
     }
   }
@@ -412,7 +413,7 @@ export class MediaSystem implements IMediaSystem {
       // 2. Set up export job with proper options
       // 3. Start export and return result
 
-      console.log(
+      logger.info(
         `📤 Exporting ${assetIds.length} assets with options:`,
         options
       )
@@ -452,7 +453,7 @@ export class MediaSystem implements IMediaSystem {
     // Clean up GPU resources
     this.thumbnailGenerator.destroy()
 
-    console.log('🧹 Media pipeline system destroyed')
+    logger.info('🧹 Media pipeline system destroyed')
   }
 }
 
@@ -696,7 +697,7 @@ class MediaThumbnailGeneratorImpl implements MediaThumbnailGenerator {
 
   destroy(): void {
     // Clean up any GPU resources if needed
-    console.log('🖼️ Media thumbnail generator destroyed')
+    logger.info('🖼️ Media thumbnail generator destroyed')
   }
 
   private async generateImageThumbnail(
@@ -1042,7 +1043,7 @@ class VideoDecoderImpl implements VideoDecoder {
           this.handleDecodedFrame(frame)
         },
         error: (error: any) => {
-          console.error('VideoDecoder error:', error)
+          logger.error('VideoDecoder error:', error)
         },
       })
 
@@ -1071,7 +1072,7 @@ class VideoDecoderImpl implements VideoDecoder {
       this.duration = metadata.duration || 0
       this.frameRate = metadata.frameRate || 30
 
-      console.log(
+      logger.info(
         `✅ Video decoder initialized: ${this.duration}s, ${this.frameRate}fps`
       )
       return { success: true, data: true }
@@ -1127,7 +1128,7 @@ class VideoDecoderImpl implements VideoDecoder {
 
       const frameData = this.pendingFrames.get(frameNumber)
       if (frameData) {
-        console.log(
+        logger.info(
           `✅ Decoded frame ${frameNumber} in ${performance.now() - startTime}ms`
         )
         return { success: true, data: frameData }
@@ -1170,7 +1171,7 @@ class VideoDecoderImpl implements VideoDecoder {
       this.pendingFrames.clear()
 
       // Seek decoder (simplified - would need proper seeking implementation)
-      console.log(`🎯 Seeking to ${time}s`)
+      logger.info(`🎯 Seeking to ${time}s`)
 
       return { success: true, data: true }
     } catch (error) {
@@ -1230,12 +1231,12 @@ class VideoDecoderImpl implements VideoDecoder {
     try {
       // In a real implementation, this would use MediaSource or similar
       // For now, we'll simulate decoding
-      console.log(`📹 Decoding from ${targetTime}s`)
+      logger.info(`📹 Decoding from ${targetTime}s`)
 
       // Simulate async decoding
       await new Promise((resolve) => setTimeout(resolve, 50))
     } catch (error) {
-      console.error('Decode error:', error)
+      logger.error('Decode error:', error)
     }
   }
 
@@ -1260,7 +1261,7 @@ class VideoDecoderImpl implements VideoDecoder {
 
       frame.close()
     } catch (error) {
-      console.error('Frame handling error:', error)
+      logger.error('Frame handling error:', error)
       frame.close()
     }
   }
@@ -1286,7 +1287,7 @@ class VideoDecoderImpl implements VideoDecoder {
 
       return texture
     } catch (error) {
-      console.error('Failed to convert frame to texture:', error)
+      logger.error('Failed to convert frame to texture:', error)
       return null
     }
   }
@@ -1356,7 +1357,7 @@ class AudioAnalyzerImpl implements AudioAnalyzer {
       this.source.buffer = audioBuffer
       this.source.connect(this.analyser)
 
-      console.log(
+      logger.info(
         `✅ Audio analyzer initialized: ${this.sampleRate}Hz, ${this.channels} channels`
       )
       return { success: true, data: true }
@@ -1407,7 +1408,7 @@ class AudioAnalyzerImpl implements AudioAnalyzer {
 
       return waveforms
     } catch (error) {
-      console.error('Failed to get waveform data:', error)
+      logger.error('Failed to get waveform data:', error)
       return []
     }
   }
@@ -1430,7 +1431,7 @@ class AudioAnalyzerImpl implements AudioAnalyzer {
 
       return peaks
     } catch (error) {
-      console.error('Failed to get peak data:', error)
+      logger.error('Failed to get peak data:', error)
       return []
     }
   }
@@ -1450,7 +1451,7 @@ class AudioAnalyzerImpl implements AudioAnalyzer {
 
       return rms
     } catch (error) {
-      console.error('Failed to get RMS data:', error)
+      logger.error('Failed to get RMS data:', error)
       return []
     }
   }
@@ -1467,7 +1468,7 @@ class AudioAnalyzerImpl implements AudioAnalyzer {
 
       return dataArray
     } catch (error) {
-      console.error('Failed to get frequency data:', error)
+      logger.error('Failed to get frequency data:', error)
       return new Float32Array(0)
     }
   }
@@ -1496,7 +1497,7 @@ class AudioAnalyzerImpl implements AudioAnalyzer {
 
       return centroids
     } catch (error) {
-      console.error('Failed to get spectral centroid:', error)
+      logger.error('Failed to get spectral centroid:', error)
       return []
     }
   }
@@ -1536,7 +1537,7 @@ class AudioAnalyzerImpl implements AudioAnalyzer {
 
       return rolloffs
     } catch (error) {
-      console.error('Failed to get spectral rolloff:', error)
+      logger.error('Failed to get spectral rolloff:', error)
       return []
     }
   }

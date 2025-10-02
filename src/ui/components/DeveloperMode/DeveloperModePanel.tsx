@@ -12,6 +12,7 @@ import { SettingsPanel } from './SettingsPanel'
 import { LivePreview } from './LivePreview'
 import { SnippetManager } from './SnippetManager'
 import { SandboxManager } from '../../core/sandbox/SandboxManager'
+import { logger } from '@/core/logging/logger'
 
 interface DeveloperModePanelProps {
   isOpen: boolean
@@ -90,7 +91,7 @@ export const DeveloperModePanel: React.FC<DeveloperModePanelProps> = ({
         })
         setActiveSandbox(sandbox)
       } catch (error) {
-        console.error('Failed to initialize sandbox:', error)
+        logger.error('Failed to initialize sandbox:', error)
       }
     }
 
@@ -195,7 +196,7 @@ export const DeveloperModePanel: React.FC<DeveloperModePanelProps> = ({
             }
       )
     } catch (error) {
-      console.error('Failed to save snippet:', error)
+      logger.error('Failed to save snippet:', error)
     }
   }
 
@@ -210,7 +211,7 @@ export const DeveloperModePanel: React.FC<DeveloperModePanelProps> = ({
         editorRef.current?.focus()
       }
     } catch (error) {
-      console.error('Failed to load snippet:', error)
+      logger.error('Failed to load snippet:', error)
     }
   }
 

@@ -12,6 +12,7 @@ import {
   PluginSourceType,
 } from '@/types'
 import {
+import { logger } from '@/core/logging/logger'
   TemplateCategory,
   InterpolationMode,
   NodeType,
@@ -122,7 +123,7 @@ function getAnimatorAPI() {
         },
       }),
       addKeyframe: async (_trackId: string, _keyframe: any) => {
-        console.log('Mock addKeyframe called')
+        logger.info('Mock addKeyframe called')
       },
       createTrack: async (_name: string, _type: any, _targetPath?: string) => ({
         id: 'track_123',
@@ -322,7 +323,7 @@ export async function createTitleSequenceExample(): Promise<void> {
         },
       }),
       addKeyframe: async (_trackId: string, _keyframe: any) => {
-        console.log('Mock addKeyframe called')
+        logger.info('Mock addKeyframe called')
       },
     },
   }
@@ -334,7 +335,7 @@ export async function createTitleSequenceExample(): Promise<void> {
       category: TemplateCategory.TitleSequence,
     })
 
-    console.log(`Created document: ${document.name} (${document.id})`)
+    logger.info(`Created document: ${document.name} (${document.id})`)
 
     // Get the first scene (auto-created with template)
     const scene = document.scenes[0]
@@ -415,9 +416,9 @@ export async function createTitleSequenceExample(): Promise<void> {
     await api.timeline.addKeyframe(timeline.tracks[0].id, opacityKeyframes[0])
     await api.timeline.addKeyframe(timeline.tracks[0].id, opacityKeyframes[1])
 
-    console.log('Title sequence created successfully!')
+    logger.info('Title sequence created successfully!')
   } catch (error) {
-    console.error('Error creating title sequence:', error)
+    logger.error('Error creating title sequence:', error)
   }
 }
 
@@ -450,16 +451,16 @@ export async function collaborationExample(): Promise<void> {
       enableScreenShare: true,
     })
 
-    console.log(`Collaboration session started: ${session.id}`)
+    logger.info(`Collaboration session started: ${session.id}`)
 
     // Subscribe to document changes
     // TODO: Implement subscription cleanup
     // const unsubscribe = await api.collaboration.subscribeToChanges(
     //   session.id,
     //   (changes: any) => {
-    //     console.log('Document changes received:', changes.length)
+    //     logger.info('Document changes received:', changes.length)
     //     changes.forEach((change: any) => {
-    //       console.log(`- ${change.authorId} ${change.type} at ${change.path}`)
+    //       logger.info(`- ${change.authorId} ${change.type} at ${change.path}`)
     //     })
     //   }
     // )
@@ -484,7 +485,7 @@ export async function collaborationExample(): Promise<void> {
     })
 
     // Simulate Carol adding a comment
-    console.log(
+    logger.info(
       'Carol added a comment: "Love the color palette! Consider making it a bit brighter for better contrast."'
     )
 
@@ -492,7 +493,7 @@ export async function collaborationExample(): Promise<void> {
     // TODO: Implement unsubscribe functionality
     // _unsubscribe()
   } catch (error) {
-    console.error('Collaboration example failed:', error)
+    logger.error('Collaboration example failed:', error)
   }
 }
 
@@ -629,11 +630,11 @@ export async function advancedRenderingExample(): Promise<void> {
       cache: true,
     })
 
-    console.log(
+    logger.info(
       `Rendered ${renderResult.data.frames.length} frames in ${renderResult.data.duration}ms each`
     )
   } catch (error) {
-    console.error('Advanced rendering example failed:', error)
+    logger.error('Advanced rendering example failed:', error)
   }
 }
 
@@ -693,7 +694,7 @@ export async function pluginDevelopmentExample(): Promise<void> {
       url: 'https://example.com/plugins/glow-effect.js',
     })
 
-    console.log(`Plugin installed: ${plugin.name} v${plugin.version}`)
+    logger.info(`Plugin installed: ${plugin.name} v${plugin.version}`)
 
     // Use the plugin on selected nodes
     // TODO: Implement plugin execution with context
@@ -705,12 +706,12 @@ export async function pluginDevelopmentExample(): Promise<void> {
     // const result = await api.plugins.executePlugin(plugin.id, 'applyGlowEffect', context)
 
     // if (result.success) {
-    //   console.log('Glow effect applied successfully!')
+    //   logger.info('Glow effect applied successfully!')
     // } else {
-    //   console.error('Failed to apply glow effect:', result.result)
+    //   logger.error('Failed to apply glow effect:', result.result)
     // }
   } catch (error) {
-    console.error('Plugin development example failed:', error)
+    logger.error('Plugin development example failed:', error)
   }
 }
 
@@ -802,9 +803,9 @@ export async function audioReactiveExample(): Promise<void> {
     // TODO: Implement timeline play functionality
     // await api.timeline.play(timeline.id)
 
-    console.log('Audio-reactive animation started!')
+    logger.info('Audio-reactive animation started!')
   } catch (error) {
-    console.error('Audio-reactive example failed:', error)
+    logger.error('Audio-reactive example failed:', error)
   }
 }
 
@@ -846,7 +847,7 @@ export async function batchRenderingExample(): Promise<void> {
       }
     }
 
-    console.log(`Queued ${renderJobs.length} render jobs`)
+    logger.info(`Queued ${renderJobs.length} render jobs`)
 
     // Submit all render jobs
     const renderPromises = renderJobs.map(async (job) => {
@@ -884,21 +885,21 @@ export async function batchRenderingExample(): Promise<void> {
     const successful = results.filter((r) => r.success).length
     const failed = results.filter((r) => !r.success).length
 
-    console.log(
+    logger.info(
       `Render batch completed: ${successful} successful, ${failed} failed`
     )
 
     results.forEach((result) => {
       if (result.success) {
-        console.log(
+        logger.info(
           `✅ ${result.job.outputName}: ${result.frameCount} frames in ${result.duration}ms`
         )
       } else {
-        console.log(`❌ ${result.job.outputName}: ${result.error}`)
+        logger.info(`❌ ${result.job.outputName}: ${result.error}`)
       }
     })
   } catch (error) {
-    console.error('Batch rendering example failed:', error)
+    logger.error('Batch rendering example failed:', error)
   }
 }
 
@@ -928,7 +929,7 @@ export async function viewportExample(): Promise<void> {
   // })
 
   // TODO: Implement viewport logging
-  // console.log(`Created viewport: ${viewport.id}`)
+  // logger.info(`Created viewport: ${viewport.id}`)
 
   // Set up a scene for preview
   // TODO: Implement createDocument with proper configuration
@@ -1018,7 +1019,7 @@ export async function viewportExample(): Promise<void> {
   //   api.rendering.destroyViewport(viewport.id)
   // })
   // } catch (error) {
-  //   console.error('Viewport example failed:', error)
+  //   logger.error('Viewport example failed:', error)
   // }
 }
 
@@ -1031,10 +1032,10 @@ export async function performanceMonitoringExample(): Promise<void> {
   try {
     // TODO: Implement system capabilities and settings
     // const capabilities = await api.getCapabilities()
-    // console.log('System capabilities:', capabilities)
+    // logger.info('System capabilities:', capabilities)
 
     // const settings = await api.getSettings()
-    // console.log('Current settings:', settings)
+    // logger.info('Current settings:', settings)
 
     // Monitor rendering performance
     // TODO: Implement createDocument with proper configuration
@@ -1126,27 +1127,27 @@ export async function performanceMonitoringExample(): Promise<void> {
     const maxFrameTime = Math.max(...frameTimes)
     const fps = 1000 / avgFrameTime
 
-    console.log('Performance Results:')
-    console.log(`- Total render time: ${totalTime.toFixed(2)}ms`)
-    console.log(`- Average frame time: ${avgFrameTime.toFixed(2)}ms`)
-    console.log(`- Min frame time: ${minFrameTime.toFixed(2)}ms`)
-    console.log(`- Max frame time: ${maxFrameTime.toFixed(2)}ms`)
-    console.log(`- Average FPS: ${fps.toFixed(2)}`)
+    logger.info('Performance Results:')
+    logger.info(`- Total render time: ${totalTime.toFixed(2)}ms`)
+    logger.info(`- Average frame time: ${avgFrameTime.toFixed(2)}ms`)
+    logger.info(`- Min frame time: ${minFrameTime.toFixed(2)}ms`)
+    logger.info(`- Max frame time: ${maxFrameTime.toFixed(2)}ms`)
+    logger.info(`- Average FPS: ${fps.toFixed(2)}`)
 
     // Check if performance meets requirements
     if (fps >= 45) {
-      console.log('✅ Performance meets 45+ FPS requirement')
+      logger.info('✅ Performance meets 45+ FPS requirement')
     } else {
-      console.log('⚠️  Performance below 45 FPS threshold')
+      logger.info('⚠️  Performance below 45 FPS threshold')
     }
 
     if (avgFrameTime <= 22) {
-      console.log('✅ Frame times meet ≤22ms requirement')
+      logger.info('✅ Frame times meet ≤22ms requirement')
     } else {
-      console.log('⚠️  Frame times exceed 22ms threshold')
+      logger.info('⚠️  Frame times exceed 22ms threshold')
     }
   } catch (error) {
-    console.error('Performance monitoring example failed:', error)
+    logger.error('Performance monitoring example failed:', error)
   }
 }
 
@@ -1158,11 +1159,11 @@ export async function templateExample(): Promise<void> {
 
   // try {
   // List available templates
-  console.log('Available document templates:')
-  console.log('- Title Sequence: Professional opening titles')
-  console.log('- Explainer: Product demonstration animations')
-  console.log('- Social Media: Square format for social platforms')
-  console.log('- Presentation: Slide-based motion graphics')
+  logger.info('Available document templates:')
+  logger.info('- Title Sequence: Professional opening titles')
+  logger.info('- Explainer: Product demonstration animations')
+  logger.info('- Social Media: Square format for social platforms')
+  logger.info('- Presentation: Slide-based motion graphics')
 
   // Create document from template
   const document = await api.createDocument({
@@ -1170,7 +1171,7 @@ export async function templateExample(): Promise<void> {
     category: 'explainer',
   })
 
-  console.log(`Created document from template: ${document.name}`)
+  logger.info(`Created document from template: ${document.name}`)
 
   // The template automatically creates:
   // - A scene with appropriate duration and settings
@@ -1178,17 +1179,17 @@ export async function templateExample(): Promise<void> {
   // - A timeline with basic structure
 
   const scene = document.scenes[0]
-  console.log(`Template created scene: ${scene.name}`)
-  console.log(`Duration: ${scene.duration}ms`)
-  console.log(`Frame rate: ${scene.frameRate}fps`)
+  logger.info(`Template created scene: ${scene.name}`)
+  logger.info(`Duration: ${scene.duration}ms`)
+  logger.info(`Frame rate: ${scene.frameRate}fps`)
 
   // TODO: Implement scene graph children access
   // const nodes = await api.sceneGraph.getChildren(scene.rootNode)
-  // console.log(`Template includes ${nodes.length} initial nodes`)
+  // logger.info(`Template includes ${nodes.length} initial nodes`)
 
   // TODO: Implement node customization
   // for (const node of nodes) {
-  //   console.log(`- ${node.name} (${node.type})`)
+  //   logger.info(`- ${node.name} (${node.type})`)
 
   //   // Customize specific nodes
   //   if (node.name === 'Product Title') {
@@ -1212,9 +1213,9 @@ export async function templateExample(): Promise<void> {
 
   // TODO: Implement document saving
   // await api.saveDocument(document.id)
-  // console.log('Document saved with customizations')
+  // logger.info('Document saved with customizations')
   // } catch (error) {
-  //   console.error('Template example failed:', error)
+  //   logger.error('Template example failed:', error)
   // }
 }
 
@@ -1231,7 +1232,7 @@ export async function errorHandlingExample(): Promise<void> {
   // try {
   //   await api.sceneGraph.getNode('nonexistent-node-id')
   // } catch (error) {
-  //   console.log(
+  //   logger.info(
   //     '✅ Caught expected error for nonexistent node:',
   //     error.message
   //   )
@@ -1241,7 +1242,7 @@ export async function errorHandlingExample(): Promise<void> {
   // try {
   //   await api.rendering.renderFrame('invalid-scene', -1000) // Negative time
   // } catch (error) {
-  //   console.log('✅ Caught expected error for invalid render:', error.message)
+  //   logger.info('✅ Caught expected error for invalid render:', error.message)
   // }
 
   // TODO: Implement error handling for collaboration errors
@@ -1253,7 +1254,7 @@ export async function errorHandlingExample(): Promise<void> {
   //     permissions: ['edit'],
   //   })
   // } catch (error) {
-  //   console.log(
+  //   logger.info(
   //     '✅ Caught expected error for invalid session:',
   //     error.message
   //   )
@@ -1263,7 +1264,7 @@ export async function errorHandlingExample(): Promise<void> {
   // try {
   //   await api.plugins.executePlugin('nonexistent-plugin', 'someFunction', [])
   // } catch (error) {
-  //   console.log(
+  //   logger.info(
   //     '✅ Caught expected error for nonexistent plugin:',
   //     error.message
   //   )
@@ -1281,7 +1282,7 @@ export async function errorHandlingExample(): Promise<void> {
     invalidProperty: 'value',
   })
   // } catch (error) {
-  //   console.log('✅ Caught validation error:', (error as Error).message)
+  //   logger.info('✅ Caught validation error:', (error as Error).message)
 
   //   // TODO: Implement error recovery
   //   // const node = await api.sceneGraph.getNode('new-node')
@@ -1291,13 +1292,13 @@ export async function errorHandlingExample(): Promise<void> {
   //   //   fontSize: 24,
   //   //   color: { r: 0, g: 0, b: 0, a: 1 },
   //   // })
-  //   //   console.log('✅ Successfully recovered from error')
+  //   //   logger.info('✅ Successfully recovered from error')
   //   // }
   // }
 
-  console.log('Error handling demonstration completed')
+  logger.info('Error handling demonstration completed')
   // } catch (error) {
-  //   console.error('Error handling example failed:', error)
+  //   logger.error('Error handling example failed:', error)
   // }
 }
 
@@ -1305,41 +1306,41 @@ export async function errorHandlingExample(): Promise<void> {
  * Utility function to run all examples
  */
 export async function runAllExamples(): Promise<void> {
-  console.log('🚀 Running Animator API Examples...\n')
+  logger.info('🚀 Running Animator API Examples...\n')
 
   try {
     await createTitleSequenceExample()
-    console.log('\n' + '='.repeat(50) + '\n')
+    logger.info('\n' + '='.repeat(50) + '\n')
 
     await collaborationExample()
-    console.log('\n' + '='.repeat(50) + '\n')
+    logger.info('\n' + '='.repeat(50) + '\n')
 
     await advancedRenderingExample()
-    console.log('\n' + '='.repeat(50) + '\n')
+    logger.info('\n' + '='.repeat(50) + '\n')
 
     await pluginDevelopmentExample()
-    console.log('\n' + '='.repeat(50) + '\n')
+    logger.info('\n' + '='.repeat(50) + '\n')
 
     await audioReactiveExample()
-    console.log('\n' + '='.repeat(50) + '\n')
+    logger.info('\n' + '='.repeat(50) + '\n')
 
     await batchRenderingExample()
-    console.log('\n' + '='.repeat(50) + '\n')
+    logger.info('\n' + '='.repeat(50) + '\n')
 
     await viewportExample()
-    console.log('\n' + '='.repeat(50) + '\n')
+    logger.info('\n' + '='.repeat(50) + '\n')
 
     await performanceMonitoringExample()
-    console.log('\n' + '='.repeat(50) + '\n')
+    logger.info('\n' + '='.repeat(50) + '\n')
 
     await templateExample()
-    console.log('\n' + '='.repeat(50) + '\n')
+    logger.info('\n' + '='.repeat(50) + '\n')
 
     await errorHandlingExample()
 
-    console.log('\n🎉 All examples completed successfully!')
+    logger.info('\n🎉 All examples completed successfully!')
   } catch (error) {
-    console.error('Failed to run examples:', error)
+    logger.error('Failed to run examples:', error)
   }
 }
 

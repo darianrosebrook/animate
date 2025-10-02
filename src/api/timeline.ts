@@ -206,6 +206,7 @@ export enum ExtrapolationMode {
 
 // Use BlendMode from effects module instead of defining our own
 import { BlendMode } from '../types/effects'
+import { logger } from '@/core/logging/logger'
 
 export { BlendMode }
 
@@ -780,7 +781,7 @@ export class TimelineManager implements TimelineAPI {
     }
 
     // Basic playback implementation - in production would handle audio sync
-    console.log(`Playing timeline ${timelineId}`)
+    logger.info(`Playing timeline ${timelineId}`)
     return { success: true, data: undefined }
   }
 
@@ -790,7 +791,7 @@ export class TimelineManager implements TimelineAPI {
       return { success: false, error: 'TIMELINE_NOT_FOUND' }
     }
 
-    console.log(`Pausing timeline ${timelineId}`)
+    logger.info(`Pausing timeline ${timelineId}`)
     return { success: true, data: undefined }
   }
 
@@ -800,7 +801,7 @@ export class TimelineManager implements TimelineAPI {
       return { success: false, error: 'TIMELINE_NOT_FOUND' }
     }
 
-    console.log(`Stopping timeline ${timelineId}`)
+    logger.info(`Stopping timeline ${timelineId}`)
     return { success: true, data: undefined }
   }
 
@@ -818,7 +819,7 @@ export class TimelineManager implements TimelineAPI {
       return { success: false, error: 'INVALID_TIME' }
     }
 
-    console.log(`Seeking timeline ${timelineId} to ${time}`)
+    logger.info(`Seeking timeline ${timelineId} to ${time}`)
     return { success: true, data: undefined }
   }
 
@@ -1020,7 +1021,7 @@ export class TimelineManager implements TimelineAPI {
         const keyframe = track.keyframes.find((k) => k.time === time)
         if (keyframe) {
           // Note: Keyframe interface may need to be extended to include easing
-          console.log(`Setting easing for keyframe at ${time}`)
+          logger.info(`Setting easing for keyframe at ${time}`)
           return { success: true, data: undefined }
         }
         return { success: false, error: 'KEYFRAME_NOT_FOUND' }
@@ -1325,9 +1326,9 @@ export class TimelineManager implements TimelineAPI {
     _callback: (changes: TimelineChange[]) => void
   ): Promise<UnsubscribeFn> {
     // Basic subscription implementation - in production would use proper event system
-    console.log(`Subscribed to timeline changes for ${timelineId}`)
+    logger.info(`Subscribed to timeline changes for ${timelineId}`)
     return () => {
-      console.log(`Unsubscribed from timeline changes for ${timelineId}`)
+      logger.info(`Unsubscribed from timeline changes for ${timelineId}`)
     }
   }
 
@@ -1336,9 +1337,9 @@ export class TimelineManager implements TimelineAPI {
     _callback: (state: PlaybackState) => void
   ): Promise<UnsubscribeFn> {
     // Basic subscription implementation - in production would use proper event system
-    console.log(`Subscribed to playback changes for ${timelineId}`)
+    logger.info(`Subscribed to playback changes for ${timelineId}`)
     return () => {
-      console.log(`Unsubscribed from playback changes for ${timelineId}`)
+      logger.info(`Unsubscribed from playback changes for ${timelineId}`)
     }
   }
 
@@ -1347,9 +1348,9 @@ export class TimelineManager implements TimelineAPI {
     _callback: (changes: KeyframeChange[]) => void
   ): Promise<UnsubscribeFn> {
     // Basic subscription implementation - in production would use proper event system
-    console.log(`Subscribed to keyframe changes for ${trackId}`)
+    logger.info(`Subscribed to keyframe changes for ${trackId}`)
     return () => {
-      console.log(`Unsubscribed from keyframe changes for ${trackId}`)
+      logger.info(`Unsubscribed from keyframe changes for ${trackId}`)
     }
   }
 

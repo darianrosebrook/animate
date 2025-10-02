@@ -17,6 +17,7 @@ import { ColorPickerPopover } from './popovers/ColorPickerPopover'
 import { GradientEditorPopover } from './popovers/GradientEditorPopover'
 import { CurveEditorPopover } from './popovers/CurveEditorPopover'
 import './ContextPane.css'
+import { logger } from '@/core/logging/logger'
 
 export interface ContextPaneProps {
   mode: UIMode
@@ -278,7 +279,7 @@ export function ContextPane({
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onQuickAction={(action: string) => {
-          console.log(`Quick action: ${action}`)
+          logger.info(`Quick action: ${action}`)
         }}
       />
 

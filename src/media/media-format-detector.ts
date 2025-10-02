@@ -5,6 +5,7 @@
 
 import { Result } from '@/types'
 import {
+import { logger } from '@/core/logging/logger'
   MediaFormatDetector as IMediaFormatDetector,
   MediaType,
   MediaMetadata,
@@ -253,7 +254,7 @@ export class MediaFormatDetector implements IMediaFormatDetector {
     try {
       const videoDecoder = new VideoDecoder({
         output: () => {}, // We just need metadata
-        error: (error) => console.error('VideoDecoder error:', error),
+        error: (error) => logger.error('VideoDecoder error:', error),
       })
 
       const detectedCodec = await this.detectVideoCodec(file)

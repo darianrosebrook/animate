@@ -4,6 +4,7 @@
  */
 
 import { WebGPUContext } from '../webgpu-context'
+import { logger } from '@/core/logging/logger'
 
 /**
  * Base effect shader interface
@@ -790,7 +791,7 @@ export class EffectShaderManager {
 
       return result
     } catch (error) {
-      console.error(`Failed to compile shader for effect ${effectName}:`, error)
+      logger.error(`Failed to compile shader for effect ${effectName}:`, error)
       return null
     }
   }

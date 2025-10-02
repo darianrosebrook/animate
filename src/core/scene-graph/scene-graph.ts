@@ -505,7 +505,13 @@ export class SceneGraph {
   /**
    * Evaluate Bezier curve timing function
    */
-  private bezierInterpolation(t: number, p1x: number, p1y: number, p2x: number, p2y: number): number {
+  private bezierInterpolation(
+    t: number,
+    p1x: number,
+    p1y: number,
+    p2x: number,
+    p2y: number
+  ): number {
     // Full cubic Bezier curve evaluation for timing functions
     // B(t) = (1-t)^3*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)*t^2*P2 + t^3*P3
     // Where P0 = (0,0), P3 = (1,1), P1 = (p1x, p1y), P2 = (p2x, p2y)
