@@ -54,7 +54,7 @@ export const CodeEditor = forwardRef<any, CodeEditorProps>(
 
         try {
           // Dynamically import Monaco Editor
-          const monaco = await import('monaco-editor')
+          const monaco = await import('monaco-editor' as any)
 
           // Configure Monaco for Animator API
           monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
@@ -112,7 +112,7 @@ export const CodeEditor = forwardRef<any, CodeEditorProps>(
 
           monacoRef.current = monaco
         } catch (error) {
-          logger.error('Failed to initialize Monaco Editor:', error)
+          logger.error('Failed to initialize Monaco Editor:', error as Error)
           // Fallback to simple textarea
           renderFallbackEditor()
         }

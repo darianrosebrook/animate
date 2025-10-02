@@ -15,8 +15,8 @@ interface GradientEditorPopoverProps {
 
 export function GradientEditorPopover({
   target,
-  _initialGradient,
-  _onGradientChange,
+  initialGradient: _initialGradient,
+  onGradientChange: _onGradientChange,
   onClose,
 }: GradientEditorPopoverProps) {
   return (

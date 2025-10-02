@@ -753,9 +753,7 @@ export class EffectShaderManager {
   /**
    * Get compiled shader modules for an effect
    */
-  async getShaderModules(
-    effectName: string
-  ): Promise<{
+  async getShaderModules(effectName: string): Promise<{
     vertexModule: GPUShaderModule
     fragmentModule: GPUShaderModule
   } | null> {
@@ -791,7 +789,10 @@ export class EffectShaderManager {
 
       return result
     } catch (error) {
-      logger.error(`Failed to compile shader for effect ${effectName}:`, error as Error)
+      logger.error(
+        `Failed to compile shader for effect ${effectName}:`,
+        error as Error
+      )
       return null
     }
   }

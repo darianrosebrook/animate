@@ -75,7 +75,10 @@ export class Renderer {
     const fontData = this.createDefaultFontData() // Placeholder font data
     const textResult = await this.textRenderer.initialize(fontData)
     if (!textResult.success) {
-      logger.warn('Text renderer initialization failed:', textResult.error as any)
+      logger.warn(
+        'Text renderer initialization failed:',
+        textResult.error as any
+      )
       this.textRenderer = null
     }
 
@@ -83,7 +86,10 @@ export class Renderer {
     this.imageRenderer = new ImageRenderer(this.webgpuContext)
     const imageResult = await this.imageRenderer.initialize()
     if (!imageResult.success) {
-      logger.warn('Image renderer initialization failed:', imageResult.error as any)
+      logger.warn(
+        'Image renderer initialization failed:',
+        imageResult.error as any
+      )
       this.imageRenderer = null
     }
 
@@ -91,7 +97,10 @@ export class Renderer {
     this.pathRenderer = new SVGPathRenderer(this.webgpuContext)
     const pathResult = await this.pathRenderer.initialize()
     if (!pathResult.success) {
-      logger.warn('Path renderer initialization failed:', pathResult.error as any)
+      logger.warn(
+        'Path renderer initialization failed:',
+        pathResult.error as any
+      )
       this.pathRenderer = null
     }
 
@@ -99,7 +108,10 @@ export class Renderer {
     this.batchRenderer = new BatchRenderer(this.webgpuContext)
     const batchResult = await this.batchRenderer.initialize()
     if (!batchResult.success) {
-      logger.warn('Batch renderer initialization failed:', batchResult.error as any)
+      logger.warn(
+        'Batch renderer initialization failed:',
+        batchResult.error as any
+      )
       this.batchRenderer = null
     }
 
@@ -471,7 +483,10 @@ export class Renderer {
         context
       )
       if (!renderResult.success) {
-        logger.warn(`Failed to render node ${node.id}:`, renderResult.error as any)
+        logger.warn(
+          `Failed to render node ${node.id}:`,
+          renderResult.error as any
+        )
       }
     }
   }

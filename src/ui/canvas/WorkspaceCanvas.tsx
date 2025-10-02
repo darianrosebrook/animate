@@ -54,9 +54,9 @@ export function WorkspaceCanvas({
   }, [])
 
   // Zoom state
-  const [zoom, setZoom] = useState(1)
+  const [zoom, setLocalZoom] = useState(1)
   const _handleZoom = useCallback((delta: number) => {
-    setZoom((z) => Math.max(0.05, Math.min(8, z * (1 + delta))))
+    setLocalZoom((z) => Math.max(0.05, Math.min(8, z * (1 + delta))))
   }, [])
 
   const content = useMemo(() => {
@@ -66,7 +66,7 @@ export function WorkspaceCanvas({
           project={project}
           overlays={overlays}
           zoom={zoom}
-          onZoom={setZoom}
+          onZoom={setZoom || setLocalZoom}
           onSceneReorder={onSceneReorder}
           onSceneUpdate={onSceneUpdate}
         />
@@ -81,7 +81,7 @@ export function WorkspaceCanvas({
         activeTool={activeTool}
         overlays={overlays}
         zoom={zoom}
-        onZoom={setZoom}
+        onZoom={setZoom || setLocalZoom}
         onLayerSelect={onLayerSelect}
         onLayerUpdate={onLayerUpdate}
         onSelectionChange={onSelectionChange}

@@ -3,6 +3,7 @@ import { Settings, Info, Download } from 'lucide-react'
 import './App.css'
 import { SceneGraph } from '@/core/scene-graph'
 import { Renderer } from '@/core/renderer'
+import type { SceneNode, KeyboardShortcut } from '@/types'
 import { useMode } from '@/ui/hooks/use-mode'
 import { LeftPanel } from '@/ui/components/LeftPanel/LeftPanel'
 import { WorkspaceCanvas } from '@/ui/canvas/WorkspaceCanvas'
@@ -44,6 +45,13 @@ function App() {
   const [activeToolId, setActiveToolId] = useState<string | null>('select')
   const [selectedLayers, setSelectedLayers] = useState<string[]>([])
   const [canvasSelection, setCanvasSelection] = useState<Set<string>>(new Set())
+  const [overlays, setOverlays] = useState({
+    grid: false,
+    guides: false,
+    outlines: false,
+    rulers: false,
+    safeZones: false,
+  })
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
@@ -53,11 +61,9 @@ function App() {
   const {
     project,
     currentScene,
-    selectedLayers,
     setViewMode,
     setCurrentScene,
     addScene,
-    setSelectedLayers,
     addLayer,
     updateLayer,
   } = useMode()
@@ -79,23 +85,34 @@ function App() {
   // Calculate union bounds for multiple nodes
   const calculateUnionBounds = (nodes: SceneNode[]) => {
     if (nodes.length === 0) return null
-    
+
     let minX = Infinity
     let minY = Infinity
     let maxX = -Infinity
     let maxY = -Infinity
-    
+
     for (const node of nodes) {
-      const transform = node.transform
-      if (transform) {
-        minX = Math.min(minX, transform.position.x)
-        minY = Math.min(minY, transform.position.y)
-        maxX = Math.max(maxX, transform.position.x + (transform.scale?.x || 1) * 100)
-        maxY = Math.max(maxY, transform.position.y + (transform.scale?.y || 1) * 100)
+      const transform = node.properties?.transform as any
+      if (transform && transform.position) {
+        minX = Math.min(minX, transform.position.x || 0)
+        minY = Math.min(minY, transform.position.y || 0)
+        maxX = Math.max(
+          maxX,
+          (transform.position.x || 0) + (transform.scale?.x || 1) * 100
+        )
+        maxY = Math.max(
+          maxY,
+          (transform.position.y || 0) + (transform.scale?.y || 1) * 100
+        )
       }
     }
-    
-    return { minX, minY, maxX, maxY }
+
+    return { 
+      x: minX, 
+      y: minY, 
+      width: maxX - minX, 
+      height: maxY - minY 
+    }
   }
 
   // Handle zoom to fit from layers panel
@@ -276,7 +293,7 @@ function App() {
         handlePlayPause()
         break
       default:
-        logger.info('Keyboard shortcut:', shortcut.description)
+        logger.info('Keyboard shortcut:', shortcut.description as any)
     }
   })
 
@@ -322,7 +339,7 @@ function App() {
     )
   }
 
-  const handleSceneUpdate = (_sceneId: string, _updates: any) => {
+  const handleSceneUpdate = (_updates: any) => {
     // PLACEHOLDER: Scene update logic - requires proper type definitions and scene management
     throw new Error(
       'PLACEHOLDER: Scene update not implemented - requires proper type definitions for updates parameter'
@@ -342,7 +359,6 @@ function App() {
       'PLACEHOLDER: Scene reordering not implemented - requires project state management and scene array updates'
     )
   }
-
 
   const handleExportStart = (_settings: any) => {
     // PLACEHOLDER: Export start logic - requires proper type definitions and export system integration
@@ -408,7 +424,7 @@ function App() {
           <LeftPanel
             project={project}
             currentScene={currentScene}
-            selectedLayers={selectedLayers}
+            selectedLayers={currentScene?.layers.filter(layer => selectedLayers.includes(layer.id)) || []}
             viewMode={project.viewMode}
             mode={project.mode}
             onViewModeChange={setViewMode}
@@ -453,7 +469,7 @@ function App() {
               <WorkspaceCanvas
                 project={project}
                 currentScene={currentScene}
-                selectedLayers={selectedLayers}
+                selectedLayers={currentScene?.layers.filter(layer => selectedLayers.includes(layer.id)) || []}
                 activeTool={activeToolId ? (activeToolId as any) : null}
                 onLayerSelect={setSelectedLayers}
                 onLayerUpdate={handleLayerUpdate}
@@ -482,7 +498,7 @@ function App() {
           <ContextPane
             mode={project.mode}
             currentScene={currentScene}
-            selectedLayers={selectedLayers}
+            selectedLayers={currentScene?.layers.filter(layer => selectedLayers.includes(layer.id)) || []}
             onLayerUpdate={handleLayerUpdate}
             onSceneUpdate={handleSceneUpdate}
           />

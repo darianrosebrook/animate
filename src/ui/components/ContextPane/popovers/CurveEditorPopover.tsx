@@ -15,8 +15,8 @@ interface CurveEditorPopoverProps {
 
 export function CurveEditorPopover({
   target,
-  _initialCurve,
-  _onCurveChange,
+  initialCurve: _initialCurve,
+  onCurveChange: _onCurveChange,
   onClose,
 }: CurveEditorPopoverProps) {
   return (
