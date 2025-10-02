@@ -50,47 +50,45 @@ acceptance:
     then: "API calls execute correctly with proper type safety and error handling"
 non_functional:
   a11y:
-    - "export progress accessible to screen readers"
-    - "layer management operations keyboard accessible"
-    - "asset workflow tools support keyboard navigation"
-    - "effect parameter controls properly labeled for accessibility"
+    - "plugin marketplace accessible to screen readers"
+    - "plugin development tools support keyboard navigation"
+    - "plugin UI components follow accessibility guidelines"
+    - "plugin error messages clearly communicated to users"
   perf:
     api_p95_ms: 100
     lcp_ms: 2000
-    export_encoding_fps: 30
+    plugin_load_time_ms: 500
   security:
-    - "export file validation prevents malicious content"
-    - "asset upload sanitization and virus scanning"
-    - "layer data validation prevents injection attacks"
-    - "shader code validation for GPU security"
+    - "plugin sandbox prevents DOM access and XSS attacks"
+    - "plugin code scanning prevents malicious payloads"
+    - "plugin API access controlled by granular permissions"
+    - "plugin marketplace validates all submissions"
 contracts:
   - type: openapi
-    path: "apps/contracts/scene-graph-api.yaml#/layers/management"
+    path: "apps/contracts/plugin-api.yaml#/sandbox/communication"
   - type: openapi
-    path: "apps/contracts/export-api.yaml#/formats/encoding"
+    path: "apps/contracts/plugin-marketplace-api.yaml#/discovery/distribution"
   - type: openapi
-    path: "apps/contracts/effects-api.yaml#/advanced/distortions"
-  - type: openapi
-    path: "apps/contracts/library-api.yaml#/workflows/batch"
+    path: "apps/contracts/plugin-sdk-api.yaml#/development/tools"
 observability:
   logs:
-    - "export_system.performance_metrics"
-    - "effects_system.render_times"
-    - "layer_management.operation_durations"
-    - "asset_workflow.audit_events"
+    - "plugin_system.sandbox_events"
+    - "plugin_system.api_calls"
+    - "plugin_system.security_events"
+    - "plugin_marketplace.operations"
   metrics:
-    - "export_success_rate"
-    - "effects_performance_score"
-    - "layer_operation_throughput"
-    - "asset_search_response_time"
+    - "plugin_load_success_rate"
+    - "plugin_api_performance"
+    - "plugin_security_incidents"
+    - "marketplace_plugin_downloads"
   traces:
-    - "export_encoding_span"
-    - "effect_rendering_span"
-    - "layer_compositing_span"
-    - "asset_operation_span"
+    - "plugin_initialization_span"
+    - "plugin_api_call_span"
+    - "plugin_sandbox_execution_span"
+    - "marketplace_operation_span"
 migrations: []
 rollback:
-  - "feature flags for all new systems"
-  - "export format fallback to software encoding"
-  - "layer management graceful degradation"
-  - "asset workflow compatibility mode"
+  - "plugin system feature flags for gradual rollout"
+  - "plugin sandbox fallback to disabled state"
+  - "plugin marketplace graceful degradation to local-only mode"
+  - "plugin API compatibility mode for older plugins"
