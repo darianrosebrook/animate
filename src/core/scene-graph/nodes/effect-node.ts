@@ -81,7 +81,10 @@ export class EffectNode implements IEffectNode {
       }
 
       // Update parameters
-      this.parameters = { ...this.parameters, ...newParameters as EffectParameters }
+      this.parameters = {
+        ...this.parameters,
+        ...(newParameters as EffectParameters),
+      }
       this.updatedAt = Date.now()
       this.updateCacheKey()
 
@@ -138,7 +141,8 @@ export class EffectNode implements IEffectNode {
       case EffectType.LEVELS:
         if (
           (parameters as any).inputBlack !== undefined &&
-          ((parameters as any).inputBlack < 0 || (parameters as any).inputBlack > 255)
+          ((parameters as any).inputBlack < 0 ||
+            (parameters as any).inputBlack > 255)
         ) {
           return {
             success: false,
@@ -150,7 +154,8 @@ export class EffectNode implements IEffectNode {
         }
         if (
           (parameters as any).inputWhite !== undefined &&
-          ((parameters as any).inputWhite < 0 || (parameters as any).inputWhite > 255)
+          ((parameters as any).inputWhite < 0 ||
+            (parameters as any).inputWhite > 255)
         ) {
           return {
             success: false,

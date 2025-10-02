@@ -544,7 +544,10 @@ export class KeyboardShortcutsManager {
         this.importConfiguration(config)
       }
     } catch (error) {
-      logger.warn('Failed to load keyboard shortcuts configuration:', error as any)
+      logger.warn(
+        'Failed to load keyboard shortcuts configuration:',
+        error as any
+      )
     }
   }
 
@@ -556,7 +559,10 @@ export class KeyboardShortcutsManager {
       const config = this.exportConfiguration()
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config))
     } catch (error) {
-      logger.warn('Failed to save keyboard shortcuts configuration:', error as any)
+      logger.warn(
+        'Failed to save keyboard shortcuts configuration:',
+        error as any
+      )
     }
   }
 

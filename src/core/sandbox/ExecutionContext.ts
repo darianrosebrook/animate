@@ -325,7 +325,7 @@ class ApiProxy {
     // Create proxy for each available API
     this.availableApis.forEach((apiName) => {
       if (this.permissions.includes(apiName)) {
-        (proxy as any)[apiName] = this.createApiProxy(apiName)
+        ;(proxy as any)[apiName] = this.createApiProxy(apiName)
       }
     })
 
