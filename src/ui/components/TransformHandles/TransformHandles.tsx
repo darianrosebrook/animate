@@ -66,7 +66,9 @@ export function TransformHandles({
       className={`transform-handle ${type} ${position} ${focusedHandle === `${type} ${position}` ? 'focused' : ''}`}
       style={style}
       onMouseDown={(e) => onHandleMouseDown(e, `${type} ${position}`)}
-      onKeyDown={onKeyDown ? (e) => onKeyDown(e, `${type} ${position}`) : undefined}
+      onKeyDown={
+        onKeyDown ? (e) => onKeyDown(e, `${type} ${position}`) : undefined
+      }
       role="button"
       tabIndex={0}
       aria-label={ariaLabel}
@@ -91,21 +93,61 @@ export function TransformHandles({
     >
       {/* Hidden description for screen readers */}
       <div id="transform-handles-description" className="sr-only">
-        Use transform handles to resize or scale selected elements. 
-        Press arrow keys to adjust, Enter to confirm, Escape to cancel.
+        Use transform handles to resize or scale selected elements. Press arrow
+        keys to adjust, Enter to confirm, Escape to cancel.
       </div>
 
       {/* Corner handles */}
-      {createHandle('corner', 'top-left', { left: -4, top: -4 }, 'Top-left corner handle: Scale from top-left')}
-      {createHandle('corner', 'top-right', { right: -4, top: -4 }, 'Top-right corner handle: Scale from top-right')}
-      {createHandle('corner', 'bottom-left', { left: -4, bottom: -4 }, 'Bottom-left corner handle: Scale from bottom-left')}
-      {createHandle('corner', 'bottom-right', { right: -4, bottom: -4 }, 'Bottom-right corner handle: Scale from bottom-right')}
+      {createHandle(
+        'corner',
+        'top-left',
+        { left: -4, top: -4 },
+        'Top-left corner handle: Scale from top-left'
+      )}
+      {createHandle(
+        'corner',
+        'top-right',
+        { right: -4, top: -4 },
+        'Top-right corner handle: Scale from top-right'
+      )}
+      {createHandle(
+        'corner',
+        'bottom-left',
+        { left: -4, bottom: -4 },
+        'Bottom-left corner handle: Scale from bottom-left'
+      )}
+      {createHandle(
+        'corner',
+        'bottom-right',
+        { right: -4, bottom: -4 },
+        'Bottom-right corner handle: Scale from bottom-right'
+      )}
 
       {/* Edge handles */}
-      {createHandle('edge', 'top', { left: '50%', top: -4, transform: 'translateX(-50%)' }, 'Top edge handle: Resize vertically from top')}
-      {createHandle('edge', 'bottom', { left: '50%', bottom: -4, transform: 'translateX(-50%)' }, 'Bottom edge handle: Resize vertically from bottom')}
-      {createHandle('edge', 'left', { left: -4, top: '50%', transform: 'translateY(-50%)' }, 'Left edge handle: Resize horizontally from left')}
-      {createHandle('edge', 'right', { right: -4, top: '50%', transform: 'translateY(-50%)' }, 'Right edge handle: Resize horizontally from right')}
+      {createHandle(
+        'edge',
+        'top',
+        { left: '50%', top: -4, transform: 'translateX(-50%)' },
+        'Top edge handle: Resize vertically from top'
+      )}
+      {createHandle(
+        'edge',
+        'bottom',
+        { left: '50%', bottom: -4, transform: 'translateX(-50%)' },
+        'Bottom edge handle: Resize vertically from bottom'
+      )}
+      {createHandle(
+        'edge',
+        'left',
+        { left: -4, top: '50%', transform: 'translateY(-50%)' },
+        'Left edge handle: Resize horizontally from left'
+      )}
+      {createHandle(
+        'edge',
+        'right',
+        { right: -4, top: '50%', transform: 'translateY(-50%)' },
+        'Right edge handle: Resize horizontally from right'
+      )}
     </div>
   )
 }
