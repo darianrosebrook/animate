@@ -5,7 +5,7 @@
  */
 
 import { Result, Time } from '../types'
-import { logger } from '../core/logging/logger'
+// import { logger } from '../core/logging/logger' // Temporarily commented out to fix hanging issue
 
 /**
  * Performance metrics for an effect
@@ -240,8 +240,8 @@ export class EffectsPerformanceMonitor {
       metric === 'renderTime'
         ? 'ms'
         : metric === 'memoryUsage' || metric === 'gpuMemoryUsage'
-        ? 'MB'
-        : ''
+          ? 'MB'
+          : ''
     const formattedActual =
       metric === 'renderTime'
         ? actualValue.toFixed(2)
@@ -269,7 +269,9 @@ export class EffectsPerformanceMonitor {
       }
     }
 
-    const renderTimes = effectMetrics.map((m) => m.renderTime).sort((a, b) => a - b)
+    const renderTimes = effectMetrics
+      .map((m) => m.renderTime)
+      .sort((a, b) => a - b)
     const memoryUsages = effectMetrics.map((m) => m.memoryUsage)
     const gpuMemoryUsages = effectMetrics.map((m) => m.gpuMemoryUsage)
 
@@ -320,7 +322,9 @@ export class EffectsPerformanceMonitor {
       }
     }
 
-    const renderTimes = allMetrics.map((m) => m.renderTime).sort((a, b) => a - b)
+    const renderTimes = allMetrics
+      .map((m) => m.renderTime)
+      .sort((a, b) => a - b)
     const memoryUsages = allMetrics.map((m) => m.memoryUsage)
     const gpuMemoryUsages = allMetrics.map((m) => m.gpuMemoryUsage)
 
@@ -382,7 +386,7 @@ export class EffectsPerformanceMonitor {
    */
   updateBudget(budget: Partial<EffectPerformanceBudget>): void {
     this.budget = { ...this.budget, ...budget }
-    logger.info('Performance budget updated', budget)
+    // logger.info('Performance budget updated', budget)
   }
 
   /**
@@ -397,7 +401,7 @@ export class EffectsPerformanceMonitor {
    */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
-    logger.info(`Performance monitoring ${enabled ? 'enabled' : 'disabled'}`)
+    // logger.info(`Performance monitoring ${enabled ? 'enabled' : 'disabled'}`)
   }
 
   /**
@@ -461,7 +465,15 @@ GPU Memory Usage:
   Budget: ${(budget.maxGpuMemoryUsage / (1024 * 1024)).toFixed(2)}MB
   Status: ${stats.peakGpuMemoryUsage <= budget.maxGpuMemoryUsage ? '✅ PASSING' : '❌ FAILING'}
 
-Recent Alerts: ${this.alerts.slice(-5).length > 0 ? '\n' + this.alerts.slice(-5).map((a) => `  ${a.type.toUpperCase()}: ${a.message}`).join('\n') : 'None'}
+Recent Alerts: ${
+      this.alerts.slice(-5).length > 0
+        ? '\n' +
+          this.alerts
+            .slice(-5)
+            .map((a) => `  ${a.type.toUpperCase()}: ${a.message}`)
+            .join('\n')
+        : 'None'
+    }
 `
 
     return report
@@ -479,4 +491,3 @@ export function createDefaultPerformanceMonitor(): EffectsPerformanceMonitor {
     warningThreshold: 0.8, // 80%
   })
 }
-

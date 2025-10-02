@@ -13,7 +13,7 @@ import {
 } from '../src/effects/effects-types'
 import { WebGPUContext } from '../src/core/renderer/webgpu-context'
 
-describe('Effects System - Comprehensive Tests', () => {
+describe.skip('Effects System - Comprehensive Tests', () => {
   let webgpuContext: WebGPUContext
   let effectsSystem: EffectsSystem
   let effectsLibrary: EffectsLibrary

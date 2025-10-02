@@ -12,7 +12,7 @@ import {
   BlendMode,
 } from '../types/effects'
 import { WebGPUContext } from '../core/renderer/webgpu-context'
-import { logger } from '../core/logging/logger'
+// import { logger } from '../core/logging/logger' // Temporarily commented out to fix hanging issue
 
 /**
  * Color correction uniforms structure
@@ -136,7 +136,7 @@ export class ColorCorrectionEffectRenderer {
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
       })
 
-      logger.info('✅ Color correction effect initialized successfully')
+      // logger.info('✅ Color correction effect initialized successfully')
       return { success: true, data: true }
     } catch (error) {
       return {
@@ -681,4 +681,3 @@ export function validateColorCorrectionParameters(
 
   return { success: true, data: params as any }
 }
-

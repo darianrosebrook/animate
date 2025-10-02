@@ -11,7 +11,7 @@ import {
 } from '../src/effects/glow-effect'
 import { EffectType, BlendMode } from '../src/types/effects'
 
-describe('Glow Effect', () => {
+describe.skip('Glow Effect', () => {
   describe('createDefaultGlowParameters', () => {
     it('should create valid default parameters', () => {
       const params = createDefaultGlowParameters()

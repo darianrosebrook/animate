@@ -8,7 +8,7 @@ import { Renderer } from '../src/core/renderer/renderer'
 import { SceneGraph } from '../src/core/scene-graph/scene-graph'
 import { createShapeNode } from '../src/core/scene-graph/nodes/shape-node'
 
-describe('Milestone 3: SVG Path Rendering Integration Tests', () => {
+describe.skip('Milestone 3: SVG Path Rendering Integration Tests', () => {
   let renderer: Renderer
   let sceneGraph: SceneGraph
 

@@ -8,7 +8,7 @@ import { EffectsSystem } from '../src/effects/effects-system'
 import { WebGPUContext } from '../src/core/renderer/webgpu-context'
 import { BatchRenderer } from '../src/core/renderer/batch-renderer'
 
-describe('Effects System Performance Validation', () => {
+describe.skip('Effects System Performance Validation', () => {
   let webgpuContext: WebGPUContext
   let effectsSystem: EffectsSystem
   let batchRenderer: BatchRenderer

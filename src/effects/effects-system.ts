@@ -21,7 +21,7 @@ import {
   BlendMode,
 } from './effects-types'
 import { EffectsLibrary } from './effects-library'
-import { logger } from '@/core/logging/logger'
+// import { logger } from '@/core/logging/logger' // Temporarily commented out to fix hanging issue
 
 /**
  * Core effects system implementation with GPU acceleration

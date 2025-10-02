@@ -21,6 +21,8 @@ export interface UseCanvasPanZoomOptions {
 }
 
 export interface UseCanvasPanZoomReturn {
+  zoom: number
+  pan: { x: number; y: number }
   isPanningRef: React.MutableRefObject<boolean>
   lastPosRef: React.MutableRefObject<{ x: number; y: number }>
   handleHandToolDown: (e: React.MouseEvent) => void
@@ -141,6 +143,8 @@ export function useCanvasPanZoom({
   )
 
   return {
+    zoom,
+    pan,
     isPanningRef,
     lastPosRef,
     handleHandToolDown,

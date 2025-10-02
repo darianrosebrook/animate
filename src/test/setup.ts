@@ -13,16 +13,8 @@ beforeAll(() => {
     value: {
       requestAdapter: async () => ({
         requestDevice: async () => ({
-          createBuffer: () => ({
-            destroy: () => {},
-            mapAsync: async () => {},
-            getMappedRange: () => new ArrayBuffer(0),
-            unmap: () => {},
-          }),
-          createTexture: () => ({
-            createView: () => ({}),
-            destroy: () => {},
-          }),
+          createBuffer: () => ({ destroy: () => {} }),
+          createTexture: () => ({ createView: () => ({}), destroy: () => {} }),
           createRenderPipeline: () => ({}),
           createCommandEncoder: () => ({
             beginRenderPass: () => ({
@@ -34,10 +26,7 @@ beforeAll(() => {
             finish: () => ({}),
           }),
           createShaderModule: () => ({}),
-          queue: {
-            submit: () => {},
-            writeBuffer: () => {},
-          },
+          queue: { submit: () => {}, writeBuffer: () => {} },
           destroy: () => {},
         }),
       }),

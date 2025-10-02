@@ -4,8 +4,8 @@
  */
 
 import { Result, Time } from '@/types'
-import {
 import { logger } from '@/core/logging/logger'
+import {
   Timeline as ITimeline,
   TimelineTrack,
   Keyframe,

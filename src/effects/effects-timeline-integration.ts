@@ -22,7 +22,7 @@ import {
   CurvesParameters,
 } from '../types/effects'
 import { EffectsSystem } from './effects-system'
-import { logger } from '../core/logging/logger'
+// import { logger } from '../core/logging/logger' // Temporarily commented out to fix hanging issue
 
 /**
  * Effect parameter animation track
@@ -663,4 +663,3 @@ export function createDefaultEffectTracks(
     }
   }
 }
-

@@ -1,4 +1,4 @@
-import { logger } from '@/core/logging/logger'
+// Note: This file implements the logger, no imports needed
 /**
  * @fileoverview Centralized Logging System
  * @description Professional logging utility with levels, formatting, and performance monitoring
@@ -249,17 +249,17 @@ export class Logger {
 
     switch (entry.level) {
       case LogLevel.DEBUG:
-        logger.debug(message)
+        console.debug(message)
         break
       case LogLevel.INFO:
-        logger.info(message)
+        console.info(message)
         break
       case LogLevel.WARN:
-        logger.warn(message)
+        console.warn(message)
         break
       case LogLevel.ERROR:
       case LogLevel.FATAL:
-        logger.error(message)
+        console.error(message)
         break
     }
   }
