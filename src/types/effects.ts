@@ -14,6 +14,7 @@ export enum EffectType {
   MOTION_BLUR = 'motion_blur',
   RADIAL_BLUR = 'radial_blur',
   BOX_BLUR = 'box_blur',
+  GLOW = 'glow',
 
   // Color Correction Effects (Tier 1)
   BRIGHTNESS_CONTRAST = 'brightness_contrast',
@@ -139,6 +140,18 @@ export interface RadialBlurParameters extends BaseEffectParameters {
 export interface BoxBlurParameters extends BaseEffectParameters {
   radius: number // Blur radius (1-50)
   iterations?: number // Number of blur passes (1-5)
+}
+
+/**
+ * Glow effect parameters
+ */
+export interface GlowParameters extends BaseEffectParameters {
+  intensity: number // Glow intensity (0.0 - 2.0)
+  radius: number // Glow radius (1 - 100 pixels)
+  color: { r: number; g: number; b: number } // RGB color tint (0-255)
+  quality: 'low' | 'medium' | 'high' | 'ultra' // Shader quality preset (1-4)
+  threshold?: number // Brightness threshold for glow (0-255)
+  innerGlow?: boolean // Apply glow to inside of shape
 }
 
 /**
@@ -475,6 +488,7 @@ export type EffectParameters =
   | MotionBlurParameters
   | RadialBlurParameters
   | BoxBlurParameters
+  | GlowParameters
   | BrightnessContrastParameters
   | LevelsParameters
   | CurvesParameters

@@ -1,49 +1,55 @@
-id: ANIM-002
-title: "Optimize Batch Renderer and Add Bisect Tool for High-Performance Motion Graphics Development"
+id: EFFECTS-001
+title: "Implement GPU-Accelerated Effects System with Real-time Performance"
 risk_tier: 2
 mode: feature
 change_budget:
-  max_files: 15
-  max_loc: 600
+  max_files: 25
+  max_loc: 1500
 blast_radius:
-  modules: ["renderer", "testing"]
+  modules: ["effects", "renderer", "timeline", "gpu"]
   data_migration: false
 operational_rollback_slo: "15m"
 threats:
-  - "GPU optimizations could introduce platform-specific bugs"
-  - "Bisect tool might slow CI if not optimized"
+  - "GPU shader compilation could fail on different hardware"
+  - "Effect performance regression could impact timeline playback"
+  - "Memory leaks in GPU resources during effect composition"
 scope:
-  in: ["batch renderer performance enhancements", "memory pooling", "bisect tool", "flag testing"]
-  out: ["new effects features", "major UI overhauls"]
+  in: ["effect node architecture", "GPU shader framework", "core visual effects (glow, blur, color correction)", "timeline integration", "real-time preview"]
+  out: ["advanced particle effects", "3D effects", "custom shader editor", "effect marketplace"]
 invariants:
-  - "Maintain 60fps timeline interactions"
-  - "Preserve deterministic rendering across GPU vendors"
-  - "Ensure bisect tool doesn't affect production builds"
+  - "Effects maintain deterministic output across all supported GPUs"
+  - "Real-time effect preview updates within 16ms response time"
+  - "Effect parameters preserve alpha channel and layer blending modes"
+  - "Performance impact ≤5% on existing compositions with similar effects"
 acceptance:
   - id: A1
-    given: "complex scene with 1000+ renderables"
-    when: "render frame with batch optimizations"
-    then: "frame time <16ms, memory usage reduced by 20%"
+    given: "composition with 50+ layers including text, shapes, and media"
+    when: "apply glow effect with intensity=0.8, radius=20, color=#FF6B35"
+    then: "glow renders correctly in real-time preview; exported ProRes matches preview within ΔE < 1.0"
   - id: A2
-    given: "Git repository with regression"
-    when: "run bisect tool"
-    then: "identifies bad commit within 5 runs"
+    given: "glow effect applied to layer with alpha transparency"
+    when: "scrub timeline at 60fps"
+    then: "smooth playback without frame drops; alpha compositing preserved"
   - id: A3
-    given: "feature flag changes"
-    when: "run tests with flags on/off"
-    then: "catches 80% of regressions"
+    given: "glow effect with extreme parameters (radius=100, intensity=2.0)"
+    when: "render at 4K resolution"
+    then: "graceful fallback to software rendering if GPU memory insufficient"
+  - id: A4
+    given: "multiple effects applied to same layer (glow + blur + color correction)"
+    when: "adjust effect parameters in real-time"
+    then: "all effects compose correctly; performance maintains 60fps"
 non_functional:
-  a11y: ["no UI changes"]
-  perf: { frame_time_ms: 16, memory_mb: 256 }
-  security: ["no new dependencies or attack surfaces"]
+  a11y: ["effect parameters support keyboard navigation", "screen reader announcements for effect changes", "reduced motion support for motion effects"]
+  perf: { render_thread_ms: 8, memory_mb: 256, gpu_memory_mb: 512 }
+  security: ["shader inputs sanitized", "GPU memory bounds checked", "no resource leaks in effect lifecycle"]
 contracts:
   - type: openapi
-    path: "apps/contracts/scene-graph-api.yaml#/rendering/performance"
+    path: "apps/contracts/scene-graph-api.yaml#/effects/glow"
   - type: openapi
-    path: "apps/contracts/timeline-api.yaml#/testing/bisect"
+    path: "apps/contracts/timeline-api.yaml#/preview-updates"
 observability:
-  logs: ["batch_renderer.optimize_memory", "bisect_tool.run"]
-  metrics: ["renderer_memory_efficiency", "bisect_accuracy_rate"]
-  traces: ["gpu_pipeline_spans", "git_operation_traces"]
+  logs: ["glow_effect.render_time", "glow_effect.parameter_change", "glow_effect.gpu_memory_usage"]
+  metrics: ["glow_effect_success_rate", "glow_effect_avg_render_time", "glow_effect_memory_peak"]
+  traces: ["glow_effect span with layer_id, parameters, render_context"]
 migrations: []
-rollback: ["feature flags for renderer features; remove bisect script if needed"]
+rollback: ["feature flag kill-switch; shader cache invalidation; parameter reset to defaults"]
